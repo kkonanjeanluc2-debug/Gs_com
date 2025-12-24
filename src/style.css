@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-secondary font-sans antialiased;
+    margin: 0;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  #app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-blue-700 active:scale-95 shadow-md;
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary border-2 border-primary px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-blue-50 active:scale-95;
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-red-600 active:scale-95;
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6 transition-shadow duration-200 hover:shadow-xl;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition-colors;
+    min-height: 48px;
+  }
+
+  .textarea-field {
+    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition-colors resize-y;
+    min-height: 96px;
+  }
+
+  .label {
+    @apply block text-sm font-semibold text-secondary mb-2;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
