@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import type { Profile } from '../services/supabase';
 import { authService } from '../services/auth';
+import { ordersService } from '../services/orders.service';
 import DashboardView from './DashboardView.vue';
 import ReportForm from './ReportForm.vue';
 import ReportList from './ReportList.vue';
@@ -32,6 +33,7 @@ const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
 const editingReport = ref<ReportDB | null>(null);
 const mobileMenuOpen = ref(false);
+const pendingOrdersCount = ref(0);
 
 const canManageStock = computed(() => {
   return ['admin', 'superviseur'].includes(props.profile.role);
@@ -470,6 +472,19 @@ const selectTab = (tabId: any) => {
   mobileMenuOpen.value = false;
 };
 
+const loadPendingOrdersCount = async () => {
+  try {
+    const orders = await ordersService.getOrders();
+    pendingOrdersCount.value = orders.filter(order => order.status === 'pending').length;
+  } catch (error) {
+    console.error('Error loading pending orders count:', error);
+  }
+};
+
+onMounted(() => {
+  loadPendingOrdersCount();
+});
+
 loadReports();
 </script>
 
@@ -508,13 +523,19 @@ loadReports();
             :key="tab.id"
             @click="activeTab = tab.id as any"
             :class="[
-              'px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap',
+              'px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap relative',
               activeTab === tab.id
                 ? 'bg-white text-primary'
                 : 'bg-blue-700 text-white hover:bg-blue-800'
             ]"
           >
             {{ tab.icon }} {{ tab.label }}
+            <span
+              v-if="tab.id === 'orders' && pendingOrdersCount > 0"
+              class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full"
+            >
+              {{ pendingOrdersCount }}
+            </span>
           </button>
         </div>
       </div>
@@ -548,13 +569,19 @@ loadReports();
             :key="tab.id"
             @click="selectTab(tab.id)"
             :class="[
-              'w-full text-left px-4 py-3 rounded-lg font-medium transition-all mb-1',
+              'w-full text-left px-4 py-3 rounded-lg font-medium transition-all mb-1 flex items-center justify-between',
               activeTab === tab.id
                 ? 'bg-blue-50 text-primary'
                 : 'text-gray-700 hover:bg-gray-100'
             ]"
           >
-            {{ tab.icon }} {{ tab.label }}
+            <span>{{ tab.icon }} {{ tab.label }}</span>
+            <span
+              v-if="tab.id === 'orders' && pendingOrdersCount > 0"
+              class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full"
+            >
+              {{ pendingOrdersCount }}
+            </span>
           </button>
           <div class="border-t border-gray-200 my-2"></div>
           <button
