@@ -86,12 +86,14 @@ export class AnalyticsService {
       .from('orders')
       .select('total_amount')
       .eq('company_id', company_id)
+      .eq('status', 'livree')
       .gte('created_at', currentMonthStart);
 
     const { data: lastMonthOrders } = await supabase
       .from('orders')
       .select('total_amount')
       .eq('company_id', company_id)
+      .eq('status', 'livree')
       .gte('created_at', lastMonthStart)
       .lte('created_at', lastMonthEnd);
 
@@ -135,6 +137,7 @@ export class AnalyticsService {
         commercial:profiles!orders_commercial_id_fkey(id, full_name, email, photo_url)
       `)
       .eq('company_id', company_id)
+      .eq('status', 'livree')
       .not('commercial_id', 'is', null);
 
     if (error) throw error;
@@ -175,7 +178,8 @@ export class AnalyticsService {
         product_id,
         quantity,
         subtotal,
-        product:products!order_items_product_id_fkey(id, name, sku, image_url)
+        product:products!order_items_product_id_fkey(id, name, sku, image_url),
+        order:orders!order_items_order_id_fkey(status)
       `)
       .eq('company_id', company_id);
 
@@ -184,7 +188,7 @@ export class AnalyticsService {
     const productsMap = new Map<string, TopProduct>();
 
     data?.forEach((item: any) => {
-      if (!item.product) return;
+      if (!item.product || !item.order || item.order.status !== 'livree') return;
 
       const id = item.product.id;
       if (!productsMap.has(id)) {
@@ -218,7 +222,8 @@ export class AnalyticsService {
         total_amount,
         client:clients!orders_client_id_fkey(id, name, email, phone, type)
       `)
-      .eq('company_id', company_id);
+      .eq('company_id', company_id)
+      .eq('status', 'livree');
 
     if (error) throw error;
 
@@ -324,6 +329,7 @@ export class AnalyticsService {
       .from('orders')
       .select('created_at, total_amount')
       .eq('company_id', company_id)
+      .eq('status', 'livree')
       .gte('created_at', startDate.toISOString())
       .lte('created_at', endDate.toISOString())
       .order('created_at', { ascending: true });
@@ -373,6 +379,7 @@ export class AnalyticsService {
       .from('orders')
       .select('commercial_id, total_amount')
       .eq('company_id', company_id)
+      .eq('status', 'livree')
       .gte('created_at', currentMonthStart)
       .not('commercial_id', 'is', null);
 
@@ -414,6 +421,7 @@ export class AnalyticsService {
       .from('orders')
       .select('total_amount')
       .eq('company_id', company_id)
+      .eq('status', 'livree')
       .gte('created_at', todayStart)
       .lte('created_at', todayEnd);
 
