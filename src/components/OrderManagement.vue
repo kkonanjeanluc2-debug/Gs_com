@@ -50,7 +50,7 @@
               >
                 <option value="">Sélectionner un produit</option>
                 <option v-for="product in products" :key="product.id" :value="product.id">
-                  {{ product.name }} - {{ product.price }}€
+                  {{ product.name }} - {{ product.price }} F CFA
                 </option>
               </select>
 
@@ -83,7 +83,7 @@
             </div>
 
             <div class="mt-4 text-right">
-              <span class="text-lg font-semibold">Total: {{ calculateTotal() }}€</span>
+              <span class="text-lg font-semibold">Total: {{ calculateTotal() }} F CFA</span>
             </div>
           </div>
 
@@ -145,7 +145,7 @@
               <div v-if="order.client?.type" class="text-xs text-gray-500">{{ order.client.type === 'client' ? 'Client' : 'Prospect' }}</div>
             </td>
             <td class="px-4 md:px-6 py-4 text-sm whitespace-nowrap">{{ order.commercial?.full_name }}</td>
-            <td class="px-4 md:px-6 py-4 whitespace-nowrap font-semibold text-sm">{{ order.total_amount }}€</td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap font-semibold text-sm">{{ order.total_amount }} F CFA</td>
             <td class="px-4 md:px-6 py-4 whitespace-nowrap">
               <select
                 :value="order.status"
@@ -198,7 +198,16 @@
             <p class="text-sm">{{ selectedOrder.client?.name }}</p>
             <p v-if="selectedOrder.client?.type" class="text-sm text-gray-600">{{ selectedOrder.client.type === 'client' ? 'Client' : 'Prospect' }}</p>
             <p v-if="selectedOrder.client?.email" class="text-sm text-gray-600">{{ selectedOrder.client.email }}</p>
-            <p v-if="selectedOrder.client?.phone" class="text-sm text-gray-600">{{ selectedOrder.client.phone }}</p>
+            <div v-if="selectedOrder.client?.phone" class="flex items-center gap-2 mt-1">
+              <p class="text-sm text-gray-600">{{ selectedOrder.client.phone }}</p>
+              <button
+                @click="openWhatsApp(selectedOrder.client.phone)"
+                class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs font-medium"
+                title="Contacter sur WhatsApp"
+              >
+                WhatsApp
+              </button>
+            </div>
             <p v-if="selectedOrder.client?.address" class="text-sm text-gray-600">{{ selectedOrder.client.address }}</p>
           </div>
           <div>
@@ -224,14 +233,14 @@
               <tr v-for="item in selectedOrder.order_items" :key="item.id" class="border-t">
                 <td class="px-4 py-2">{{ item.product?.name }}</td>
                 <td class="px-4 py-2 text-center">{{ item.quantity }}</td>
-                <td class="px-4 py-2 text-right">{{ item.unit_price }}€</td>
-                <td class="px-4 py-2 text-right font-semibold">{{ item.subtotal }}€</td>
+                <td class="px-4 py-2 text-right">{{ item.unit_price }} F CFA</td>
+                <td class="px-4 py-2 text-right font-semibold">{{ item.subtotal }} F CFA</td>
               </tr>
             </tbody>
             <tfoot class="border-t-2">
               <tr>
                 <td colspan="3" class="px-4 py-2 text-right font-semibold">Total:</td>
-                <td class="px-4 py-2 text-right font-bold text-lg">{{ selectedOrder.total_amount }}€</td>
+                <td class="px-4 py-2 text-right font-bold text-lg">{{ selectedOrder.total_amount }} F CFA</td>
               </tr>
             </tfoot>
           </table>
@@ -512,15 +521,15 @@ const printOrder = (order: Order) => {
             <tr>
               <td>${item.product?.name}</td>
               <td class="text-center">${item.quantity}</td>
-              <td class="text-right">${item.unit_price}€</td>
-              <td class="text-right">${item.subtotal}€</td>
+              <td class="text-right">${item.unit_price} F CFA</td>
+              <td class="text-right">${item.subtotal} F CFA</td>
             </tr>
           `).join('')}
         </tbody>
         <tfoot>
           <tr class="total-row">
             <td colspan="3" class="text-right">TOTAL</td>
-            <td class="text-right">${order.total_amount}€</td>
+            <td class="text-right">${order.total_amount} F CFA</td>
           </tr>
         </tfoot>
       </table>
@@ -572,6 +581,17 @@ const getStatusLabel = (status: string) => {
     cancelled: 'Annulée',
   };
   return labels[status as keyof typeof labels] || status;
+};
+
+const openWhatsApp = (phone: string) => {
+  if (!phone) {
+    alert('Aucun numéro de téléphone disponible');
+    return;
+  }
+
+  const cleanPhone = phone.replace(/\s+/g, '');
+  const url = `https://wa.me/${cleanPhone}`;
+  window.open(url, '_blank');
 };
 
 onMounted(() => {

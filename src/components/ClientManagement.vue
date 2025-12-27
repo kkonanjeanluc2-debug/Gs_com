@@ -141,6 +141,17 @@ const getStatusLabel = (status: string) => {
     default: return status;
   }
 };
+
+const openWhatsApp = (phone: string) => {
+  if (!phone) {
+    alert('Aucun numéro de téléphone disponible');
+    return;
+  }
+
+  const cleanPhone = phone.replace(/\s+/g, '');
+  const url = `https://wa.me/${cleanPhone}`;
+  window.open(url, '_blank');
+};
 </script>
 
 <template>
@@ -219,8 +230,8 @@ const getStatusLabel = (status: string) => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="label">Téléphone</label>
-            <input v-model="formData.phone" type="tel" class="input-field" />
+            <label class="label">Téléphone WhatsApp</label>
+            <input v-model="formData.phone" type="tel" class="input-field" placeholder="+225xxxxxxxxxx" />
           </div>
           <div>
             <label class="label">Type</label>
@@ -281,7 +292,16 @@ const getStatusLabel = (status: string) => {
 
         <div class="space-y-2 text-sm text-gray-600 mb-3">
           <p v-if="client.email">📧 {{ client.email }}</p>
-          <p v-if="client.phone">📱 {{ client.phone }}</p>
+          <div v-if="client.phone" class="flex items-center gap-2">
+            <p>📱 {{ client.phone }}</p>
+            <button
+              @click="openWhatsApp(client.phone)"
+              class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs font-medium"
+              title="Contacter sur WhatsApp"
+            >
+              WhatsApp
+            </button>
+          </div>
           <p v-if="client.address">📍 {{ client.address }}</p>
           <p v-if="client.notes" class="text-xs">💬 {{ client.notes }}</p>
         </div>

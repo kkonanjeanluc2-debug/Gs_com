@@ -84,9 +84,9 @@
               v-model="formData.phone"
               type="tel"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="+243 XX XXX XXXX"
+              placeholder="+225xxxxxxxxxx"
             />
-            <p class="text-xs text-gray-500 mt-1">Format international (ex: +243XXXXXXXXX)</p>
+            <p class="text-xs text-gray-500 mt-1">Format international (ex: +225xxxxxxxxxx)</p>
           </div>
 
           <div v-if="error" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg">

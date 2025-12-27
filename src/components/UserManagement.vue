@@ -324,12 +324,12 @@ const getRoleColor = (role: string) => {
             </p>
           </div>
           <div>
-            <label class="label">Téléphone</label>
+            <label class="label">Téléphone WhatsApp</label>
             <input
               v-model="formData.phone"
               type="tel"
               class="input-field"
-              placeholder="+225 XX XX XX XX XX"
+              placeholder="+225xxxxxxxxxx"
             />
           </div>
         </div>
