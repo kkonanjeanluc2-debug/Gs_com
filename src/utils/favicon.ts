@@ -11,8 +11,8 @@ export const updateFavicon = async () => {
       }
     }
 
-    if (settings?.company_name) {
-      document.title = settings.company_name;
+    if (settings?.name) {
+      document.title = settings.name;
     }
   } catch (error) {
     console.error('Error updating favicon:', error);

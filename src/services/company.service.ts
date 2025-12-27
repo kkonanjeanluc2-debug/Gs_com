@@ -1,8 +1,8 @@
-import { supabase } from './supabase';
+import { supabase, getCurrentUserCompanyId } from './supabase';
 
 export interface CompanySettings {
   id?: string;
-  company_name: string;
+  name: string;
   email?: string;
   phone?: string;
   address?: string;
@@ -17,10 +17,12 @@ export interface CompanySettings {
 
 export const companyService = {
   async getSettings(): Promise<CompanySettings | null> {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
-      .from('company_settings')
+      .from('companies')
       .select('*')
-      .limit(1)
+      .eq('id', companyId)
       .maybeSingle();
 
     if (error) throw error;
@@ -28,36 +30,23 @@ export const companyService = {
   },
 
   async updateSettings(settings: Partial<CompanySettings>): Promise<CompanySettings> {
-    const current = await this.getSettings();
-
-    if (!current) {
-      const { data, error } = await supabase
-        .from('company_settings')
-        .insert({
-          company_name: settings.company_name || 'Mon Entreprise',
-          email: settings.email,
-          phone: settings.phone,
-          address: settings.address,
-          logo_url: settings.logo_url,
-          website: settings.website,
-          tax_id: settings.tax_id,
-          rccm: settings.rccm,
-          ncc: settings.ncc,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
+    const companyId = await getCurrentUserCompanyId();
 
     const { data, error } = await supabase
-      .from('company_settings')
+      .from('companies')
       .update({
-        ...settings,
+        name: settings.name,
+        email: settings.email,
+        phone: settings.phone,
+        address: settings.address,
+        logo_url: settings.logo_url,
+        website: settings.website,
+        tax_id: settings.tax_id,
+        rccm: settings.rccm,
+        ncc: settings.ncc,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', current.id)
+      .eq('id', companyId)
       .select()
       .single();
 

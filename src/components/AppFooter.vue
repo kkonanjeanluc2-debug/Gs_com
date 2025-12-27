@@ -33,7 +33,7 @@ onMounted(() => {
     <div class="container mx-auto px-4">
       <div v-if="companySettings" class="max-w-4xl mx-auto">
         <div class="text-center mb-8">
-          <h3 class="text-2xl font-bold mb-2">{{ companySettings.company_name }}</h3>
+          <h3 class="text-2xl font-bold mb-2">{{ companySettings.name }}</h3>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -107,7 +107,7 @@ onMounted(() => {
 
         <div class="border-t border-white border-opacity-20 pt-6 text-center">
           <p class="text-sm text-blue-100">
-            © {{ new Date().getFullYear() }} {{ companySettings.company_name }}. Tous droits réservés.
+            © {{ new Date().getFullYear() }} {{ companySettings.name }}. Tous droits réservés.
           </p>
         </div>
       </div>

@@ -51,7 +51,7 @@
               Nom de l'entreprise *
             </label>
             <input
-              v-model="formData.company_name"
+              v-model="formData.name"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -178,7 +178,7 @@ const selectedFile = ref<File | null>(null);
 const previewUrl = ref('');
 
 const formData = ref<CompanySettings>({
-  company_name: '',
+  name: '',
   email: '',
   phone: '',
   address: '',

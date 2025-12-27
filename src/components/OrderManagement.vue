@@ -484,7 +484,7 @@ const printOrder = (order: Order) => {
         ${company ? `
           <div class="company-info">
             ${company.logo_url ? `<img src="${company.logo_url}" alt="Logo" class="company-logo" />` : ''}
-            <div class="company-name">${company.company_name}</div>
+            <div class="company-name">${company.name}</div>
             ${company.address ? `<p>${company.address.replace(/\n/g, '<br>')}</p>` : ''}
           </div>
         ` : ''}
