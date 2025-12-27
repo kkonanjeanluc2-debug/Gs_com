@@ -161,7 +161,7 @@ onMounted(() => {
 
         <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-green-100 text-sm font-medium">Commandes</span>
+            <span class="text-green-100 text-sm font-medium">Ventes</span>
             <span class="text-2xl">🛒</span>
           </div>
           <div class="text-3xl font-bold mb-1">{{ stats.totalOrders }}</div>
