@@ -81,6 +81,13 @@ const handleLogin = async () => {
           {{ loading ? 'Connexion...' : 'Se connecter' }}
         </button>
       </form>
+
+      <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600">
+          Vous n'avez pas encore de compte ?
+          <a href="#/register" class="text-primary font-medium hover:underline">Créer mon entreprise</a>
+        </p>
+      </div>
     </div>
   </div>
 </template>

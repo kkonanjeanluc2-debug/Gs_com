@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import LoginForm from './components/LoginForm.vue';
+import CompanyRegistration from './components/CompanyRegistration.vue';
 import Dashboard from './components/Dashboard.vue';
 import { authService } from './services/auth';
 import { updateFavicon } from './utils/favicon';
@@ -9,9 +10,22 @@ import type { Profile } from './services/supabase';
 const loading = ref(true);
 const isAuthenticated = ref(false);
 const currentProfile = ref<Profile | null>(null);
+const currentRoute = ref('login');
+
+const updateRoute = () => {
+  const hash = window.location.hash.slice(1);
+  if (hash === '/register') {
+    currentRoute.value = 'register';
+  } else {
+    currentRoute.value = 'login';
+  }
+};
 
 onMounted(async () => {
   updateFavicon();
+  updateRoute();
+
+  window.addEventListener('hashchange', updateRoute);
 
   try {
     const profile = await authService.getCurrentProfile();
@@ -64,6 +78,8 @@ const handleLogout = () => {
       <p class="text-xl text-gray-600">Chargement...</p>
     </div>
   </div>
+
+  <CompanyRegistration v-else-if="!isAuthenticated && currentRoute === 'register'" />
 
   <LoginForm
     v-else-if="!isAuthenticated"
