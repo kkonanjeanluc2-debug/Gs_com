@@ -51,20 +51,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { data: existingCompany } = await supabase
-      .from('companies')
-      .select('id')
-      .eq('email', companyEmail)
-      .maybeSingle();
+    if (companyEmail) {
+      const { data: existingCompany } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('email', companyEmail)
+        .maybeSingle();
 
-    if (existingCompany) {
-      return new Response(
-        JSON.stringify({ error: 'Cette adresse email est déjà utilisée par une autre entreprise' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      if (existingCompany) {
+        return new Response(
+          JSON.stringify({ error: 'Cette adresse email est déjà utilisée par une autre entreprise' }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
     }
 
     const { data: company, error: companyError } = await supabase
@@ -83,7 +85,7 @@ Deno.serve(async (req: Request) => {
     if (companyError || !company) {
       console.error('Error creating company:', companyError);
       return new Response(
-        JSON.stringify({ error: 'Erreur lors de la création de l\'entreprise' }),
+        JSON.stringify({ error: 'Erreur lors de la création de l\'entreprise: ' + (companyError?.message || 'Erreur inconnue') }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -98,14 +100,15 @@ Deno.serve(async (req: Request) => {
       user_metadata: {
         full_name: adminName,
         role: 'admin',
+        company_id: company.id,
       },
     });
 
     if (authError || !authData.user) {
-      await supabase.from('companies').delete().eq('id', company.id);
       console.error('Error creating admin user:', authError);
+      await supabase.from('companies').delete().eq('id', company.id);
       return new Response(
-        JSON.stringify({ error: 'Erreur lors de la création de l\'utilisateur administrateur' }),
+        JSON.stringify({ error: 'Erreur lors de la création de l\'utilisateur: ' + (authError?.message || 'Erreur inconnue') }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -127,7 +130,7 @@ Deno.serve(async (req: Request) => {
       await supabase.auth.admin.deleteUser(authData.user.id);
       await supabase.from('companies').delete().eq('id', company.id);
       return new Response(
-        JSON.stringify({ error: 'Erreur lors de la configuration du profil' }),
+        JSON.stringify({ error: 'Erreur lors de la configuration du profil: ' + (profileError?.message || 'Erreur inconnue') }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -153,7 +156,7 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error('Unexpected error:', error);
     return new Response(
-      JSON.stringify({ error: 'Erreur inattendue lors de l\'inscription' }),
+      JSON.stringify({ error: 'Erreur inattendue: ' + (error?.message || 'Erreur inconnue') }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
