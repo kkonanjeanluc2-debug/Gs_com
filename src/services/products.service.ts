@@ -37,10 +37,13 @@ export class ProductsService {
   }
 
   async getProduct(id: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .eq('id', id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) throw error;
@@ -48,9 +51,12 @@ export class ProductsService {
   }
 
   async getAllProducts() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
+      .eq('company_id', companyId)
       .order('name', { ascending: true });
 
     if (error) throw error;
@@ -58,9 +64,12 @@ export class ProductsService {
   }
 
   async getLowStockProducts() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
+      .eq('company_id', companyId)
       .filter('stock_quantity', 'lte', 'min_stock')
       .order('stock_quantity', { ascending: true });
 
@@ -109,9 +118,12 @@ export class ProductsService {
   }
 
   async getStockMovements(productId?: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     let query = supabase
       .from('stock_movements')
       .select('*')
+      .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
     if (productId) {

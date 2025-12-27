@@ -35,10 +35,13 @@ export class ReportsService {
   }
 
   async getReport(id: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('reports')
       .select('*')
       .eq('id', id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) throw error;
@@ -46,12 +49,15 @@ export class ReportsService {
   }
 
   async getAllReports() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('reports')
       .select(`
         *,
         commercial:profiles(full_name, email, phone)
       `)
+      .eq('company_id', companyId)
       .order('date', { ascending: false });
 
     if (error) throw error;
@@ -59,6 +65,8 @@ export class ReportsService {
   }
 
   async getMyReports(userId: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('reports')
       .select(`
@@ -66,6 +74,7 @@ export class ReportsService {
         commercial:profiles(full_name, email, phone)
       `)
       .eq('user_id', userId)
+      .eq('company_id', companyId)
       .order('date', { ascending: false });
 
     if (error) throw error;
@@ -73,12 +82,15 @@ export class ReportsService {
   }
 
   async getReportsByDateRange(startDate: string, endDate: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('reports')
       .select(`
         *,
         commercial:profiles(full_name, email, phone)
       `)
+      .eq('company_id', companyId)
       .gte('date', startDate)
       .lte('date', endDate)
       .order('date', { ascending: false });

@@ -50,6 +50,8 @@ export interface CreateOrderData {
 
 export const ordersService = {
   async getOrders() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('orders')
       .select(`
@@ -61,6 +63,7 @@ export const ordersService = {
           product:products(name, sku)
         )
       `)
+      .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -68,6 +71,8 @@ export const ordersService = {
   },
 
   async getOrderById(id: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('orders')
       .select(`
@@ -80,6 +85,7 @@ export const ordersService = {
         )
       `)
       .eq('id', id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) throw error;

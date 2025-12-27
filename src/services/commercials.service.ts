@@ -127,10 +127,13 @@ export const commercialsService = {
   },
 
   async getCommercialClients(commercialId: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
       .eq('assigned_to', commercialId)
+      .eq('company_id', companyId)
       .order('name');
 
     if (error) throw error;

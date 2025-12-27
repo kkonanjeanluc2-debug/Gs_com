@@ -52,10 +52,13 @@ export class CategoriesService {
   }
 
   async getCategory(id: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('categories')
       .select('*')
       .eq('id', id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) throw error;
@@ -63,9 +66,12 @@ export class CategoriesService {
   }
 
   async getAllCategories() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('categories')
       .select('*')
+      .eq('company_id', companyId)
       .order('name', { ascending: true });
 
     if (error) throw error;
@@ -106,10 +112,13 @@ export class CategoriesService {
   }
 
   async getSubcategory(id: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('subcategories')
       .select('*')
       .eq('id', id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) throw error;
@@ -117,10 +126,13 @@ export class CategoriesService {
   }
 
   async getSubcategoriesByCategory(categoryId: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('subcategories')
       .select('*')
       .eq('category_id', categoryId)
+      .eq('company_id', companyId)
       .order('name', { ascending: true });
 
     if (error) throw error;
@@ -128,9 +140,12 @@ export class CategoriesService {
   }
 
   async getAllSubcategories() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('subcategories')
       .select('*')
+      .eq('company_id', companyId)
       .order('name', { ascending: true });
 
     if (error) throw error;

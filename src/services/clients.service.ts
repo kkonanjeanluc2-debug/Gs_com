@@ -37,10 +37,13 @@ export class ClientsService {
   }
 
   async getClient(id: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
       .eq('id', id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) throw error;
@@ -48,9 +51,12 @@ export class ClientsService {
   }
 
   async getAllClients() {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
+      .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -58,10 +64,13 @@ export class ClientsService {
   }
 
   async getMyClients(userId: string) {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
       .eq('assigned_to', userId)
+      .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -69,10 +78,13 @@ export class ClientsService {
   }
 
   async getClientsByType(type: 'prospect' | 'client') {
+    const companyId = await getCurrentUserCompanyId();
+
     const { data, error } = await supabase
       .from('clients')
       .select('*')
       .eq('type', type)
+      .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
