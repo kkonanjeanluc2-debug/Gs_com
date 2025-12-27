@@ -11,7 +11,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
     "uuid": "^13.0.0",
-    "vue": "^3.4.38"
+    "vue": "^3.4.38",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.3",

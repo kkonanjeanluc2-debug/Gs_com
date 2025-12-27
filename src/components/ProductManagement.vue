@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { productsService } from '../services/products.service';
 import { categoriesService, type Category, type Subcategory } from '../services/categories.service';
 import { imageUploadService } from '../services/image-upload.service';
+import { productImportService } from '../services/product-import.service';
 import type { Product } from '../services/supabase';
 
 const products = ref<Product[]>([]);
@@ -14,6 +15,9 @@ const editingProduct = ref<Product | null>(null);
 const uploading = ref(false);
 const selectedImageFile = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
+const importing = ref(false);
+const showImportDialog = ref(false);
+const importFileInput = ref<HTMLInputElement | null>(null);
 
 const formData = ref({
   name: '',
@@ -192,17 +196,142 @@ const handleDelete = async (product: Product) => {
     alert('Erreur lors de la suppression');
   }
 };
+
+const downloadTemplate = () => {
+  productImportService.generateTemplate();
+};
+
+const openImportDialog = () => {
+  showImportDialog.value = true;
+};
+
+const closeImportDialog = () => {
+  showImportDialog.value = false;
+};
+
+const handleImportFile = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (!file) return;
+
+  const validation = productImportService.validateFile(file);
+  if (!validation.valid) {
+    alert(validation.error);
+    target.value = '';
+    return;
+  }
+
+  if (!confirm(`Importer les produits depuis "${file.name}" ?`)) {
+    target.value = '';
+    return;
+  }
+
+  importing.value = true;
+
+  try {
+    const result = await productImportService.importFromExcel(file);
+
+    let message = `Import terminé:\n✓ ${result.success} produits importés avec succès`;
+
+    if (result.failed > 0) {
+      message += `\n✗ ${result.failed} produits ont échoué`;
+      if (result.errors.length > 0) {
+        message += `\n\nErreurs:\n${result.errors.slice(0, 5).join('\n')}`;
+        if (result.errors.length > 5) {
+          message += `\n... et ${result.errors.length - 5} autres erreurs`;
+        }
+      }
+    }
+
+    alert(message);
+    await loadProducts();
+    closeImportDialog();
+  } catch (error) {
+    console.error('Error importing products:', error);
+    alert('Erreur lors de l\'import des produits');
+  } finally {
+    importing.value = false;
+    target.value = '';
+  }
+};
 </script>
 
 <template>
   <div class="space-y-6">
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center flex-wrap gap-3">
       <h2 class="text-2xl font-bold text-secondary">Gestion du Stock</h2>
-      <button @click="openForm()" class="btn-primary">
-        ➕ Nouveau produit
-      </button>
+      <div class="flex gap-2 flex-wrap">
+        <button @click="downloadTemplate" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm">
+          📥 Télécharger modèle
+        </button>
+        <button @click="openImportDialog" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm">
+          📤 Importer Excel
+        </button>
+        <button @click="openForm()" class="btn-primary">
+          ➕ Nouveau produit
+        </button>
+      </div>
     </div>
 
+    <div v-if="showImportDialog" class="card">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-primary">Importer des produits depuis Excel</h3>
+        <button @click="closeImportDialog" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 class="font-semibold text-blue-900 mb-2">Format du fichier Excel</h4>
+          <p class="text-sm text-blue-800 mb-3">Votre fichier Excel doit contenir les colonnes suivantes:</p>
+          <ul class="text-sm text-blue-800 space-y-1 list-disc list-inside">
+            <li><strong>Code</strong> (obligatoire) - Code unique du produit (SKU)</li>
+            <li><strong>Désignation</strong> (obligatoire) - Nom du produit</li>
+            <li><strong>Prix</strong> (obligatoire) - Prix en FCFA</li>
+            <li><strong>Stock</strong> (obligatoire) - Quantité en stock</li>
+          </ul>
+          <p class="text-sm text-blue-700 mt-3">
+            💡 Téléchargez le modèle pour un exemple de format correct
+          </p>
+        </div>
+
+        <div>
+          <label class="label">Sélectionner un fichier Excel</label>
+          <input
+            ref="importFileInput"
+            type="file"
+            accept=".xlsx,.xls"
+            @change="handleImportFile"
+            :disabled="importing"
+            class="input-field disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          <p class="text-xs text-gray-500 mt-1">Formats acceptés: .xlsx, .xls (max. 10 MB)</p>
+        </div>
+
+        <div v-if="importing" class="flex items-center justify-center py-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+          <span class="text-gray-600">Import en cours...</span>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            type="button"
+            @click="downloadTemplate"
+            class="btn-secondary flex-1"
+          >
+            📥 Télécharger le modèle
+          </button>
+          <button
+            type="button"
+            @click="closeImportDialog"
+            :disabled="importing"
+            class="btn-secondary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div v-if="showForm" class="card">
       <div class="flex justify-between items-center mb-4">
@@ -213,15 +342,9 @@ const handleDelete = async (product: Product) => {
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="label">Nom du produit</label>
-            <input v-model="formData.name" type="text" class="input-field" required />
-          </div>
-          <div>
-            <label class="label">SKU</label>
-            <input v-model="formData.sku" type="text" class="input-field" required />
-          </div>
+        <div>
+          <label class="label">Code (SKU)</label>
+          <input v-model="formData.sku" type="text" class="input-field" required placeholder="Code unique du produit" />
         </div>
 
         <div>
@@ -247,36 +370,39 @@ const handleDelete = async (product: Product) => {
           <p class="text-xs text-gray-500 mt-1">JPG, PNG, WEBP ou GIF (max. 5 MB)</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="label">Catégorie</label>
-            <select v-model="formData.category_id" class="input-field" @change="formData.subcategory_id = ''">
-              <option value="">Aucune</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label class="label">Sous-catégorie</label>
-            <select v-model="formData.subcategory_id" class="input-field" :disabled="!formData.category_id">
-              <option value="">Aucune</option>
-              <option v-for="sub in filteredSubcategories" :key="sub.id" :value="sub.id">
-                {{ sub.name }}
-              </option>
-            </select>
-          </div>
+        <div>
+          <label class="label">Désignation</label>
+          <input v-model="formData.name" type="text" class="input-field" required placeholder="Nom du produit" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="label">Prix (FCFA)</label>
-            <input v-model.number="formData.price" type="number" min="0" class="input-field" required />
-          </div>
-          <div>
-            <label class="label">Stock actuel</label>
-            <input v-model.number="formData.stock_quantity" type="number" min="0" class="input-field" required />
-          </div>
+        <div>
+          <label class="label">Prix (FCFA)</label>
+          <input v-model.number="formData.price" type="number" min="0" class="input-field" required placeholder="0" />
+        </div>
+
+        <div>
+          <label class="label">Stock</label>
+          <input v-model.number="formData.stock_quantity" type="number" min="0" class="input-field" required placeholder="0" />
+        </div>
+
+        <div>
+          <label class="label">Catégorie</label>
+          <select v-model="formData.category_id" class="input-field" @change="formData.subcategory_id = ''">
+            <option value="">Aucune</option>
+            <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label">Sous-catégorie</label>
+          <select v-model="formData.subcategory_id" class="input-field" :disabled="!formData.category_id">
+            <option value="">Aucune</option>
+            <option v-for="sub in filteredSubcategories" :key="sub.id" :value="sub.id">
+              {{ sub.name }}
+            </option>
+          </select>
         </div>
 
         <div class="flex gap-3">
