@@ -55,17 +55,10 @@ onMounted(async () => {
         <h1 class="text-3xl font-bold text-primary mb-2">{{ companyName }}</h1>
         <p class="text-gray-600 mb-4">Connectez-vous pour continuer</p>
         <img
-          v-if="companyLogo"
-          :src="companyLogo"
+          :src="companyLogo || '/image copy copy.png'"
           :alt="companyName"
           class="mx-auto w-32 h-32 object-contain"
         />
-        <div
-          v-else
-          class="mx-auto w-32 h-32 flex items-center justify-center text-6xl bg-gray-100 rounded-lg"
-        >
-          🏢
-        </div>
       </div>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
