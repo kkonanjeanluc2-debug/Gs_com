@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { supabase } from '../services/supabase';
 import type { Profile } from '../services/supabase';
+import { communesCoteIvoire } from '../data/communes-cote-ivoire';
 
 const users = ref<Profile[]>([]);
 const loading = ref(false);
@@ -15,6 +16,7 @@ const formData = ref({
   full_name: '',
   role: 'commercial' as 'admin' | 'superviseur' | 'commercial' | 'super_admin',
   phone: '',
+  zone_affectation: '',
 });
 
 const error = ref('');
@@ -59,6 +61,7 @@ const openForm = (user?: Profile) => {
       full_name: user.full_name,
       role: user.role,
       phone: user.phone || '',
+      zone_affectation: user.zone_affectation || '',
     };
   } else {
     editingUser.value = null;
@@ -68,6 +71,7 @@ const openForm = (user?: Profile) => {
       full_name: '',
       role: 'commercial',
       phone: '',
+      zone_affectation: '',
     };
   }
   error.value = '';
@@ -114,6 +118,7 @@ const handleSubmit = async () => {
         full_name: formData.value.full_name,
         role: formData.value.role,
         phone: formData.value.phone || null,
+        zone_affectation: formData.value.zone_affectation || null,
       };
 
       if (formData.value.password) {
@@ -154,6 +159,7 @@ const handleSubmit = async () => {
           full_name: formData.value.full_name,
           role: formData.value.role,
           phone: formData.value.phone || null,
+          zone_affectation: formData.value.zone_affectation || null,
         }),
       });
 
@@ -346,6 +352,19 @@ const getRoleColor = (role: string) => {
           </p>
         </div>
 
+        <div v-if="formData.role === 'commercial'">
+          <label class="label">Zone d'affectation *</label>
+          <select v-model="formData.zone_affectation" class="input-field" required>
+            <option value="">-- Sélectionner une commune --</option>
+            <option v-for="commune in communesCoteIvoire" :key="commune" :value="commune">
+              {{ commune }}
+            </option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">
+            Commune de Côte d'Ivoire où le commercial est affecté
+          </p>
+        </div>
+
         <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           {{ error }}
         </div>
@@ -379,6 +398,7 @@ const getRoleColor = (role: string) => {
 
         <div class="space-y-1 text-sm text-gray-600 mb-3">
           <p v-if="user.phone">📱 {{ user.phone }}</p>
+          <p v-if="user.zone_affectation && user.role === 'commercial'">📍 {{ user.zone_affectation }}</p>
           <p class="text-xs text-gray-400">
             Créé le {{ new Date(user.created_at).toLocaleDateString('fr-FR') }}
           </p>
