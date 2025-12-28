@@ -184,25 +184,39 @@ const handleEmailChange = async () => {
       return;
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: currentEmail.value,
-      password: emailForm.value.currentPassword,
-    });
-
-    if (signInError) {
-      emailError.value = 'Mot de passe actuel incorrect';
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      emailError.value = 'Session expirée. Veuillez vous reconnecter.';
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      email: emailForm.value.newEmail,
+    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-email`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        currentPassword: emailForm.value.currentPassword,
+        newEmail: emailForm.value.newEmail,
+      }),
     });
 
-    if (error) throw error;
+    const result = await response.json();
 
-    emailSuccess.value = 'Un email de confirmation a été envoyé à votre nouvelle adresse. Veuillez vérifier votre boîte de réception.';
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Erreur lors de la modification de l\'email');
+    }
+
+    emailSuccess.value = 'Email modifié avec succès';
     emailForm.value.newEmail = '';
     emailForm.value.currentPassword = '';
+
+    setTimeout(async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    }, 2000);
   } catch (err: any) {
     console.error('Error updating email:', err);
     emailError.value = err.message || 'Erreur lors de la modification de l\'email';
@@ -232,21 +246,30 @@ const handlePasswordChange = async () => {
       return;
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: currentEmail.value,
-      password: passwordForm.value.currentPassword,
-    });
-
-    if (signInError) {
-      passwordError.value = 'Mot de passe actuel incorrect';
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      passwordError.value = 'Session expirée. Veuillez vous reconnecter.';
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      password: passwordForm.value.newPassword,
+    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-password`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        currentPassword: passwordForm.value.currentPassword,
+        newPassword: passwordForm.value.newPassword,
+      }),
     });
 
-    if (error) throw error;
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Erreur lors de la modification du mot de passe');
+    }
 
     passwordSuccess.value = 'Mot de passe modifié avec succès';
     passwordForm.value.currentPassword = '';
