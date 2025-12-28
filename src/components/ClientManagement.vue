@@ -16,11 +16,15 @@ const formData = ref({
   email: '',
   phone: '',
   address: '',
+  latitude: null as number | null,
+  longitude: null as number | null,
   type: 'prospect' as 'prospect' | 'client',
   status: 'actif' as 'actif' | 'inactif' | 'en_negociation',
   assigned_to: null as string | null,
   notes: '',
 });
+
+const gettingLocation = ref(false);
 
 const filteredClients = computed(() => {
   if (filter.value === 'all') return clients.value;
@@ -59,6 +63,8 @@ const openForm = (client?: Client) => {
       email: client.email || '',
       phone: client.phone || '',
       address: client.address || '',
+      latitude: client.latitude || null,
+      longitude: client.longitude || null,
       type: client.type,
       status: client.status,
       assigned_to: client.assigned_to,
@@ -71,6 +77,8 @@ const openForm = (client?: Client) => {
       email: '',
       phone: '',
       address: '',
+      latitude: null,
+      longitude: null,
       type: 'prospect',
       status: 'actif',
       assigned_to: currentProfile.value?.id || null,
@@ -150,6 +158,50 @@ const openWhatsApp = (phone: string) => {
 
   const cleanPhone = phone.replace(/\s+/g, '');
   const url = `https://wa.me/${cleanPhone}`;
+  window.open(url, '_blank');
+};
+
+const getCurrentLocation = () => {
+  if (!navigator.geolocation) {
+    alert('La géolocalisation n\'est pas supportée par votre navigateur');
+    return;
+  }
+
+  gettingLocation.value = true;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      formData.value.latitude = position.coords.latitude;
+      formData.value.longitude = position.coords.longitude;
+      gettingLocation.value = false;
+    },
+    (error) => {
+      gettingLocation.value = false;
+      let message = 'Erreur lors de la récupération de la position';
+
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = 'Vous devez autoriser l\'accès à votre position';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = 'Position non disponible';
+          break;
+        case error.TIMEOUT:
+          message = 'Le délai de récupération de la position a expiré';
+          break;
+      }
+
+      alert(message);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+};
+
+const openGoogleMaps = (latitude: number, longitude: number) => {
+  const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
   window.open(url, '_blank');
 };
 </script>
@@ -258,6 +310,43 @@ const openWhatsApp = (phone: string) => {
         </div>
 
         <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="label">Position GPS</label>
+            <button
+              type="button"
+              @click="getCurrentLocation"
+              :disabled="gettingLocation"
+              class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {{ gettingLocation ? '📍 Obtention...' : '📍 Obtenir ma position' }}
+            </button>
+          </div>
+          <div v-if="formData.latitude && formData.longitude" class="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
+            <span class="text-sm text-green-800">
+              📍 Coordonnées: {{ formData.latitude.toFixed(6) }}, {{ formData.longitude.toFixed(6) }}
+            </span>
+            <button
+              type="button"
+              @click="openGoogleMaps(formData.latitude!, formData.longitude!)"
+              class="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Voir sur la carte
+            </button>
+            <button
+              type="button"
+              @click="formData.latitude = null; formData.longitude = null"
+              class="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+              title="Supprimer la position"
+            >
+              ✕
+            </button>
+          </div>
+          <p v-else class="text-sm text-gray-500 mt-1">
+            Aucune position GPS enregistrée. Cliquez sur "Obtenir ma position" pour enregistrer votre position actuelle.
+          </p>
+        </div>
+
+        <div>
           <label class="label">Notes</label>
           <textarea v-model="formData.notes" class="textarea-field" placeholder="Ajoutez des notes..."></textarea>
         </div>
@@ -302,7 +391,17 @@ const openWhatsApp = (phone: string) => {
               WhatsApp
             </button>
           </div>
-          <p v-if="client.address">📍 {{ client.address }}</p>
+          <div v-if="client.address || (client.latitude && client.longitude)" class="flex items-center gap-2">
+            <p v-if="client.address">📍 {{ client.address }}</p>
+            <button
+              v-if="client.latitude && client.longitude"
+              @click="openGoogleMaps(client.latitude, client.longitude)"
+              class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs font-medium"
+              title="Voir sur Google Maps"
+            >
+              🗺️ Carte
+            </button>
+          </div>
           <p v-if="client.notes" class="text-xs">💬 {{ client.notes }}</p>
         </div>
 

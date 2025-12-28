@@ -76,6 +76,8 @@ export interface Client {
   email: string | null;
   phone: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   type: 'prospect' | 'client';
   status: 'actif' | 'inactif' | 'en_negociation';
   assigned_to: string | null;
