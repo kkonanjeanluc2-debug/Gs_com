@@ -41,60 +41,69 @@
               </button>
             </div>
 
-            <div v-for="(item, index) in formData.items" :key="index" class="flex gap-2 mb-2">
-              <select
-                v-model="item.product_id"
-                @change="updatePrice(index)"
-                required
-                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Sélectionner un produit</option>
-                <option v-for="product in products" :key="product.id" :value="product.id">
-                  {{ product.name }} - {{ product.price }} F CFA
-                </option>
-              </select>
+            <div v-for="(item, index) in formData.items" :key="index" class="mb-4">
+              <div class="flex gap-2 mb-2">
+                <div class="flex-1 relative">
+                  <input
+                    v-model="productSearch[index]"
+                    type="text"
+                    placeholder="Rechercher un produit..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    @focus="item.showDropdown = true"
+                    @blur="hideDropdown(index)"
+                  />
+                  <div
+                    v-if="item.showDropdown && getFilteredProducts(index).length > 0"
+                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  >
+                    <button
+                      v-for="product in getFilteredProducts(index)"
+                      :key="product.id"
+                      type="button"
+                      @click="selectProduct(index, product)"
+                      class="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
+                    >
+                      <div class="font-medium">{{ product.name }}</div>
+                      <div class="text-sm text-gray-600">{{ product.price }} F CFA - Stock: {{ product.stock_quantity }}</div>
+                    </button>
+                  </div>
+                  <div v-if="item.product_id" class="mt-1 text-sm text-gray-600">
+                    Produit sélectionné: {{ products.find(p => p.id === item.product_id)?.name }}
+                  </div>
+                </div>
 
-              <input
-                v-model.number="item.quantity"
-                type="number"
-                min="1"
-                required
-                placeholder="Qté"
-                class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
+                <input
+                  v-model.number="item.quantity"
+                  type="number"
+                  min="1"
+                  required
+                  placeholder="Qté"
+                  class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
 
-              <input
-                v-model.number="item.unit_price"
-                type="number"
-                step="0.01"
-                min="0"
-                required
-                placeholder="Prix"
-                class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
+                <input
+                  v-model.number="item.unit_price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  placeholder="Prix"
+                  class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
 
-              <button
-                type="button"
-                @click="removeProduct(index)"
-                class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
-              >
-                ✕
-              </button>
+                <button
+                  type="button"
+                  @click="removeProduct(index)"
+                  class="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div class="mt-4 text-right">
               <span class="text-lg font-semibold">Total: {{ calculateTotal() }} F CFA</span>
             </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-            <textarea
-              v-model="formData.notes"
-              rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Notes supplémentaires..."
-            ></textarea>
           </div>
 
           <div v-if="error" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg">
@@ -277,6 +286,19 @@ import { clientsService, type Client } from '../services/clients.service';
 import { productsService, type Product } from '../services/products.service';
 import { companyService, type CompanySettings } from '../services/company.service';
 
+interface OrderItemForm {
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  showDropdown?: boolean;
+}
+
+interface OrderFormData {
+  client_id: string;
+  items: OrderItemForm[];
+  notes?: string;
+}
+
 const orders = ref<Order[]>([]);
 const clients = ref<Client[]>([]);
 const products = ref<Product[]>([]);
@@ -284,12 +306,23 @@ const companySettings = ref<CompanySettings | null>(null);
 const showForm = ref(false);
 const error = ref('');
 const selectedOrder = ref<Order | null>(null);
+const productSearch = ref<string[]>([]);
 
-const formData = ref<CreateOrderData>({
+const formData = ref<OrderFormData>({
   client_id: '',
-  items: [{ product_id: '', quantity: 1, unit_price: 0 }],
+  items: [{ product_id: '', quantity: 1, unit_price: 0, showDropdown: false }],
   notes: '',
 });
+
+const getFilteredProducts = (index: number) => {
+  const search = productSearch.value[index]?.toLowerCase() || '';
+  if (!search) return products.value;
+
+  return products.value.filter(p =>
+    p.name.toLowerCase().includes(search) ||
+    p.sku?.toLowerCase().includes(search)
+  );
+};
 
 const loadOrders = async () => {
   try {
@@ -324,19 +357,27 @@ const loadCompanySettings = async () => {
 };
 
 const addProduct = () => {
-  formData.value.items.push({ product_id: '', quantity: 1, unit_price: 0 });
+  formData.value.items.push({ product_id: '', quantity: 1, unit_price: 0, showDropdown: false });
+  productSearch.value.push('');
 };
 
 const removeProduct = (index: number) => {
   formData.value.items.splice(index, 1);
+  productSearch.value.splice(index, 1);
 };
 
-const updatePrice = (index: number) => {
+const selectProduct = (index: number, product: Product) => {
   const item = formData.value.items[index];
-  const product = products.value.find((p: Product) => p.id === item.product_id);
-  if (product) {
-    item.unit_price = product.price;
-  }
+  item.product_id = product.id!;
+  item.unit_price = product.price;
+  item.showDropdown = false;
+  productSearch.value[index] = product.name;
+};
+
+const hideDropdown = (index: number) => {
+  setTimeout(() => {
+    formData.value.items[index].showDropdown = false;
+  }, 200);
 };
 
 const calculateTotal = () => {
@@ -354,7 +395,17 @@ const handleSubmit = async () => {
   }
 
   try {
-    await ordersService.createOrder(formData.value);
+    const orderData: CreateOrderData = {
+      client_id: formData.value.client_id,
+      items: formData.value.items.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+      })),
+      notes: formData.value.notes,
+    };
+
+    await ordersService.createOrder(orderData);
     await loadOrders();
     closeForm();
     alert('Commande créée avec succès');
@@ -368,9 +419,10 @@ const closeForm = () => {
   showForm.value = false;
   formData.value = {
     client_id: '',
-    items: [{ product_id: '', quantity: 1, unit_price: 0 }],
+    items: [{ product_id: '', quantity: 1, unit_price: 0, showDropdown: false }],
     notes: '',
   };
+  productSearch.value = [''];
   error.value = '';
 };
 
@@ -599,5 +651,6 @@ onMounted(() => {
   loadClients();
   loadProducts();
   loadCompanySettings();
+  productSearch.value = [''];
 });
 </script>
