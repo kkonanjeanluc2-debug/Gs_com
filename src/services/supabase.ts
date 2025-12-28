@@ -81,7 +81,6 @@ export interface Client {
   type: 'prospect' | 'client';
   status: 'actif' | 'inactif' | 'en_negociation';
   assigned_to: string | null;
-  notes: string | null;
   created_at: string;
   updated_at: string;
 }

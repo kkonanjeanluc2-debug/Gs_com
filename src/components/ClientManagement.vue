@@ -21,7 +21,6 @@ const formData = ref({
   type: 'prospect' as 'prospect' | 'client',
   status: 'actif' as 'actif' | 'inactif' | 'en_negociation',
   assigned_to: null as string | null,
-  notes: '',
 });
 
 const gettingLocation = ref(false);
@@ -68,7 +67,6 @@ const openForm = (client?: Client) => {
       type: client.type,
       status: client.status,
       assigned_to: client.assigned_to,
-      notes: client.notes || '',
     };
   } else {
     editingClient.value = null;
@@ -82,7 +80,6 @@ const openForm = (client?: Client) => {
       type: 'prospect',
       status: 'actif',
       assigned_to: currentProfile.value?.id || null,
-      notes: '',
     };
   }
   showForm.value = true;
@@ -346,11 +343,6 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
           </p>
         </div>
 
-        <div>
-          <label class="label">Notes</label>
-          <textarea v-model="formData.notes" class="textarea-field" placeholder="Ajoutez des notes..."></textarea>
-        </div>
-
         <div class="flex gap-3">
           <button type="submit" class="btn-primary flex-1">💾 Enregistrer</button>
           <button type="button" @click="closeForm" class="btn-secondary flex-1">Annuler</button>
@@ -402,7 +394,6 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
               🗺️ Carte
             </button>
           </div>
-          <p v-if="client.notes" class="text-xs">💬 {{ client.notes }}</p>
         </div>
 
         <div class="flex flex-wrap gap-2">
