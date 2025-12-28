@@ -280,6 +280,14 @@
           <div class="text-xs text-blue-600 mt-1">
             {{ getCommercialRevenue(commercial.id)?.monthly_orders || 0 }} commandes
           </div>
+          <div v-if="companySettings?.commission_rate" class="mt-3 pt-3 border-t border-blue-200">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-green-700">Commission ({{ companySettings.commission_rate }}%)</span>
+              <span class="text-lg font-bold text-green-800">
+                {{ formatCurrency(getCommercialCommission(commercial.id)) }} FCFA
+              </span>
+            </div>
+          </div>
         </div>
 
         <div class="flex gap-2 mt-4">
@@ -315,6 +323,7 @@ import { ref, onMounted, computed } from 'vue';
 import { commercialsService, type Commercial, type CreateCommercialData, type UpdateCommercialData } from '../services/commercials.service';
 import { imageUploadService } from '../services/image-upload.service';
 import { analyticsService, type CommercialMonthlyRevenue } from '../services/analytics.service';
+import { companyService, type CompanySettings } from '../services/company.service';
 import type { Profile } from '../services/supabase';
 import { communesCoteIvoire } from '../data/communes-cote-ivoire';
 
@@ -324,6 +333,7 @@ const props = defineProps<{
 
 const commercials = ref<Commercial[]>([]);
 const commercialsRevenue = ref<Map<string, CommercialMonthlyRevenue>>(new Map());
+const companySettings = ref<CompanySettings | null>(null);
 const showForm = ref(false);
 const error = ref('');
 const editingCommercial = ref<Commercial | null>(null);
@@ -349,12 +359,14 @@ const formData = ref<CreateCommercialData & UpdateCommercialData>({
 
 const loadCommercials = async () => {
   try {
-    const [commercialsData, revenueData] = await Promise.all([
+    const [commercialsData, revenueData, settings] = await Promise.all([
       commercialsService.getAllCommercials(),
       analyticsService.getCommercialsMonthlyRevenue(),
+      companyService.getSettings(),
     ]);
 
     commercials.value = commercialsData;
+    companySettings.value = settings;
 
     const revenueMap = new Map<string, CommercialMonthlyRevenue>();
     revenueData.forEach((rev) => {
@@ -376,6 +388,16 @@ const formatCurrency = (amount: number) => {
 
 const getCommercialRevenue = (commercialId: string) => {
   return commercialsRevenue.value.get(commercialId);
+};
+
+const getCommercialCommission = (commercialId: string): number => {
+  const revenue = getCommercialRevenue(commercialId);
+  if (!revenue || !companySettings.value?.commission_rate) return 0;
+
+  const monthlyRevenue = revenue.monthly_revenue || 0;
+  const commissionRate = companySettings.value.commission_rate || 0;
+
+  return (monthlyRevenue * commissionRate) / 100;
 };
 
 const handleFileSelect = (event: Event) => {

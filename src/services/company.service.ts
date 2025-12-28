@@ -11,6 +11,7 @@ export interface CompanySettings {
   tax_id?: string;
   rccm?: string;
   ncc?: string;
+  commission_rate?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -59,6 +60,7 @@ export const companyService = {
         tax_id: settings.tax_id,
         rccm: settings.rccm,
         ncc: settings.ncc,
+        commission_rate: settings.commission_rate,
         updated_at: new Date().toISOString(),
       })
       .eq('id', companyId)
