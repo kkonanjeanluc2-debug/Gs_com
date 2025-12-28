@@ -6,7 +6,7 @@ const companies = ref<CompanyWithStats[]>([]);
 const isLoading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
-const filterStatus = ref<'all' | 'approved' | 'pending' | 'revoked'>('all');
+const filterStatus = ref<'all' | 'approved' | 'pending'>('all');
 
 const loadCompanies = async () => {
   isLoading.value = true;
@@ -21,44 +21,25 @@ const loadCompanies = async () => {
   }
 };
 
-const toggleCompanyStatus = async (company: CompanyWithStats) => {
-  if (company.approved) {
-    if (!confirm(`Voulez-vous révoquer l'approbation de "${company.name}" ? Les utilisateurs ne pourront plus se connecter.`)) return;
+const approveCompany = async (companyId: string) => {
+  if (!confirm('Voulez-vous approuver cette entreprise ?')) return;
 
-    try {
-      await superAdminService.revokeCompanyApproval(company.id);
-      await loadCompanies();
-    } catch (e: any) {
-      alert('Erreur: ' + (e.message || 'Impossible de révoquer l\'approbation'));
-    }
-  } else {
-    if (!confirm(`Voulez-vous approuver "${company.name}" ? Les utilisateurs pourront se connecter.`)) return;
-
-    try {
-      await superAdminService.approveCompany(company.id);
-      await loadCompanies();
-    } catch (e: any) {
-      alert('Erreur: ' + (e.message || 'Impossible d\'approuver l\'entreprise'));
-    }
+  try {
+    await superAdminService.approveCompany(companyId);
+    await loadCompanies();
+  } catch (e: any) {
+    alert('Erreur: ' + (e.message || 'Impossible d\'approuver l\'entreprise'));
   }
 };
 
-const getCompanyStatus = (company: CompanyWithStats) => {
-  if (company.approved) {
-    return {
-      label: 'Approuvée',
-      class: 'bg-green-100 text-green-800 hover:bg-green-200'
-    };
-  } else if (company.approved_at) {
-    return {
-      label: 'Révoquée',
-      class: 'bg-red-100 text-red-800 hover:bg-red-200'
-    };
-  } else {
-    return {
-      label: 'En attente',
-      class: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-    };
+const revokeApproval = async (companyId: string) => {
+  if (!confirm('Voulez-vous révoquer l\'approbation de cette entreprise ? Les utilisateurs ne pourront plus se connecter.')) return;
+
+  try {
+    await superAdminService.revokeCompanyApproval(companyId);
+    await loadCompanies();
+  } catch (e: any) {
+    alert('Erreur: ' + (e.message || 'Impossible de révoquer l\'approbation'));
   }
 };
 
@@ -68,9 +49,7 @@ const filteredCompanies = () => {
   if (filterStatus.value === 'approved') {
     filtered = filtered.filter(c => c.approved);
   } else if (filterStatus.value === 'pending') {
-    filtered = filtered.filter(c => !c.approved && !c.approved_at);
-  } else if (filterStatus.value === 'revoked') {
-    filtered = filtered.filter(c => !c.approved && c.approved_at);
+    filtered = filtered.filter(c => !c.approved);
   }
 
   if (searchQuery.value) {
@@ -131,7 +110,6 @@ onMounted(() => {
             <option value="all">Toutes</option>
             <option value="approved">Approuvées</option>
             <option value="pending">En attente</option>
-            <option value="revoked">Révoquées</option>
           </select>
         </div>
       </div>
@@ -163,6 +141,9 @@ onMounted(() => {
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Date d'inscription
               </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -188,16 +169,37 @@ onMounted(() => {
                 {{ company.user_count }} utilisateur{{ company.user_count > 1 ? 's' : '' }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <button
-                  @click="toggleCompanyStatus(company)"
-                  :class="'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors cursor-pointer ' + getCompanyStatus(company).class"
-                  :title="company.approved ? 'Cliquez pour révoquer l\'accès' : 'Cliquez pour approuver'"
+                <span
+                  v-if="company.approved"
+                  class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
                 >
-                  {{ getCompanyStatus(company).label }}
-                </button>
+                  Approuvée
+                </span>
+                <span
+                  v-else
+                  class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
+                >
+                  En attente
+                </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ formatDate(company.created_at) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button
+                  v-if="!company.approved"
+                  @click="approveCompany(company.id)"
+                  class="text-green-600 hover:text-green-900 mr-3"
+                >
+                  Approuver
+                </button>
+                <button
+                  v-else
+                  @click="revokeApproval(company.id)"
+                  class="text-red-600 hover:text-red-900"
+                >
+                  Révoquer
+                </button>
               </td>
             </tr>
           </tbody>
@@ -208,7 +210,6 @@ onMounted(() => {
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
       <h3 class="text-sm font-semibold text-blue-800 mb-2">Information</h3>
       <ul class="text-sm text-blue-700 space-y-1">
-        <li>• Cliquez sur le statut pour changer l'état d'accès d'une entreprise</li>
         <li>• Les entreprises en attente ne peuvent pas se connecter à l'application</li>
         <li>• Approuver une entreprise permet à tous ses utilisateurs de se connecter</li>
         <li>• Révoquer une entreprise bloque immédiatement l'accès pour tous ses utilisateurs</li>
