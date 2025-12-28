@@ -19,6 +19,18 @@
         </div>
 
         <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel *</label>
+          <input
+            v-model="emailForm.currentPassword"
+            type="password"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="Votre mot de passe actuel"
+          />
+          <p class="text-xs text-gray-500 mt-1">Pour des raisons de sécurité, veuillez confirmer votre mot de passe</p>
+        </div>
+
+        <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nouvel email *</label>
           <input
             v-model="emailForm.newEmail"
@@ -50,6 +62,18 @@
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Modifier le mot de passe</h3>
       <form @submit.prevent="handlePasswordChange" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel *</label>
+          <input
+            v-model="passwordForm.currentPassword"
+            type="password"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            placeholder="Votre mot de passe actuel"
+          />
+          <p class="text-xs text-gray-500 mt-1">Pour des raisons de sécurité, veuillez confirmer votre mot de passe</p>
+        </div>
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nouveau mot de passe *</label>
           <input
@@ -123,10 +147,12 @@ const passwordError = ref('');
 const passwordSuccess = ref('');
 
 const emailForm = ref({
+  currentPassword: '',
   newEmail: '',
 });
 
 const passwordForm = ref({
+  currentPassword: '',
   newPassword: '',
   confirmPassword: '',
 });
@@ -148,13 +174,23 @@ const handleEmailChange = async () => {
   emailLoading.value = true;
 
   try {
-    if (!emailForm.value.newEmail) {
-      emailError.value = 'Veuillez entrer un nouvel email';
+    if (!emailForm.value.currentPassword || !emailForm.value.newEmail) {
+      emailError.value = 'Veuillez remplir tous les champs';
       return;
     }
 
     if (emailForm.value.newEmail === currentEmail.value) {
       emailError.value = 'Le nouvel email est identique à l\'email actuel';
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: currentEmail.value,
+      password: emailForm.value.currentPassword,
+    });
+
+    if (signInError) {
+      emailError.value = 'Mot de passe actuel incorrect';
       return;
     }
 
@@ -166,6 +202,7 @@ const handleEmailChange = async () => {
 
     emailSuccess.value = 'Un email de confirmation a été envoyé à votre nouvelle adresse. Veuillez vérifier votre boîte de réception.';
     emailForm.value.newEmail = '';
+    emailForm.value.currentPassword = '';
   } catch (err: any) {
     console.error('Error updating email:', err);
     emailError.value = err.message || 'Erreur lors de la modification de l\'email';
@@ -180,7 +217,7 @@ const handlePasswordChange = async () => {
   passwordLoading.value = true;
 
   try {
-    if (!passwordForm.value.newPassword || !passwordForm.value.confirmPassword) {
+    if (!passwordForm.value.currentPassword || !passwordForm.value.newPassword || !passwordForm.value.confirmPassword) {
       passwordError.value = 'Veuillez remplir tous les champs';
       return;
     }
@@ -195,6 +232,16 @@ const handlePasswordChange = async () => {
       return;
     }
 
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: currentEmail.value,
+      password: passwordForm.value.currentPassword,
+    });
+
+    if (signInError) {
+      passwordError.value = 'Mot de passe actuel incorrect';
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({
       password: passwordForm.value.newPassword,
     });
@@ -202,6 +249,7 @@ const handlePasswordChange = async () => {
     if (error) throw error;
 
     passwordSuccess.value = 'Mot de passe modifié avec succès';
+    passwordForm.value.currentPassword = '';
     passwordForm.value.newPassword = '';
     passwordForm.value.confirmPassword = '';
   } catch (err: any) {
