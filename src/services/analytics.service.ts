@@ -129,130 +129,157 @@ export class AnalyticsService {
   async getTopCommercials(limit: number = 5): Promise<TopCommercial[]> {
     const company_id = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('orders')
-      .select(`
-        commercial_id,
-        total_amount,
-        commercial:profiles!orders_commercial_id_fkey(id, full_name, email, photo_url)
-      `)
-      .eq('company_id', company_id)
-      .eq('status', 'delivered')
-      .not('commercial_id', 'is', null);
-
-    if (error) throw error;
-
-    const commercialsMap = new Map<string, TopCommercial>();
-
-    data?.forEach((order: any) => {
-      if (!order.commercial) return;
-
-      const id = order.commercial.id;
-      if (!commercialsMap.has(id)) {
-        commercialsMap.set(id, {
-          id,
-          full_name: order.commercial.full_name,
-          email: order.commercial.email,
-          photo_url: order.commercial.photo_url,
-          total_revenue: 0,
-          total_orders: 0,
-        });
-      }
-
-      const commercial = commercialsMap.get(id)!;
-      commercial.total_revenue += Number(order.total_amount);
-      commercial.total_orders += 1;
+    const { data, error } = await supabase.rpc('get_top_commercials', {
+      p_company_id: company_id,
+      p_limit: limit
     });
 
-    return Array.from(commercialsMap.values())
-      .sort((a, b) => b.total_revenue - a.total_revenue)
-      .slice(0, limit);
+    if (error) {
+      const fallbackData = await supabase
+        .from('orders')
+        .select(`
+          commercial_id,
+          total_amount,
+          commercial:profiles!orders_commercial_id_fkey(id, full_name, email, photo_url)
+        `)
+        .eq('company_id', company_id)
+        .eq('status', 'delivered')
+        .not('commercial_id', 'is', null);
+
+      if (fallbackData.error) throw fallbackData.error;
+
+      const commercialsMap = new Map<string, TopCommercial>();
+
+      fallbackData.data?.forEach((order: any) => {
+        if (!order.commercial) return;
+
+        const id = order.commercial.id;
+        if (!commercialsMap.has(id)) {
+          commercialsMap.set(id, {
+            id,
+            full_name: order.commercial.full_name,
+            email: order.commercial.email,
+            photo_url: order.commercial.photo_url,
+            total_revenue: 0,
+            total_orders: 0,
+          });
+        }
+
+        const commercial = commercialsMap.get(id)!;
+        commercial.total_revenue += Number(order.total_amount);
+        commercial.total_orders += 1;
+      });
+
+      return Array.from(commercialsMap.values())
+        .sort((a, b) => b.total_revenue - a.total_revenue)
+        .slice(0, limit);
+    }
+
+    return data || [];
   }
 
   async getTopProducts(limit: number = 5): Promise<TopProduct[]> {
     const company_id = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('order_items')
-      .select(`
-        product_id,
-        quantity,
-        subtotal,
-        product:products!order_items_product_id_fkey(id, name, sku, image_url),
-        order:orders!order_items_order_id_fkey(status)
-      `)
-      .eq('company_id', company_id);
-
-    if (error) throw error;
-
-    const productsMap = new Map<string, TopProduct>();
-
-    data?.forEach((item: any) => {
-      if (!item.product || !item.order || item.order.status !== 'delivered') return;
-
-      const id = item.product.id;
-      if (!productsMap.has(id)) {
-        productsMap.set(id, {
-          id,
-          name: item.product.name,
-          sku: item.product.sku,
-          image_url: item.product.image_url,
-          total_quantity: 0,
-          total_revenue: 0,
-        });
-      }
-
-      const product = productsMap.get(id)!;
-      product.total_quantity += item.quantity;
-      product.total_revenue += Number(item.subtotal);
+    const { data, error } = await supabase.rpc('get_top_products', {
+      p_company_id: company_id,
+      p_limit: limit
     });
 
-    return Array.from(productsMap.values())
-      .sort((a, b) => b.total_revenue - a.total_revenue)
-      .slice(0, limit);
+    if (error) {
+      const fallbackData = await supabase
+        .from('order_items')
+        .select(`
+          product_id,
+          quantity,
+          subtotal,
+          product:products!order_items_product_id_fkey(id, name, sku, image_url),
+          order:orders!order_items_order_id_fkey(status)
+        `)
+        .eq('company_id', company_id);
+
+      if (fallbackData.error) throw fallbackData.error;
+
+      const productsMap = new Map<string, TopProduct>();
+
+      fallbackData.data?.forEach((item: any) => {
+        if (!item.product || !item.order || item.order.status !== 'delivered') return;
+
+        const id = item.product.id;
+        if (!productsMap.has(id)) {
+          productsMap.set(id, {
+            id,
+            name: item.product.name,
+            sku: item.product.sku,
+            image_url: item.product.image_url,
+            total_quantity: 0,
+            total_revenue: 0,
+          });
+        }
+
+        const product = productsMap.get(id)!;
+        product.total_quantity += item.quantity;
+        product.total_revenue += Number(item.subtotal);
+      });
+
+      return Array.from(productsMap.values())
+        .sort((a, b) => b.total_revenue - a.total_revenue)
+        .slice(0, limit);
+    }
+
+    return data || [];
   }
 
   async getTopClients(limit: number = 5): Promise<TopClient[]> {
     const company_id = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('orders')
-      .select(`
-        client_id,
-        total_amount,
-        client:clients!orders_client_id_fkey(id, name, email, phone, type)
-      `)
-      .eq('company_id', company_id)
-      .eq('status', 'delivered');
-
-    if (error) throw error;
-
-    const clientsMap = new Map<string, TopClient>();
-
-    data?.forEach((order: any) => {
-      if (!order.client) return;
-
-      const id = order.client.id;
-      if (!clientsMap.has(id)) {
-        clientsMap.set(id, {
-          id,
-          name: order.client.name,
-          email: order.client.email,
-          phone: order.client.phone,
-          type: order.client.type,
-          total_orders: 0,
-          total_spent: 0,
-        });
-      }
-
-      const client = clientsMap.get(id)!;
-      client.total_orders += 1;
-      client.total_spent += Number(order.total_amount);
+    const { data, error } = await supabase.rpc('get_top_clients', {
+      p_company_id: company_id,
+      p_limit: limit
     });
 
-    return Array.from(clientsMap.values())
-      .sort((a, b) => b.total_spent - a.total_spent)
-      .slice(0, limit);
+    if (error) {
+      const fallbackData = await supabase
+        .from('orders')
+        .select(`
+          client_id,
+          total_amount,
+          client:clients!orders_client_id_fkey(id, name, email, phone, type)
+        `)
+        .eq('company_id', company_id)
+        .eq('status', 'delivered');
+
+      if (fallbackData.error) throw fallbackData.error;
+
+      const clientsMap = new Map<string, TopClient>();
+
+      fallbackData.data?.forEach((order: any) => {
+        if (!order.client) return;
+
+        const id = order.client.id;
+        if (!clientsMap.has(id)) {
+          clientsMap.set(id, {
+            id,
+            name: order.client.name,
+            email: order.client.email,
+            phone: order.client.phone,
+            type: order.client.type,
+            total_orders: 0,
+            total_spent: 0,
+          });
+        }
+
+        const client = clientsMap.get(id)!;
+        client.total_orders += 1;
+        client.total_spent += Number(order.total_amount);
+      });
+
+      return Array.from(clientsMap.values())
+        .sort((a, b) => b.total_spent - a.total_spent)
+        .slice(0, limit);
+    }
+
+    return data || [];
   }
 
   async getRecentOrders(limit: number = 5): Promise<RecentOrder[]> {
