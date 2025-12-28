@@ -29,6 +29,21 @@ export const companyService = {
     return data;
   },
 
+  async getPublicSettings(): Promise<CompanySettings | null> {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('id, name, logo_url')
+      .eq('status', 'approved')
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching public settings:', error);
+      return null;
+    }
+    return data;
+  },
+
   async updateSettings(settings: Partial<CompanySettings>): Promise<CompanySettings> {
     const companyId = await getCurrentUserCompanyId();
 

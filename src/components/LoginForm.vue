@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { authService } from '../services/auth';
+import { companyService } from '../services/company.service';
 
 const emit = defineEmits<{
   success: [];
@@ -10,6 +11,8 @@ const email = ref('');
 const password = ref('');
 const error = ref('');
 const loading = ref(false);
+const companyLogo = ref('');
+const companyName = ref('Gestion commerciale');
 
 const handleLogin = async () => {
   if (!email.value || !password.value) {
@@ -29,19 +32,40 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+onMounted(async () => {
+  try {
+    const settings = await companyService.getPublicSettings();
+    if (settings?.logo_url) {
+      companyLogo.value = settings.logo_url;
+    }
+    if (settings?.name) {
+      companyName.value = settings.name;
+    }
+  } catch (err) {
+    console.log('No company settings found, using defaults');
+  }
+});
 </script>
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white px-4">
     <div class="card w-full max-w-md">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-primary mb-2">Gestion commerciale</h1>
+        <h1 class="text-3xl font-bold text-primary mb-2">{{ companyName }}</h1>
         <p class="text-gray-600 mb-4">Connectez-vous pour continuer</p>
         <img
-          src="/whatsapp_image_2025-08-07_a_21.31.59_95b113fa.jpg"
-          alt="Logo Librairie la Grâce"
+          v-if="companyLogo"
+          :src="companyLogo"
+          :alt="companyName"
           class="mx-auto w-32 h-32 object-contain"
         />
+        <div
+          v-else
+          class="mx-auto w-32 h-32 flex items-center justify-center text-6xl bg-gray-100 rounded-lg"
+        >
+          🏢
+        </div>
       </div>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
