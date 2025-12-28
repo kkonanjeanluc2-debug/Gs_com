@@ -75,12 +75,23 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Téléphone
             </label>
-            <input
-              v-model="formData.phone"
-              type="tel"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="+225xxxxxxxxxx"
-            />
+            <div class="flex gap-2">
+              <input
+                v-model="formData.phone"
+                type="tel"
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="+225xxxxxxxxxx"
+              />
+              <button
+                v-if="formData.phone"
+                type="button"
+                @click="openWhatsApp"
+                class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+                title="Ouvrir WhatsApp"
+              >
+                <span>WhatsApp</span>
+              </button>
+            </div>
           </div>
 
           <div>
@@ -274,6 +285,16 @@ const handleSubmit = async () => {
   } finally {
     saving.value = false;
   }
+};
+
+const openWhatsApp = () => {
+  if (!formData.value.phone) {
+    return;
+  }
+
+  const cleanPhone = formData.value.phone.replace(/\s+/g, '');
+  const url = `https://wa.me/${cleanPhone}`;
+  window.open(url, '_blank');
 };
 
 onMounted(() => {
