@@ -25,6 +25,28 @@ export class AuthService {
     });
 
     if (error) throw error;
+
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id, role')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (profile && profile.role !== 'super_admin') {
+        const { data: company } = await supabase
+          .from('companies')
+          .select('approved')
+          .eq('id', profile.company_id)
+          .maybeSingle();
+
+        if (company && !company.approved) {
+          await supabase.auth.signOut();
+          throw new Error('Votre entreprise est en attente d\'approbation. Veuillez contacter l\'administrateur.');
+        }
+      }
+    }
+
     return data;
   }
 

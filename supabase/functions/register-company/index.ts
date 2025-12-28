@@ -78,6 +78,7 @@ Deno.serve(async (req: Request) => {
         status: 'active',
         subscription_plan: 'free',
         max_users: 5,
+        approved: false,
       })
       .select()
       .single();
@@ -141,12 +142,13 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Entreprise créée avec succès',
+        message: 'Entreprise créée avec succès. Votre compte est en attente d\'approbation par l\'administrateur.',
         company: {
           id: company.id,
           name: company.name,
           email: company.email,
         },
+        pending_approval: true,
       }),
       {
         status: 200,

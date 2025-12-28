@@ -13,6 +13,7 @@ import UserManagement from './UserManagement.vue';
 import CategoryManagement from './CategoryManagement.vue';
 import OrderManagement from './OrderManagement.vue';
 import CompanySettings from './CompanySettings.vue';
+import CompanyManagement from './CompanyManagement.vue';
 import AppFooter from './AppFooter.vue';
 import { reportsService } from '../services/reports.service';
 import { whatsappService } from '../services/whatsapp';
@@ -27,7 +28,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company' | 'companies'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -55,16 +56,21 @@ const isAdmin = computed(() => {
   return props.profile.role === 'admin';
 });
 
+const isSuperAdmin = computed(() => {
+  return props.profile.role === 'super_admin';
+});
+
 const tabs = computed(() => {
   const allTabs = [
     { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
-    { id: 'reports', label: 'Rapports', icon: '📝' },
-    { id: 'clients', label: 'CRM', icon: '👥', visible: canManageClients.value },
-    { id: 'orders', label: 'Commandes', icon: '🛒', visible: canManageClients.value },
-    { id: 'stock', label: 'Stock', icon: '📦', visible: canManageStock.value },
-    { id: 'categories', label: 'Catégories', icon: '📁', visible: canManageStock.value },
-    { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value },
-    { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value },
+    { id: 'reports', label: 'Rapports', icon: '📝', visible: !isSuperAdmin.value },
+    { id: 'clients', label: 'CRM', icon: '👥', visible: canManageClients.value && !isSuperAdmin.value },
+    { id: 'orders', label: 'Commandes', icon: '🛒', visible: canManageClients.value && !isSuperAdmin.value },
+    { id: 'stock', label: 'Stock', icon: '📦', visible: canManageStock.value && !isSuperAdmin.value },
+    { id: 'categories', label: 'Catégories', icon: '📁', visible: canManageStock.value && !isSuperAdmin.value },
+    { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value && !isSuperAdmin.value },
+    { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value && !isSuperAdmin.value },
+    { id: 'companies', label: 'Entreprises', icon: '🏢', visible: isSuperAdmin.value },
   ];
   return allTabs.filter(tab => tab.visible !== false);
 });
@@ -505,7 +511,7 @@ loadReports();
           <div class="flex-1">
             <h1 class="text-xl md:text-3xl font-bold">Gestion commerciale</h1>
             <p class="text-blue-100 text-xs md:text-sm mt-1">
-              {{ profile.full_name }} - {{ profile.role === 'admin' ? 'Administrateur' : profile.role === 'superviseur' ? 'Superviseur' : 'Commercial' }}
+              {{ profile.full_name }} - {{ profile.role === 'admin' ? 'Administrateur' : profile.role === 'super_admin' ? 'Super Administrateur' : profile.role === 'superviseur' ? 'Superviseur' : 'Commercial' }}
             </p>
           </div>
 
@@ -686,6 +692,7 @@ loadReports();
       <CategoryManagement v-if="activeTab === 'categories'" />
       <UserManagement v-if="activeTab === 'users'" />
       <CompanySettings v-if="activeTab === 'company'" />
+      <CompanyManagement v-if="activeTab === 'companies'" />
     </main>
 
     <AppFooter />

@@ -13,7 +13,7 @@ const formData = ref({
   email: '',
   password: '',
   full_name: '',
-  role: 'commercial' as 'admin' | 'superviseur' | 'commercial',
+  role: 'commercial' as 'admin' | 'superviseur' | 'commercial' | 'super_admin',
   phone: '',
 });
 

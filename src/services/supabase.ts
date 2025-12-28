@@ -13,7 +13,7 @@ export interface Profile {
   id: string;
   email: string;
   full_name: string;
-  role: 'admin' | 'superviseur' | 'commercial';
+  role: 'admin' | 'superviseur' | 'commercial' | 'super_admin';
   phone: string | null;
   company_id: string;
   created_at: string;
