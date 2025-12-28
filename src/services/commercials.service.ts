@@ -7,6 +7,7 @@ export interface Commercial {
   role: string;
   phone?: string;
   photo_url?: string;
+  zone_affectation?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -17,12 +18,14 @@ export interface CreateCommercialData {
   full_name: string;
   phone?: string;
   photo_url?: string;
+  zone_affectation?: string;
 }
 
 export interface UpdateCommercialData {
   full_name?: string;
   phone?: string;
   photo_url?: string;
+  zone_affectation?: string;
 }
 
 export const commercialsService = {
@@ -76,6 +79,7 @@ export const commercialsService = {
         full_name: commercialData.full_name,
         phone: commercialData.phone,
         photo_url: commercialData.photo_url,
+        zone_affectation: commercialData.zone_affectation,
         role: 'commercial',
       }),
     });

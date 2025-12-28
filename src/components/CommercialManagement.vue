@@ -89,6 +89,21 @@
             <p class="text-xs text-gray-500 mt-1">Format international (ex: +225xxxxxxxxxx)</p>
           </div>
 
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Zone d'affectation *</label>
+            <select
+              v-model="formData.zone_affectation"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Sélectionner une commune --</option>
+              <option v-for="commune in communesCoteIvoire" :key="commune" :value="commune">
+                {{ commune }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Commune de Côte d'Ivoire où le commercial est affecté</p>
+          </div>
+
           <div v-if="error" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg">
             {{ error }}
           </div>
@@ -149,6 +164,9 @@
                   WhatsApp
                 </button>
               </div>
+              <p v-if="selectedCommercial.zone_affectation" class="text-sm text-gray-600 mt-1">
+                📍 {{ selectedCommercial.zone_affectation }}
+              </p>
             </div>
           </div>
           <button @click="selectedCommercial = null" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
@@ -245,6 +263,10 @@
               WhatsApp
             </button>
           </div>
+          <div v-if="commercial.zone_affectation" class="flex items-center text-sm text-gray-600">
+            <span class="mr-2">📍</span>
+            <span>{{ commercial.zone_affectation }}</span>
+          </div>
         </div>
 
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 mb-4">
@@ -294,6 +316,7 @@ import { commercialsService, type Commercial, type CreateCommercialData, type Up
 import { imageUploadService } from '../services/image-upload.service';
 import { analyticsService, type CommercialMonthlyRevenue } from '../services/analytics.service';
 import type { Profile } from '../services/supabase';
+import { communesCoteIvoire } from '../data/communes-cote-ivoire';
 
 const props = defineProps<{
   profile: Profile;
@@ -321,6 +344,7 @@ const formData = ref<CreateCommercialData & UpdateCommercialData>({
   full_name: '',
   phone: '',
   photo_url: '',
+  zone_affectation: '',
 });
 
 const loadCommercials = async () => {
@@ -410,6 +434,7 @@ const handleSubmit = async () => {
         full_name: formData.value.full_name,
         phone: formData.value.phone,
         photo_url: photoUrl || undefined,
+        zone_affectation: formData.value.zone_affectation || undefined,
       });
       alert('Commercial mis à jour avec succès');
     } else {
@@ -424,6 +449,7 @@ const handleSubmit = async () => {
         full_name: formData.value.full_name,
         phone: formData.value.phone,
         photo_url: photoUrl || undefined,
+        zone_affectation: formData.value.zone_affectation || undefined,
       });
       alert('Commercial créé avec succès');
     }
@@ -444,6 +470,7 @@ const openCreateForm = () => {
     full_name: '',
     phone: '',
     photo_url: '',
+    zone_affectation: '',
   };
   selectedFile.value = null;
   previewUrl.value = '';
@@ -458,6 +485,7 @@ const openEditForm = (commercial: Commercial) => {
     full_name: commercial.full_name,
     phone: commercial.phone || '',
     photo_url: commercial.photo_url || '',
+    zone_affectation: commercial.zone_affectation || '',
   };
   selectedFile.value = null;
   previewUrl.value = '';
@@ -473,6 +501,7 @@ const closeForm = () => {
     full_name: '',
     phone: '',
     photo_url: '',
+    zone_affectation: '',
   };
   selectedFile.value = null;
   previewUrl.value = '';
