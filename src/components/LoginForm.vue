@@ -84,6 +84,11 @@ onMounted(async () => {
             :disabled="loading"
             required
           />
+          <div class="text-right mt-2">
+            <a href="#/forgot-password" class="text-sm text-primary hover:underline">
+              Mot de passe oublié ?
+            </a>
+          </div>
         </div>
 
         <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">

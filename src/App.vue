@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue';
 import LoginForm from './components/LoginForm.vue';
 import CompanyRegistration from './components/CompanyRegistration.vue';
+import ForgotPassword from './components/ForgotPassword.vue';
+import ResetPassword from './components/ResetPassword.vue';
 import Dashboard from './components/Dashboard.vue';
 import { authService } from './services/auth';
 import { updateFavicon } from './utils/favicon';
@@ -16,6 +18,10 @@ const updateRoute = () => {
   const hash = window.location.hash.slice(1);
   if (hash === '/register') {
     currentRoute.value = 'register';
+  } else if (hash === '/forgot-password') {
+    currentRoute.value = 'forgot-password';
+  } else if (hash === '/reset-password') {
+    currentRoute.value = 'reset-password';
   } else {
     currentRoute.value = 'login';
   }
@@ -69,6 +75,19 @@ const handleLogout = () => {
   currentProfile.value = null;
   isAuthenticated.value = false;
 };
+
+const handleResetSuccess = async () => {
+  window.location.hash = '/login';
+  try {
+    const profile = await authService.getCurrentProfile();
+    if (profile) {
+      currentProfile.value = profile;
+      isAuthenticated.value = true;
+    }
+  } catch (error) {
+    console.error('Error after password reset:', error);
+  }
+};
 </script>
 
 <template>
@@ -80,6 +99,13 @@ const handleLogout = () => {
   </div>
 
   <CompanyRegistration v-else-if="!isAuthenticated && currentRoute === 'register'" />
+
+  <ForgotPassword v-else-if="!isAuthenticated && currentRoute === 'forgot-password'" />
+
+  <ResetPassword
+    v-else-if="currentRoute === 'reset-password'"
+    @success="handleResetSuccess"
+  />
 
   <LoginForm
     v-else-if="!isAuthenticated"
