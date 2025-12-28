@@ -164,7 +164,7 @@
               >
                 <option value="pending">En attente</option>
                 <option value="confirmed">Confirmée</option>
-                <option value="delivered">Livrée</option>
+                <option value="c">Livrée</option>
                 <option value="cancelled">Annulée</option>
               </select>
             </td>
