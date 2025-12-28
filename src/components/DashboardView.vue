@@ -51,6 +51,10 @@ const commercialCommission = computed(() => {
   return (monthlyRevenue * commissionRate) / 100;
 });
 
+const maxCommercialRevenue = computed(() => {
+  return Math.max(...topCommercials.value.map((c) => c.total_revenue), 1);
+});
+
 const maxProductRevenue = computed(() => {
   return Math.max(...topProducts.value.map((p) => p.total_revenue), 1);
 });
@@ -231,8 +235,82 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-6">
-        <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div v-if="!isCommercial" class="bg-white rounded-xl shadow-md p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-gray-800">🏆 Meilleurs Commerciaux</h3>
+              <p class="text-xs text-gray-500 mt-1">Top 5 du mois en cours</p>
+            </div>
+            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Par CA réalisé</span>
+          </div>
+          <div v-if="topCommercials.length === 0" class="text-center py-8 text-gray-500">
+            Aucune donnée disponible
+          </div>
+          <div v-else class="space-y-4">
+            <div
+              v-for="(commercial, index) in topCommercials"
+              :key="commercial.id"
+              class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              :class="{
+                'bg-yellow-50 border border-yellow-200': index === 0,
+                'bg-gray-50 border border-gray-200': index === 1,
+                'bg-orange-50 border border-orange-200': index === 2
+              }"
+            >
+              <div
+                class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                :class="{
+                  'bg-yellow-500 text-white': index === 0,
+                  'bg-gray-400 text-white': index === 1,
+                  'bg-orange-600 text-white': index === 2,
+                  'bg-blue-500 text-white': index > 2
+                }"
+              >
+                <span v-if="index === 0">🥇</span>
+                <span v-else-if="index === 1">🥈</span>
+                <span v-else-if="index === 2">🥉</span>
+                <span v-else>{{ index + 1 }}</span>
+              </div>
+              <div class="flex-shrink-0">
+                <div
+                  v-if="commercial.photo_url"
+                  class="w-10 h-10 rounded-full bg-gray-200 bg-cover bg-center"
+                  :style="{ backgroundImage: `url(${commercial.photo_url})` }"
+                ></div>
+                <div
+                  v-else
+                  class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold"
+                >
+                  {{ commercial.full_name.charAt(0).toUpperCase() }}
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <div class="text-sm font-semibold text-gray-800 truncate">
+                    {{ commercial.full_name }}
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 mt-1">
+                  <div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500"
+                      :style="{ width: getBarWidth(commercial.total_revenue, maxCommercialRevenue) }"
+                    ></div>
+                  </div>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                  {{ formatCurrency(commercial.total_revenue) }} FCFA • {{ commercial.total_orders }} commandes
+                </div>
+                <div v-if="companySettings?.commission_rate" class="text-xs text-green-600 font-medium mt-1">
+                  Commission: {{ formatCurrency((commercial.total_revenue * (companySettings.commission_rate || 0)) / 100) }} FCFA
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6" :class="{ 'lg:col-span-2': isCommercial }">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-bold text-gray-800">📊 Produits les Plus Vendus</h3>
             <span class="text-xs text-gray-500">Top 5</span>
