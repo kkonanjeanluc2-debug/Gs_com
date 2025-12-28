@@ -18,6 +18,7 @@ const stats = ref<DashboardStats>({
   totalProducts: 0,
   revenueGrowth: 0,
   ordersGrowth: 0,
+  todayRevenue: 0,
 });
 
 const todayRevenue = ref(0);
@@ -89,7 +90,6 @@ const loadDashboardData = async () => {
   try {
     const [
       statsData,
-      todayRevenueData,
       commercialsData,
       productsData,
       clientsData,
@@ -98,7 +98,6 @@ const loadDashboardData = async () => {
       evolutionData,
     ] = await Promise.all([
       analyticsService.getDashboardStats(),
-      analyticsService.getTodayRevenue(),
       analyticsService.getTopCommercials(5),
       analyticsService.getTopProducts(5),
       analyticsService.getTopClients(5),
@@ -108,7 +107,7 @@ const loadDashboardData = async () => {
     ]);
 
     stats.value = statsData;
-    todayRevenue.value = todayRevenueData;
+    todayRevenue.value = statsData.todayRevenue;
     topCommercials.value = commercialsData;
     topProducts.value = productsData;
     topClients.value = clientsData;

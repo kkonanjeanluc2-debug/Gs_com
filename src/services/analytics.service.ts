@@ -7,6 +7,7 @@ export interface DashboardStats {
   totalProducts: number;
   revenueGrowth: number;
   ordersGrowth: number;
+  todayRevenue: number;
 }
 
 export interface TopCommercial {
@@ -77,52 +78,33 @@ export class AnalyticsService {
   async getDashboardStats(): Promise<DashboardStats> {
     const company_id = await getCurrentUserCompanyId();
 
-    const now = new Date();
-    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
+    const { data, error } = await supabase.rpc('get_dashboard_stats_optimized', {
+      p_company_id: company_id
+    });
 
-    const { data: currentMonthOrders } = await supabase
-      .from('orders')
-      .select('total_amount')
-      .eq('company_id', company_id)
-      .eq('status', 'delivered')
-      .gte('created_at', currentMonthStart);
+    if (error) throw error;
 
-    const { data: lastMonthOrders } = await supabase
-      .from('orders')
-      .select('total_amount')
-      .eq('company_id', company_id)
-      .eq('status', 'delivered')
-      .gte('created_at', lastMonthStart)
-      .lte('created_at', lastMonthEnd);
-
-    const currentRevenue = currentMonthOrders?.reduce((sum, o) => sum + Number(o.total_amount), 0) || 0;
-    const lastRevenue = lastMonthOrders?.reduce((sum, o) => sum + Number(o.total_amount), 0) || 0;
-    const revenueGrowth = lastRevenue > 0 ? ((currentRevenue - lastRevenue) / lastRevenue) * 100 : 0;
-
-    const currentOrdersCount = currentMonthOrders?.length || 0;
-    const lastOrdersCount = lastMonthOrders?.length || 0;
-    const ordersGrowth = lastOrdersCount > 0 ? ((currentOrdersCount - lastOrdersCount) / lastOrdersCount) * 100 : 0;
-
-    const { count: clientsCount } = await supabase
-      .from('clients')
-      .select('*', { count: 'exact', head: true })
-      .eq('company_id', company_id)
-      .eq('type', 'client');
-
-    const { count: productsCount } = await supabase
-      .from('products')
-      .select('*', { count: 'exact', head: true })
-      .eq('company_id', company_id);
+    const stats = data?.[0];
+    if (!stats) {
+      return {
+        totalRevenue: 0,
+        totalOrders: 0,
+        totalClients: 0,
+        totalProducts: 0,
+        revenueGrowth: 0,
+        ordersGrowth: 0,
+        todayRevenue: 0,
+      };
+    }
 
     return {
-      totalRevenue: currentRevenue,
-      totalOrders: currentOrdersCount,
-      totalClients: clientsCount || 0,
-      totalProducts: productsCount || 0,
-      revenueGrowth,
-      ordersGrowth,
+      totalRevenue: Number(stats.total_revenue),
+      totalOrders: Number(stats.total_orders),
+      totalClients: Number(stats.total_clients),
+      totalProducts: Number(stats.total_products),
+      revenueGrowth: Number(stats.revenue_growth),
+      ordersGrowth: Number(stats.orders_growth),
+      todayRevenue: Number(stats.today_revenue),
     };
   }
 
@@ -348,44 +330,18 @@ export class AnalyticsService {
   async getSalesEvolution(days: number = 7): Promise<SalesEvolution[]> {
     const company_id = await getCurrentUserCompanyId();
 
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-
-    const { data, error } = await supabase
-      .from('orders')
-      .select('created_at, total_amount')
-      .eq('company_id', company_id)
-      .eq('status', 'delivered')
-      .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString())
-      .order('created_at', { ascending: true });
+    const { data, error } = await supabase.rpc('get_sales_evolution', {
+      p_company_id: company_id,
+      p_days: days
+    });
 
     if (error) throw error;
 
-    const dailyStats = new Map<string, SalesEvolution>();
-
-    for (let i = 0; i < days; i++) {
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
-      dailyStats.set(dateStr, {
-        date: dateStr,
-        revenue: 0,
-        orders: 0,
-      });
-    }
-
-    data?.forEach((order: any) => {
-      const dateStr = order.created_at.split('T')[0];
-      if (dailyStats.has(dateStr)) {
-        const stats = dailyStats.get(dateStr)!;
-        stats.revenue += Number(order.total_amount);
-        stats.orders += 1;
-      }
-    });
-
-    return Array.from(dailyStats.values());
+    return (data || []).map((row: any) => ({
+      date: row.date,
+      revenue: Number(row.revenue),
+      orders: Number(row.orders),
+    }));
   }
 
   async getCommercialsMonthlyRevenue(): Promise<CommercialMonthlyRevenue[]> {
@@ -440,21 +396,13 @@ export class AnalyticsService {
   async getTodayRevenue(): Promise<number> {
     const company_id = await getCurrentUserCompanyId();
 
-    const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
-    const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
-
-    const { data, error } = await supabase
-      .from('orders')
-      .select('total_amount')
-      .eq('company_id', company_id)
-      .eq('status', 'delivered')
-      .gte('created_at', todayStart)
-      .lte('created_at', todayEnd);
+    const { data, error } = await supabase.rpc('get_dashboard_stats_optimized', {
+      p_company_id: company_id
+    });
 
     if (error) throw error;
 
-    return data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+    return Number(data?.[0]?.today_revenue || 0);
   }
 }
 
