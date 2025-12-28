@@ -180,6 +180,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { companyService, type CompanySettings } from '../services/company.service';
+import { updateFavicon } from '../utils/favicon';
 
 const loading = ref(true);
 const saving = ref(false);
@@ -246,6 +247,13 @@ const handleRemoveLogo = async () => {
     formData.value.logo_url = '';
     previewUrl.value = '';
     selectedFile.value = null;
+
+    await companyService.updateSettings({
+      ...formData.value,
+      logo_url: '',
+    });
+
+    await updateFavicon();
     success.value = true;
     setTimeout(() => success.value = false, 3000);
   } catch (err: any) {
@@ -275,6 +283,7 @@ const handleSubmit = async () => {
     });
 
     await loadSettings();
+    await updateFavicon();
     selectedFile.value = null;
     previewUrl.value = '';
     success.value = true;
