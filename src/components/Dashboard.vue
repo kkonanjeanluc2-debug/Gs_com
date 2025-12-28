@@ -14,6 +14,7 @@ import CategoryManagement from './CategoryManagement.vue';
 import OrderManagement from './OrderManagement.vue';
 import CompanySettings from './CompanySettings.vue';
 import CompanyManagement from './CompanyManagement.vue';
+import SuperAdminSettings from './SuperAdminSettings.vue';
 import AppFooter from './AppFooter.vue';
 import { reportsService } from '../services/reports.service';
 import { whatsappService } from '../services/whatsapp';
@@ -28,7 +29,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company' | 'companies'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company' | 'companies' | 'settings'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -71,6 +72,7 @@ const tabs = computed(() => {
     { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value && !isSuperAdmin.value },
     { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value && !isSuperAdmin.value },
     { id: 'companies', label: 'Entreprises', icon: '🏢', visible: isSuperAdmin.value },
+    { id: 'settings', label: 'Paramètres', icon: '⚙️', visible: isSuperAdmin.value },
   ];
   return allTabs.filter(tab => tab.visible !== false);
 });
@@ -693,6 +695,7 @@ loadReports();
       <UserManagement v-if="activeTab === 'users'" />
       <CompanySettings v-if="activeTab === 'company'" />
       <CompanyManagement v-if="activeTab === 'companies'" />
+      <SuperAdminSettings v-if="activeTab === 'settings'" />
     </main>
 
     <AppFooter />
