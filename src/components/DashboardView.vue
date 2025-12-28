@@ -117,6 +117,7 @@ const loadDashboardData = async () => {
       ordersData,
       prospectsData,
       evolutionData,
+      settings,
     ] = await Promise.all([
       analyticsService.getDashboardStats(),
       analyticsService.getTopCommercials(5),
@@ -125,6 +126,7 @@ const loadDashboardData = async () => {
       analyticsService.getRecentOrders(5),
       analyticsService.getRecentProspects(5),
       analyticsService.getSalesEvolution(7),
+      companyService.getSettings(),
     ]);
 
     stats.value = statsData;
@@ -135,15 +137,11 @@ const loadDashboardData = async () => {
     recentOrders.value = ordersData;
     recentProspects.value = prospectsData;
     salesEvolution.value = evolutionData;
+    companySettings.value = settings;
 
     if (isCommercial.value && props.profile?.id) {
-      const [revenues, settings] = await Promise.all([
-        analyticsService.getCommercialsMonthlyRevenue(),
-        companyService.getSettings(),
-      ]);
-
+      const revenues = await analyticsService.getCommercialsMonthlyRevenue();
       commercialRevenue.value = revenues.find(r => r.id === props.profile?.id) || null;
-      companySettings.value = settings;
     }
   } catch (error) {
     console.error('Error loading dashboard data:', error);
@@ -240,8 +238,11 @@ onMounted(() => {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-gray-800">🏆 Meilleurs Commerciaux</h3>
-            <span class="text-xs text-gray-500">Par CA réalisé</span>
+            <div>
+              <h3 class="text-lg font-bold text-gray-800">🏆 Meilleurs Commerciaux</h3>
+              <p class="text-xs text-gray-500 mt-1">Top 5 du mois en cours</p>
+            </div>
+            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Par CA réalisé</span>
           </div>
           <div v-if="topCommercials.length === 0" class="text-center py-8 text-gray-500">
             Aucune donnée disponible
@@ -250,10 +251,26 @@ onMounted(() => {
             <div
               v-for="(commercial, index) in topCommercials"
               :key="commercial.id"
-              class="flex items-center gap-4"
+              class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              :class="{
+                'bg-yellow-50 border border-yellow-200': index === 0,
+                'bg-gray-50 border border-gray-200': index === 1,
+                'bg-orange-50 border border-orange-200': index === 2
+              }"
             >
-              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
-                {{ index + 1 }}
+              <div
+                class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                :class="{
+                  'bg-yellow-500 text-white': index === 0,
+                  'bg-gray-400 text-white': index === 1,
+                  'bg-orange-600 text-white': index === 2,
+                  'bg-blue-500 text-white': index > 2
+                }"
+              >
+                <span v-if="index === 0">🥇</span>
+                <span v-else-if="index === 1">🥈</span>
+                <span v-else-if="index === 2">🥉</span>
+                <span v-else>{{ index + 1 }}</span>
               </div>
               <div class="flex-shrink-0">
                 <div
@@ -269,8 +286,16 @@ onMounted(() => {
                 </div>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold text-gray-800 truncate">
-                  {{ commercial.full_name }}
+                <div class="flex items-center gap-2">
+                  <div class="text-sm font-semibold text-gray-800 truncate">
+                    {{ commercial.full_name }}
+                  </div>
+                  <span
+                    v-if="isCommercial && commercial.id === profile?.id"
+                    class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-medium"
+                  >
+                    Vous
+                  </span>
                 </div>
                 <div class="flex items-center gap-3 mt-1">
                   <div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -282,6 +307,9 @@ onMounted(() => {
                 </div>
                 <div class="text-xs text-gray-500 mt-1">
                   {{ formatCurrency(commercial.total_revenue) }} FCFA • {{ commercial.total_orders }} commandes
+                </div>
+                <div v-if="companySettings?.commission_rate" class="text-xs text-green-600 font-medium mt-1">
+                  Commission: {{ formatCurrency((commercial.total_revenue * (companySettings.commission_rate || 0)) / 100) }} FCFA
                 </div>
               </div>
             </div>
