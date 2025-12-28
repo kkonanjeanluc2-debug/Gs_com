@@ -445,14 +445,13 @@ const printOrder = (order: Order) => {
   if (!printWindow) return;
 
   const company = companySettings.value;
-  const documentTitle = order.status === 'delivered' ? 'Bon de livraison' : 'Commande';
 
   const html = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>${documentTitle} ${order.order_number}</title>
+      <title>${order.status === 'delivered' ? 'Bon de livraison' : 'Commande'} ${order.order_number}</title>
       <style>
         body {
           font-family: Arial, sans-serif;
@@ -528,7 +527,7 @@ const printOrder = (order: Order) => {
     <body>
       <div class="top-section">
         <div>
-          <h1>${documentTitle} ${order.order_number}</h1>
+          <h1>${order.status === 'delivered' ? 'Bon de livraison' : 'Commande'} ${order.order_number}</h1>
           <div class="order-meta">
             <p>Date: ${new Date(order.created_at!).toLocaleDateString('fr-FR')}</p>
             <p>Statut: ${getStatusLabel(order.status)}</p>
