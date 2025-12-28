@@ -603,7 +603,7 @@ loadReports();
     </div>
 
     <main class="flex-1 container mx-auto px-4 py-6 md:py-8">
-      <DashboardView v-if="activeTab === 'dashboard'" />
+      <DashboardView v-if="activeTab === 'dashboard'" :profile="profile" />
 
       <div v-if="activeTab === 'reports'">
         <div class="mb-6 flex justify-end gap-3">

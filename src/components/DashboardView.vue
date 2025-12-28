@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { analyticsService } from '../services/analytics.service';
+import { analyticsService, type CommercialMonthlyRevenue } from '../services/analytics.service';
+import { companyService, type CompanySettings } from '../services/company.service';
+import type { Profile } from '../services/supabase';
 import type {
   DashboardStats,
   TopCommercial,
@@ -10,6 +12,10 @@ import type {
   RecentProspect,
   SalesEvolution,
 } from '../services/analytics.service';
+
+const props = defineProps<{
+  profile?: Profile;
+}>();
 
 const stats = ref<DashboardStats>({
   totalRevenue: 0,
@@ -29,6 +35,21 @@ const recentOrders = ref<RecentOrder[]>([]);
 const recentProspects = ref<RecentProspect[]>([]);
 const salesEvolution = ref<SalesEvolution[]>([]);
 const isLoading = ref(true);
+const commercialRevenue = ref<CommercialMonthlyRevenue | null>(null);
+const companySettings = ref<CompanySettings | null>(null);
+
+const isCommercial = computed(() => {
+  return props.profile?.role === 'commercial';
+});
+
+const commercialCommission = computed(() => {
+  if (!commercialRevenue.value || !companySettings.value?.commission_rate) return 0;
+
+  const monthlyRevenue = commercialRevenue.value.monthly_revenue || 0;
+  const commissionRate = companySettings.value.commission_rate || 0;
+
+  return (monthlyRevenue * commissionRate) / 100;
+});
 
 const maxCommercialRevenue = computed(() => {
   return Math.max(...topCommercials.value.map((c) => c.total_revenue), 1);
@@ -114,6 +135,16 @@ const loadDashboardData = async () => {
     recentOrders.value = ordersData;
     recentProspects.value = prospectsData;
     salesEvolution.value = evolutionData;
+
+    if (isCommercial.value && props.profile?.id) {
+      const [revenues, settings] = await Promise.all([
+        analyticsService.getCommercialsMonthlyRevenue(),
+        companyService.getSettings(),
+      ]);
+
+      commercialRevenue.value = revenues.find(r => r.id === props.profile?.id) || null;
+      companySettings.value = settings;
+    }
   } catch (error) {
     console.error('Error loading dashboard data:', error);
   } finally {
@@ -173,7 +204,21 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+        <div v-if="isCommercial && companySettings?.commission_rate" class="bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-teal-100 text-sm font-medium">Ma Commission</span>
+            <span class="text-2xl">💎</span>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(commercialCommission) }}</div>
+          <div class="text-teal-100 text-xs">FCFA ce mois ({{ companySettings.commission_rate }}%)</div>
+          <div class="mt-3 flex items-center gap-1 text-sm">
+            <span class="text-teal-200 text-xs">
+              CA: {{ formatCurrency(commercialRevenue?.monthly_revenue || 0) }} FCFA
+            </span>
+          </div>
+        </div>
+
+        <div v-else class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-purple-100 text-sm font-medium">Clients</span>
             <span class="text-2xl">👥</span>
