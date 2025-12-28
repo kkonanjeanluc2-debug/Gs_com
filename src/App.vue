@@ -39,18 +39,32 @@ onMounted(async () => {
       currentProfile.value = profile;
       isAuthenticated.value = true;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error checking auth:', error);
+    if (error?.message?.includes('Invalid') || error?.message?.includes('JWT') || error?.message?.includes('expired')) {
+      await authService.signOut().catch(() => {});
+      currentProfile.value = null;
+      isAuthenticated.value = false;
+    }
   } finally {
     loading.value = false;
   }
 
   authService.onAuthStateChange(async (session) => {
     if (session) {
-      const profile = await authService.getCurrentProfile();
-      if (profile) {
-        currentProfile.value = profile;
-        isAuthenticated.value = true;
+      try {
+        const profile = await authService.getCurrentProfile();
+        if (profile) {
+          currentProfile.value = profile;
+          isAuthenticated.value = true;
+        }
+      } catch (error: any) {
+        console.error('Error loading profile:', error);
+        if (error?.message?.includes('Invalid') || error?.message?.includes('JWT') || error?.message?.includes('expired')) {
+          await authService.signOut().catch(() => {});
+          currentProfile.value = null;
+          isAuthenticated.value = false;
+        }
       }
     } else {
       currentProfile.value = null;

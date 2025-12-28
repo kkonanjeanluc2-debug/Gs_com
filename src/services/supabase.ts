@@ -7,7 +7,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'supabase.auth.token',
+  },
+});
+
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'TOKEN_REFRESHED') {
+    console.log('Token refreshed successfully');
+  } else if (event === 'SIGNED_OUT') {
+    console.log('User signed out');
+  } else if (event === 'USER_UPDATED') {
+    console.log('User updated');
+  }
+});
 
 export interface Profile {
   id: string;
