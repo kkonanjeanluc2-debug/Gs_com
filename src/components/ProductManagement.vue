@@ -282,17 +282,22 @@ const handleImportFile = async (event: Event) => {
 
       <div class="space-y-4">
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 class="font-semibold text-blue-900 mb-2">Format du fichier Excel</h4>
-          <p class="text-sm text-blue-800 mb-3">Votre fichier Excel doit contenir les colonnes suivantes:</p>
+          <h4 class="font-semibold text-blue-900 mb-2">Importation flexible</h4>
+          <p class="text-sm text-blue-800 mb-3">Le système accepte différents formats de colonnes:</p>
           <ul class="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li><strong>Code</strong> (obligatoire) - Code unique du produit (SKU)</li>
-            <li><strong>Désignation</strong> (obligatoire) - Nom du produit</li>
-            <li><strong>Prix</strong> (obligatoire) - Prix en FCFA</li>
-            <li><strong>Stock</strong> (obligatoire) - Quantité en stock</li>
+            <li><strong>Code/SKU/Référence</strong> - généré automatiquement si absent</li>
+            <li><strong>Désignation/Nom/Produit</strong> - "Produit sans nom" si absent</li>
+            <li><strong>Prix/Montant/Tarif</strong> - 0 si absent ou invalide</li>
+            <li><strong>Stock/Quantité/Qté</strong> - 0 si absent ou invalide</li>
           </ul>
-          <p class="text-sm text-blue-700 mt-3">
-            💡 Téléchargez le modèle pour un exemple de format correct
-          </p>
+          <div class="mt-3 pt-3 border-t border-blue-200">
+            <p class="text-sm text-blue-700 font-medium mb-1">
+              ✓ Mise à jour automatique
+            </p>
+            <p class="text-xs text-blue-600">
+              Si un produit avec le même SKU existe déjà, il sera mis à jour au lieu d'être créé en double.
+            </p>
+          </div>
         </div>
 
         <div>

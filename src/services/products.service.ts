@@ -50,6 +50,20 @@ export class ProductsService {
     return data;
   }
 
+  async getProductBySku(sku: string) {
+    const companyId = await getCurrentUserCompanyId();
+
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('sku', sku)
+      .eq('company_id', companyId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  }
+
   async getAllProducts() {
     const companyId = await getCurrentUserCompanyId();
 

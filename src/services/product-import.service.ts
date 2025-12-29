@@ -27,8 +27,18 @@ class ProductImportService {
     try {
       const data = await this.readExcelFile(file);
 
+      if (data.length === 0) {
+        result.errors.push('Le fichier est vide ou ne contient pas de données');
+        return result;
+      }
+
       for (let i = 0; i < data.length; i++) {
         const row = data[i];
+
+        if (this.isEmptyRow(row)) {
+          continue;
+        }
+
         try {
           await this.importProduct(row);
           result.success++;
@@ -43,6 +53,13 @@ class ProductImportService {
     }
 
     return result;
+  }
+
+  private isEmptyRow(row: any): boolean {
+    if (!row || typeof row !== 'object') return true;
+    return Object.values(row).every(value =>
+      value === null || value === undefined || value === ''
+    );
   }
 
   private async readExcelFile(file: File): Promise<any[]> {
@@ -71,37 +88,70 @@ class ProductImportService {
   }
 
   private async importProduct(row: any): Promise<void> {
-    const sku = row['Code'] || row['SKU'] || row['code'] || row['sku'];
-    const name = row['Désignation'] || row['Nom'] || row['designation'] || row['nom'] || row['name'];
-    const price = parseFloat(row['Prix'] || row['price'] || '0');
-    const stock = parseInt(row['Stock'] || row['stock'] || '0');
+    const sku = this.findValue(row, ['Code', 'SKU', 'code', 'sku', 'Référence', 'référence', 'ref', 'Ref']) || this.generateSKU();
+    const name = this.findValue(row, ['Désignation', 'Nom', 'designation', 'nom', 'name', 'Name', 'Produit', 'produit', 'Article', 'article']) || 'Produit sans nom';
+    const priceValue = this.findValue(row, ['Prix', 'price', 'Price', 'PRIX', 'Montant', 'montant', 'Tarif', 'tarif']) || '0';
+    const stockValue = this.findValue(row, ['Stock', 'stock', 'STOCK', 'Quantité', 'quantité', 'Qty', 'qty', 'Qté', 'qté']) || '0';
 
-    if (!sku) {
-      throw new Error('Code (SKU) manquant');
+    let price = 0;
+    let stock = 0;
+
+    try {
+      const cleanPrice = priceValue.toString().replace(/\s/g, '').replace(',', '.');
+      price = parseFloat(cleanPrice);
+      if (isNaN(price)) {
+        price = 0;
+      }
+    } catch {
+      price = 0;
     }
-    if (!name) {
-      throw new Error('Désignation manquante');
-    }
-    if (isNaN(price) || price < 0) {
-      throw new Error('Prix invalide');
-    }
-    if (isNaN(stock) || stock < 0) {
-      throw new Error('Stock invalide');
+
+    try {
+      const cleanStock = stockValue.toString().replace(/\s/g, '');
+      stock = parseInt(cleanStock);
+      if (isNaN(stock)) {
+        stock = 0;
+      }
+    } catch {
+      stock = 0;
     }
 
     const productData = {
-      sku,
       name,
-      price,
-      stock_quantity: stock,
-      description: null,
-      min_stock: 0,
-      category_id: null,
-      subcategory_id: null,
-      image_url: null,
+      price: Math.max(0, price),
+      stock_quantity: Math.max(0, stock),
     };
 
-    await productsService.createProduct(productData);
+    const existingProduct = await productsService.getProductBySku(sku);
+
+    if (existingProduct) {
+      await productsService.updateProduct(existingProduct.id, productData);
+    } else {
+      await productsService.createProduct({
+        ...productData,
+        sku,
+        description: null,
+        min_stock: 0,
+        category_id: null,
+        subcategory_id: null,
+        image_url: null,
+      });
+    }
+  }
+
+  private findValue(row: any, possibleKeys: string[]): any {
+    for (const key of possibleKeys) {
+      if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+        return row[key];
+      }
+    }
+    return null;
+  }
+
+  private generateSKU(): string {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substring(2, 7);
+    return `PROD-${timestamp}-${random}`.toUpperCase();
   }
 
   validateFile(file: File): { valid: boolean; error?: string } {
