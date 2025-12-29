@@ -61,15 +61,29 @@
                       v-for="product in getFilteredProducts(index)"
                       :key="product.id"
                       type="button"
-                      @click="selectProduct(index, product)"
-                      class="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
+                      @click="product.stock_quantity > 0 && selectProduct(index, product)"
+                      :disabled="product.stock_quantity <= 0"
+                      :class="[
+                        'w-full text-left px-3 py-2 border-b border-gray-100 last:border-b-0',
+                        product.stock_quantity <= 0
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                          : 'hover:bg-blue-50'
+                      ]"
                     >
-                      <div class="font-medium">{{ product.name }}</div>
-                      <div class="text-sm text-gray-600">{{ product.price }} F CFA - Stock: {{ product.stock_quantity }}</div>
+                      <div class="font-medium">
+                        {{ product.name }}
+                        <span v-if="product.stock_quantity <= 0" class="ml-2 text-xs text-red-600 font-bold">(RUPTURE DE STOCK)</span>
+                      </div>
+                      <div class="text-sm" :class="product.stock_quantity <= 0 ? 'text-red-500' : 'text-gray-600'">
+                        {{ product.price }} F CFA - Stock: {{ product.stock_quantity }}
+                      </div>
                     </button>
                   </div>
                   <div v-if="item.product_id" class="mt-2 px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded border border-blue-200">
                     ✓ {{ products.find(p => p.id === item.product_id)?.name }}
+                    <span class="ml-2 text-gray-600">
+                      (Stock disponible: {{ products.find(p => p.id === item.product_id)?.stock_quantity }})
+                    </span>
                   </div>
                 </div>
 
@@ -80,10 +94,15 @@
                       v-model.number="item.quantity"
                       type="number"
                       min="1"
+                      :max="item.product_id ? products.find(p => p.id === item.product_id)?.stock_quantity : undefined"
                       required
                       placeholder="Qté"
                       class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
+                    <p v-if="item.product_id && item.quantity > (products.find(p => p.id === item.product_id)?.stock_quantity || 0)"
+                       class="text-xs text-red-600 mt-1">
+                      Quantité supérieure au stock disponible
+                    </p>
                   </div>
 
                   <div>
@@ -411,6 +430,23 @@ const handleSubmit = async () => {
   }
 
   for (const item of formData.value.items) {
+    const product = products.value.find(p => p.id === item.product_id);
+
+    if (!product) {
+      error.value = 'Produit introuvable';
+      return;
+    }
+
+    if (product.stock_quantity <= 0) {
+      error.value = `${product.name} est en rupture de stock`;
+      return;
+    }
+
+    if (item.quantity > product.stock_quantity) {
+      error.value = `Quantité demandée (${item.quantity}) supérieure au stock disponible pour ${product.name} (${product.stock_quantity})`;
+      return;
+    }
+
     if (item.original_price && item.unit_price < item.original_price) {
       error.value = `Le prix ne peut pas être inférieur au prix catalogue (${item.original_price} F CFA)`;
       return;

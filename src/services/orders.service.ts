@@ -98,6 +98,34 @@ export const ordersService = {
 
     const company_id = await getCurrentUserCompanyId();
 
+    const productIds = orderData.items.map(item => item.product_id);
+    const { data: products, error: productsError } = await supabase
+      .from('products')
+      .select('id, name, sku, stock_quantity')
+      .in('id', productIds)
+      .eq('company_id', company_id);
+
+    if (productsError) throw productsError;
+
+    const stockErrors: string[] = [];
+    for (const item of orderData.items) {
+      const product = products?.find(p => p.id === item.product_id);
+      if (!product) {
+        stockErrors.push(`Produit introuvable`);
+        continue;
+      }
+
+      if (product.stock_quantity <= 0) {
+        stockErrors.push(`${product.name} (${product.sku}): stock épuisé`);
+      } else if (product.stock_quantity < item.quantity) {
+        stockErrors.push(`${product.name} (${product.sku}): stock insuffisant (disponible: ${product.stock_quantity})`);
+      }
+    }
+
+    if (stockErrors.length > 0) {
+      throw new Error(`Impossible de créer la commande:\n${stockErrors.join('\n')}`);
+    }
+
     const total_amount = orderData.items.reduce(
       (sum, item) => sum + item.quantity * item.unit_price,
       0
