@@ -85,10 +85,11 @@
                   v-model.number="item.unit_price"
                   type="number"
                   step="0.01"
-                  min="0"
+                  :min="item.original_price || 0"
                   required
                   placeholder="Prix"
                   class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  :title="item.original_price ? `Prix minimum: ${item.original_price} F CFA` : 'Prix'"
                 />
 
                 <button
@@ -290,6 +291,7 @@ interface OrderItemForm {
   product_id: string;
   quantity: number;
   unit_price: number;
+  original_price: number;
   showDropdown?: boolean;
 }
 
@@ -310,7 +312,7 @@ const productSearch = ref<string[]>([]);
 
 const formData = ref<OrderFormData>({
   client_id: '',
-  items: [{ product_id: '', quantity: 1, unit_price: 0, showDropdown: false }],
+  items: [{ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false }],
   notes: '',
 });
 
@@ -357,7 +359,7 @@ const loadCompanySettings = async () => {
 };
 
 const addProduct = () => {
-  formData.value.items.push({ product_id: '', quantity: 1, unit_price: 0, showDropdown: false });
+  formData.value.items.push({ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false });
   productSearch.value.push('');
 };
 
@@ -370,6 +372,7 @@ const selectProduct = (index: number, product: Product) => {
   const item = formData.value.items[index];
   item.product_id = product.id!;
   item.unit_price = product.price;
+  item.original_price = product.price;
   item.showDropdown = false;
   productSearch.value[index] = product.name;
 };
@@ -392,6 +395,13 @@ const handleSubmit = async () => {
   if (formData.value.items.length === 0) {
     error.value = 'Ajoutez au moins un produit';
     return;
+  }
+
+  for (const item of formData.value.items) {
+    if (item.original_price && item.unit_price < item.original_price) {
+      error.value = `Le prix ne peut pas être inférieur au prix catalogue (${item.original_price} F CFA)`;
+      return;
+    }
   }
 
   try {
@@ -419,7 +429,7 @@ const closeForm = () => {
   showForm.value = false;
   formData.value = {
     client_id: '',
-    items: [{ product_id: '', quantity: 1, unit_price: 0, showDropdown: false }],
+    items: [{ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false }],
     notes: '',
   };
   productSearch.value = [''];
