@@ -84,11 +84,21 @@ const closeForm = () => {
   error.value = '';
 };
 
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 const handleSubmit = async () => {
   error.value = '';
 
   if (!formData.value.email || !formData.value.full_name) {
     error.value = 'Veuillez remplir tous les champs obligatoires';
+    return;
+  }
+
+  if (!isValidEmail(formData.value.email)) {
+    error.value = 'Veuillez entrer une adresse email valide';
     return;
   }
 

@@ -13,6 +13,7 @@ const error = ref('');
 const loading = ref(false);
 const companyLogo = ref('');
 const companyName = ref('Gestion commerciale');
+const showPassword = ref(false);
 
 const handleLogin = async () => {
   if (!email.value || !password.value) {
@@ -76,14 +77,24 @@ onMounted(async () => {
 
         <div>
           <label class="label">Mot de passe</label>
-          <input
-            v-model="password"
-            type="password"
-            placeholder="••••••••"
-            class="input-field"
-            :disabled="loading"
-            required
-          />
+          <div class="relative">
+            <input
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              class="input-field pr-10"
+              :disabled="loading"
+              required
+            />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              :disabled="loading"
+            >
+              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
           <div class="text-right mt-2">
             <a href="#/forgot-password" class="text-sm text-primary hover:underline">
               Mot de passe oublié ?

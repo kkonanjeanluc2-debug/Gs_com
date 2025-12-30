@@ -326,6 +326,11 @@ import { companyService, type CompanySettings } from '../services/company.servic
 import type { Profile } from '../services/supabase';
 import { communesCoteIvoire } from '../data/communes-cote-ivoire';
 
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 const props = defineProps<{
   profile: Profile;
 }>();
@@ -461,6 +466,11 @@ const handleSubmit = async () => {
     } else {
       if (!formData.value.email || !formData.value.password) {
         error.value = 'Email et mot de passe sont requis';
+        return;
+      }
+
+      if (!isValidEmail(formData.value.email)) {
+        error.value = 'Veuillez entrer une adresse email valide';
         return;
       }
 
