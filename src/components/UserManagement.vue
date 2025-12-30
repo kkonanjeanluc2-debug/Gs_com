@@ -335,7 +335,7 @@ const getRoleColor = (role: string) => {
               v-model="formData.phone"
               type="tel"
               class="input-field"
-              placeholder="+225xxxxxxxxxx"
+              placeholder="Numéro de téléphone"
             />
           </div>
         </div>

@@ -280,7 +280,7 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="label">Téléphone WhatsApp</label>
-            <input v-model="formData.phone" type="tel" class="input-field" placeholder="+225xxxxxxxxxx" />
+            <input v-model="formData.phone" type="tel" class="input-field" placeholder="Numéro de téléphone" />
           </div>
           <div>
             <label class="label">Type</label>
