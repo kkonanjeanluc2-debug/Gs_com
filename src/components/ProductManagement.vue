@@ -274,13 +274,14 @@ const handleImportFile = async (event: Event) => {
       </div>
     </div>
 
-    <div v-if="showImportDialog" class="card">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-primary">Importer des produits depuis Excel</h3>
-        <button @click="closeImportDialog" class="text-gray-500 hover:text-gray-700">✕</button>
-      </div>
+    <div v-if="showImportDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-primary">Importer des produits depuis Excel</h3>
+          <button @click="closeImportDialog" class="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
 
-      <div class="space-y-4">
+        <div class="space-y-4">
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 class="font-semibold text-blue-900 mb-2">Importation flexible</h4>
           <p class="text-sm text-blue-800 mb-3">Le système accepte différents formats de colonnes:</p>
@@ -335,18 +336,20 @@ const handleImportFile = async (event: Event) => {
             Fermer
           </button>
         </div>
+        </div>
       </div>
     </div>
 
-    <div v-if="showForm" class="card">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-primary">
-          {{ editingProduct ? 'Modifier le produit' : 'Nouveau produit' }}
-        </h3>
-        <button @click="closeForm" class="text-gray-500 hover:text-gray-700">✕</button>
-      </div>
+    <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-primary">
+            {{ editingProduct ? 'Modifier le produit' : 'Nouveau produit' }}
+          </h3>
+          <button @click="closeForm" class="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+        <form @submit.prevent="handleSubmit" class="space-y-4">
         <div>
           <label class="label">Code (SKU)</label>
           <input v-model="formData.sku" type="text" class="input-field" required placeholder="Code unique du produit" />
@@ -420,6 +423,7 @@ const handleImportFile = async (event: Event) => {
           </button>
         </div>
       </form>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-8">
