@@ -391,8 +391,8 @@ const loadCompanySettings = async () => {
 };
 
 const addProduct = () => {
-  formData.value.items.push({ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false });
-  productSearch.value.push('');
+  formData.value.items.unshift({ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false });
+  productSearch.value.unshift('');
 };
 
 const removeProduct = (index: number) => {
