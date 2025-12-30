@@ -257,15 +257,16 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
       </button>
     </div>
 
-    <div v-if="showForm" class="card">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-primary">
-          {{ editingClient ? 'Modifier le contact' : 'Nouveau contact' }}
-        </h3>
-        <button @click="closeForm" class="text-gray-500 hover:text-gray-700">✕</button>
-      </div>
+    <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-primary">
+            {{ editingClient ? 'Modifier le contact' : 'Nouveau contact' }}
+          </h3>
+          <button @click="closeForm" class="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+        <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="label">Nom complet</label>
@@ -348,6 +349,7 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
           <button type="button" @click="closeForm" class="btn-secondary flex-1">Annuler</button>
         </div>
       </form>
+      </div>
     </div>
 
     <div v-if="loading" class="text-center py-8">

@@ -88,21 +88,22 @@ const handleSendWhatsApp = () => {
 </script>
 
 <template>
-  <div v-if="isOpen" class="card mb-6">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl md:text-2xl font-bold text-primary">
-        {{ initialData ? 'Modifier le rapport' : 'Nouveau rapport' }}
-      </h2>
-      <button
-        @click="emit('close')"
-        class="text-gray-500 hover:text-gray-700 text-2xl leading-none p-2"
-        aria-label="Fermer"
-      >
-        ✕
-      </button>
-    </div>
+  <div v-if="isOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl md:text-2xl font-bold text-primary">
+          {{ initialData ? 'Modifier le rapport' : 'Nouveau rapport' }}
+        </h2>
+        <button
+          @click="emit('close')"
+          class="text-gray-500 hover:text-gray-700 text-2xl leading-none p-2"
+          aria-label="Fermer"
+        >
+          ✕
+        </button>
+      </div>
 
-    <form @submit.prevent="handleSave" class="space-y-4">
+      <form @submit.prevent="handleSave" class="space-y-4">
       <div>
         <label class="label">📅 Date</label>
         <input
@@ -205,5 +206,6 @@ const handleSendWhatsApp = () => {
         </button>
       </div>
     </form>
+    </div>
   </div>
 </template>
