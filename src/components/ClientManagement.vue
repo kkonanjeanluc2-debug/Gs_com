@@ -165,34 +165,65 @@ const getCurrentLocation = () => {
   }
 
   gettingLocation.value = true;
+
+  const onSuccess = (position: GeolocationPosition) => {
+    formData.value.latitude = position.coords.latitude;
+    formData.value.longitude = position.coords.longitude;
+    gettingLocation.value = false;
+  };
+
+  const onError = (error: GeolocationPositionError) => {
+    let message = 'Erreur lors de la récupération de la position';
+
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        message = 'Vous devez autoriser l\'accès à votre position';
+        gettingLocation.value = false;
+        alert(message);
+        break;
+      case error.POSITION_UNAVAILABLE:
+        message = 'Position non disponible. Réessayez avec une précision réduite...';
+        navigator.geolocation.getCurrentPosition(
+          onSuccess,
+          (_fallbackError) => {
+            gettingLocation.value = false;
+            alert('Impossible d\'obtenir votre position. Vérifiez que la localisation est activée dans votre navigateur.');
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 30000,
+            maximumAge: 60000
+          }
+        );
+        break;
+      case error.TIMEOUT:
+        message = 'Délai expiré. Réessayez avec une précision réduite...';
+        navigator.geolocation.getCurrentPosition(
+          onSuccess,
+          (_fallbackError) => {
+            gettingLocation.value = false;
+            alert('Impossible d\'obtenir votre position. Réessayez ou vérifiez votre connexion.');
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 30000,
+            maximumAge: 60000
+          }
+        );
+        break;
+      default:
+        gettingLocation.value = false;
+        alert(message);
+    }
+  };
+
   navigator.geolocation.getCurrentPosition(
-    (position) => {
-      formData.value.latitude = position.coords.latitude;
-      formData.value.longitude = position.coords.longitude;
-      gettingLocation.value = false;
-    },
-    (error) => {
-      gettingLocation.value = false;
-      let message = 'Erreur lors de la récupération de la position';
-
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          message = 'Vous devez autoriser l\'accès à votre position';
-          break;
-        case error.POSITION_UNAVAILABLE:
-          message = 'Position non disponible';
-          break;
-        case error.TIMEOUT:
-          message = 'Le délai de récupération de la position a expiré';
-          break;
-      }
-
-      alert(message);
-    },
+    onSuccess,
+    onError,
     {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
+      enableHighAccuracy: false,
+      timeout: 15000,
+      maximumAge: 30000
     }
   );
 };
