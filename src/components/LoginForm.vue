@@ -58,7 +58,7 @@ onMounted(async () => {
         <img
           :src="companyLogo || '/whatsapp_image_2025-12-31_at_10.55.14.jpeg'"
           :alt="companyName"
-          class="mx-auto w-32 h-32 object-contain"
+          class="mx-auto w-full max-w-md h-auto object-contain"
         />
       </div>
 
