@@ -6,12 +6,12 @@ export const updateFavicon = async () => {
 
     const favicon = document.getElementById('favicon') as HTMLLinkElement;
     if (favicon) {
-      favicon.href = settings?.logo_url || '/vite.svg';
+      favicon.href = settings?.logo_url || '/whatsapp_image_2025-12-31_at_10.43.31.jpeg';
     }
 
     const appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
     if (appleTouchIcon) {
-      appleTouchIcon.href = settings?.logo_url || '/vite.svg';
+      appleTouchIcon.href = settings?.logo_url || '/whatsapp_image_2025-12-31_at_10.43.31.jpeg';
     }
 
     if (settings?.name) {
@@ -37,18 +37,19 @@ const updateManifest = async (logoUrl?: string, companyName?: string) => {
     manifest.name = companyName || 'Gestion commerciale';
     manifest.short_name = (companyName || 'Gestion').substring(0, 12);
 
-    const iconSrc = logoUrl || '/vite.svg';
+    const iconSrc = logoUrl || '/whatsapp_image_2025-12-31_at_10.43.31.jpeg';
+    const iconType = iconSrc.endsWith('.jpeg') || iconSrc.endsWith('.jpg') ? 'image/jpeg' : 'image/png';
     manifest.icons = [
       {
         src: iconSrc,
         sizes: '192x192',
-        type: 'image/png',
+        type: iconType,
         purpose: 'any maskable'
       },
       {
         src: iconSrc,
         sizes: '512x512',
-        type: 'image/png',
+        type: iconType,
         purpose: 'any maskable'
       }
     ];

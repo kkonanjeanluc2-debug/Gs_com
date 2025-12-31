@@ -56,7 +56,7 @@ onMounted(async () => {
         <h1 class="text-3xl font-bold text-primary mb-2">{{ companyName }}</h1>
         <p class="text-gray-600 mb-4">Connectez-vous pour continuer</p>
         <img
-          :src="companyLogo || '/image copy copy.png'"
+          :src="companyLogo || '/whatsapp_image_2025-12-31_at_10.43.31.jpeg'"
           :alt="companyName"
           class="mx-auto w-32 h-32 object-contain"
         />
