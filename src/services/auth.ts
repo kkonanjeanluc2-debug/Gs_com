@@ -36,13 +36,42 @@ export class AuthService {
       if (profile && profile.role !== 'super_admin') {
         const { data: company } = await supabase
           .from('companies')
-          .select('approved')
+          .select('is_approved, subscription_status, trial_end_date, subscription_end_date, blocked_reason')
           .eq('id', profile.company_id)
           .maybeSingle();
 
-        if (company && !company.approved) {
-          await supabase.auth.signOut();
-          throw new Error('Votre entreprise est en attente d\'approbation. Veuillez contacter l\'administrateur.');
+        if (company) {
+          if (!company.is_approved) {
+            await supabase.auth.signOut();
+            throw new Error('Votre entreprise est en attente d\'approbation. Veuillez contacter l\'administrateur.');
+          }
+
+          const now = new Date();
+          let isBlocked = false;
+          let blockMessage = '';
+
+          if (company.subscription_status === 'trial') {
+            if (company.trial_end_date && new Date(company.trial_end_date) < now) {
+              isBlocked = true;
+              blockMessage = 'Votre période d\'essai a expiré. Veuillez contacter l\'administrateur pour activer votre abonnement.';
+            }
+          } else if (company.subscription_status === 'active') {
+            if (company.subscription_end_date && new Date(company.subscription_end_date) < now) {
+              isBlocked = true;
+              blockMessage = 'Votre abonnement a expiré. Veuillez contacter l\'administrateur pour le renouveler.';
+            }
+          } else if (company.subscription_status === 'expired') {
+            isBlocked = true;
+            blockMessage = company.blocked_reason || 'Votre accès a expiré. Veuillez contacter l\'administrateur.';
+          } else if (company.subscription_status === 'suspended') {
+            isBlocked = true;
+            blockMessage = company.blocked_reason || 'Votre compte a été suspendu. Veuillez contacter l\'administrateur.';
+          }
+
+          if (isBlocked) {
+            await supabase.auth.signOut();
+            throw new Error(blockMessage);
+          }
         }
       }
     }
