@@ -78,7 +78,9 @@ Deno.serve(async (req: Request) => {
         status: 'active',
         subscription_plan: 'free',
         max_users: 5,
-        approved: false,
+        is_approved: false,
+        trial_days: 0,
+        subscription_status: 'trial',
       })
       .select()
       .single();
