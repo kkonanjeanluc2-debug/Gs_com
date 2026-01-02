@@ -45,6 +45,35 @@
           </div>
         </div>
 
+        <div v-if="subscriptionInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 class="text-sm font-semibold text-blue-900 mb-3">Informations d'abonnement</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div>
+              <span class="text-blue-700 font-medium">Statut:</span>
+              <span class="ml-2" :class="{
+                'text-blue-800': subscriptionInfo.subscription_status === 'trial',
+                'text-green-800': subscriptionInfo.subscription_status === 'active',
+                'text-red-800': subscriptionInfo.subscription_status === 'expired',
+                'text-gray-800': subscriptionInfo.subscription_status === 'suspended'
+              }">
+                {{ getStatusLabel(subscriptionInfo.subscription_status) }}
+              </span>
+            </div>
+            <div v-if="subscriptionInfo.trial_end_date">
+              <span class="text-blue-700 font-medium">Fin période d'essai:</span>
+              <span class="ml-2 text-blue-900">{{ formatSubscriptionDate(subscriptionInfo.trial_end_date) }}</span>
+            </div>
+            <div v-if="subscriptionInfo.subscription_end_date">
+              <span class="text-blue-700 font-medium">Fin d'abonnement:</span>
+              <span class="ml-2 text-blue-900">{{ formatSubscriptionDate(subscriptionInfo.subscription_end_date) }}</span>
+            </div>
+            <div v-if="subscriptionInfo.blocked_reason" class="md:col-span-2">
+              <span class="text-red-700 font-medium">Raison blocage:</span>
+              <span class="ml-2 text-red-900">{{ subscriptionInfo.blocked_reason }}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -196,6 +225,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { companyService, type CompanySettings } from '../services/company.service';
+import { subscriptionService, type SubscriptionInfo } from '../services/subscription.service';
 import { updateFavicon } from '../utils/favicon';
 
 const loading = ref(true);
@@ -204,6 +234,7 @@ const error = ref('');
 const success = ref(false);
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref('');
+const subscriptionInfo = ref<SubscriptionInfo | null>(null);
 
 const formData = ref<CompanySettings>({
   name: '',
@@ -224,6 +255,11 @@ const loadSettings = async () => {
     const settings = await companyService.getSettings();
     if (settings) {
       formData.value = { ...settings };
+
+      const companyId = await companyService.getCurrentCompanyId();
+      if (companyId) {
+        subscriptionInfo.value = await subscriptionService.getSubscriptionInfo(companyId);
+      }
     }
   } catch (err: any) {
     console.error('Error loading settings:', err);
@@ -231,6 +267,27 @@ const loadSettings = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const getStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    trial: 'Essai gratuit',
+    active: 'Actif',
+    expired: 'Expiré',
+    suspended: 'Suspendu',
+  };
+  return labels[status] || status;
+};
+
+const formatSubscriptionDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
 
 const handleFileChange = (event: Event) => {

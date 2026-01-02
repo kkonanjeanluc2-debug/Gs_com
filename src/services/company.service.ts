@@ -17,6 +17,10 @@ export interface CompanySettings {
 }
 
 export const companyService = {
+  async getCurrentCompanyId(): Promise<string | null> {
+    return await getCurrentUserCompanyId();
+  },
+
   async getSettings(): Promise<CompanySettings | null> {
     const companyId = await getCurrentUserCompanyId();
 
