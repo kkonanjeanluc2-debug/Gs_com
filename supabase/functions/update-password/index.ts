@@ -22,6 +22,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization');
 
@@ -29,13 +30,18 @@ Deno.serve(async (req: Request) => {
       throw new Error('Autorisation requise');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const token = authHeader.replace('Bearer ', '');
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    });
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       throw new Error('Utilisateur non authentifié');
     }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const { currentPassword, newPassword }: UpdatePasswordRequest = await req.json();
 
@@ -47,7 +53,7 @@ Deno.serve(async (req: Request) => {
       throw new Error('Le mot de passe doit contenir au moins 6 caractères');
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabaseAdmin.auth.signInWithPassword({
       email: user.email!,
       password: currentPassword,
     });
@@ -56,7 +62,7 @@ Deno.serve(async (req: Request) => {
       throw new Error('Mot de passe actuel incorrect');
     }
 
-    const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       password: newPassword,
     });
 

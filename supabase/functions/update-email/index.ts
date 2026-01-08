@@ -22,6 +22,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization');
 
@@ -29,13 +30,18 @@ Deno.serve(async (req: Request) => {
       throw new Error('Autorisation requise');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const token = authHeader.replace('Bearer ', '');
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    });
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       throw new Error('Utilisateur non authentifié');
     }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const { currentPassword, newEmail }: UpdateEmailRequest = await req.json();
 
@@ -43,7 +49,7 @@ Deno.serve(async (req: Request) => {
       throw new Error('Mot de passe et nouvel email requis');
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabaseAdmin.auth.signInWithPassword({
       email: user.email!,
       password: currentPassword,
     });
@@ -52,12 +58,21 @@ Deno.serve(async (req: Request) => {
       throw new Error('Mot de passe incorrect');
     }
 
-    const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       email: newEmail,
     });
 
     if (updateError) {
       throw updateError;
+    }
+
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .update({ email: newEmail })
+      .eq('id', user.id);
+
+    if (profileError) {
+      console.error('Error updating profile:', profileError);
     }
 
     return new Response(
