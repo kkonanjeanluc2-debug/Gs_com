@@ -12,7 +12,7 @@ const password = ref('');
 const error = ref('');
 const loading = ref(false);
 const companyLogo = ref('');
-const companyName = ref('Gestion commerciale');
+const companyName = ref('Suivi des commerciaux');
 const showPassword = ref(false);
 
 const handleLogin = async () => {
