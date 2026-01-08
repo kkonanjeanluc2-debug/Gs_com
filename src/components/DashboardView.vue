@@ -156,106 +156,93 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-8">
-    <div v-if="profile" class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">
-        Bonjour {{ profile.full_name.split(' ')[0] }} 👋
-      </h1>
-      <p class="text-gray-500 mt-1">Voici un aperçu de votre activité</p>
-    </div>
-
+  <div class="space-y-6">
     <div v-if="isLoading" class="flex items-center justify-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>
 
     <template v-else>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div class="flex items-start justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-2">Recette du jour</p>
-              <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(todayRevenue) }} <span class="text-sm font-normal text-gray-500">FCFA</span></p>
-            </div>
-            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-2xl">
-              💵
-            </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-emerald-100 text-sm font-medium">Recette du jour</span>
+            <span class="text-2xl">💵</span>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(todayRevenue) }}</div>
+          <div class="text-emerald-100 text-xs">FCFA aujourd'hui</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-blue-100 text-sm font-medium">CA mensuel</span>
+            <span class="text-2xl">💰</span>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(stats.totalRevenue) }}</div>
+          <div class="text-blue-100 text-xs">FCFA ce mois</div>
+          <div class="mt-3 flex items-center gap-1 text-sm">
+            <span v-if="stats.revenueGrowth > 0" class="text-green-300">↗ +{{ stats.revenueGrowth.toFixed(1) }}%</span>
+            <span v-else-if="stats.revenueGrowth < 0" class="text-red-300">↘ {{ stats.revenueGrowth.toFixed(1) }}%</span>
+            <span v-else class="text-blue-200">→ 0%</span>
+            <span class="text-blue-200 text-xs">vs mois dernier</span>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div class="flex items-start justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-2">Chiffre d'affaires</p>
-              <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(stats.totalRevenue) }} <span class="text-sm font-normal text-gray-500">FCFA</span></p>
-              <div class="mt-2 flex items-center gap-1 text-sm">
-                <span v-if="stats.revenueGrowth > 0" class="text-green-600 font-medium">↗ +{{ stats.revenueGrowth.toFixed(1) }}%</span>
-                <span v-else-if="stats.revenueGrowth < 0" class="text-red-600 font-medium">↘ {{ stats.revenueGrowth.toFixed(1) }}%</span>
-                <span v-else class="text-gray-500">→ 0%</span>
-                <span class="text-gray-400 text-xs">vs mois dernier</span>
-              </div>
-            </div>
-            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl">
-              💰
-            </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-green-100 text-sm font-medium">Ventes</span>
+            <span class="text-2xl">🛒</span>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ stats.totalOrders }}</div>
+          <div class="text-green-100 text-xs">ce mois</div>
+          <div class="mt-3 flex items-center gap-1 text-sm">
+            <span v-if="stats.ordersGrowth > 0" class="text-green-300">↗ +{{ stats.ordersGrowth.toFixed(1) }}%</span>
+            <span v-else-if="stats.ordersGrowth < 0" class="text-red-300">↘ {{ stats.ordersGrowth.toFixed(1) }}%</span>
+            <span v-else class="text-green-200">→ 0%</span>
+            <span class="text-green-200 text-xs">vs mois dernier</span>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div class="flex items-start justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-2">Commandes</p>
-              <p class="text-3xl font-bold text-gray-900">{{ stats.totalOrders }}</p>
-              <div class="mt-2 flex items-center gap-1 text-sm">
-                <span v-if="stats.ordersGrowth > 0" class="text-green-600 font-medium">↗ +{{ stats.ordersGrowth.toFixed(1) }}%</span>
-                <span v-else-if="stats.ordersGrowth < 0" class="text-red-600 font-medium">↘ {{ stats.ordersGrowth.toFixed(1) }}%</span>
-                <span v-else class="text-gray-500">→ 0%</span>
-                <span class="text-gray-400 text-xs">vs mois dernier</span>
-              </div>
-            </div>
-            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl">
-              🛒
-            </div>
+        <div v-if="isCommercial && companySettings?.commission_rate" class="bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-teal-100 text-sm font-medium">Ma Commission</span>
+            <span class="text-2xl">💎</span>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(commercialCommission) }}</div>
+          <div class="text-teal-100 text-xs">FCFA ce mois ({{ companySettings.commission_rate }}%)</div>
+          <div class="mt-3 flex items-center gap-1 text-sm">
+            <span class="text-teal-200 text-xs">
+              CA: {{ formatCurrency(commercialRevenue?.monthly_revenue || 0) }} FCFA
+            </span>
           </div>
         </div>
 
-        <div v-if="isCommercial && companySettings?.commission_rate" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div class="flex items-start justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-2">Ma Commission</p>
-              <p class="text-3xl font-bold text-gray-900">{{ formatCurrency(commercialCommission) }} <span class="text-sm font-normal text-gray-500">FCFA</span></p>
-              <p class="text-xs text-gray-400 mt-2">{{ companySettings.commission_rate }}% sur {{ formatCurrency(commercialRevenue?.monthly_revenue || 0) }} FCFA</p>
-            </div>
-            <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-2xl">
-              💎
-            </div>
+        <div v-else class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-purple-100 text-sm font-medium">Clients</span>
+            <span class="text-2xl">👥</span>
           </div>
+          <div class="text-3xl font-bold mb-1">{{ stats.totalClients }}</div>
+          <div class="text-purple-100 text-xs">clients actifs</div>
         </div>
 
-        <div v-else class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-          <div class="flex items-start justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-2">Clients actifs</p>
-              <p class="text-3xl font-bold text-gray-900">{{ stats.totalClients }}</p>
-            </div>
-            <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-2xl">
-              👥
-            </div>
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-orange-100 text-sm font-medium">Produits</span>
+            <span class="text-2xl">📦</span>
           </div>
+          <div class="text-3xl font-bold mb-1">{{ stats.totalProducts }}</div>
+          <div class="text-orange-100 text-xs">en catalogue</div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div v-if="!isCommercial" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div v-if="!isCommercial" class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h3 class="text-lg font-bold text-gray-900">Meilleurs Commerciaux</h3>
-              <p class="text-sm text-gray-500 mt-1">Top 5 du mois en cours</p>
+              <h3 class="text-lg font-bold text-gray-800">🏆 Meilleurs Commerciaux</h3>
+              <p class="text-xs text-gray-500 mt-1">Top 5 du mois en cours</p>
             </div>
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
-            </button>
+            <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Par CA réalisé</span>
           </div>
           <div v-if="topCommercials.length === 0" class="text-center py-8 text-gray-500">
             Aucune donnée disponible
@@ -264,7 +251,12 @@ onMounted(() => {
             <div
               v-for="(commercial, index) in topCommercials"
               :key="commercial.id"
-              class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100"
+              class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+              :class="{
+                'bg-yellow-50 border border-yellow-200': index === 0,
+                'bg-gray-50 border border-gray-200': index === 1,
+                'bg-orange-50 border border-orange-200': index === 2
+              }"
             >
               <div
                 class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
@@ -318,17 +310,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" :class="{ 'lg:col-span-2': isCommercial }">
+        <div class="bg-white rounded-xl shadow-md p-6" :class="{ 'lg:col-span-2': isCommercial }">
           <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">Produits les Plus Vendus</h3>
-              <p class="text-sm text-gray-500 mt-1">Top 5 du mois</p>
-            </div>
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
-            </button>
+            <h3 class="text-lg font-bold text-gray-800">📊 Produits les Plus Vendus</h3>
+            <span class="text-xs text-gray-500">Top 5</span>
           </div>
           <div v-if="topProducts.length === 0" class="text-center py-8 text-gray-500">
             Aucune donnée disponible
@@ -377,17 +362,10 @@ onMounted(() => {
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">Meilleurs Clients</h3>
-              <p class="text-sm text-gray-500 mt-1">Top 5 par CA</p>
-            </div>
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
-            </button>
+            <h3 class="text-lg font-bold text-gray-800">💎 Meilleurs Clients</h3>
+            <span class="text-xs text-gray-500">Top 5</span>
           </div>
           <div v-if="topClients.length === 0" class="text-center py-8 text-gray-500">
             Aucune donnée disponible
@@ -416,17 +394,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">Commandes Récentes</h3>
-              <p class="text-sm text-gray-500 mt-1">5 dernières</p>
-            </div>
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
-            </button>
+            <h3 class="text-lg font-bold text-gray-800">🛍️ Commandes Récentes</h3>
+            <span class="text-xs text-gray-500">5 dernières</span>
           </div>
           <div v-if="recentOrders.length === 0" class="text-center py-8 text-gray-500">
             Aucune commande récente
@@ -464,17 +435,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">Prospects Récents</h3>
-              <p class="text-sm text-gray-500 mt-1">5 derniers</p>
-            </div>
-            <button class="text-gray-400 hover:text-gray-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
-            </button>
+            <h3 class="text-lg font-bold text-gray-800">🎯 Prospects Récents</h3>
+            <span class="text-xs text-gray-500">5 derniers</span>
           </div>
           <div v-if="recentProspects.length === 0" class="text-center py-8 text-gray-500">
             Aucun prospect récent
@@ -515,17 +479,10 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex items-center justify-between mb-6">
-          <div>
-            <h3 class="text-lg font-bold text-gray-900">Évolution des Ventes</h3>
-            <p class="text-sm text-gray-500 mt-1">7 derniers jours</p>
-          </div>
-          <button class="text-gray-400 hover:text-gray-600">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-            </svg>
-          </button>
+          <h3 class="text-lg font-bold text-gray-800">📈 Évolution des Ventes</h3>
+          <span class="text-xs text-gray-500">7 derniers jours</span>
         </div>
         <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
           Aucune donnée disponible
