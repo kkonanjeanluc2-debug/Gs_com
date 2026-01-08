@@ -192,55 +192,55 @@ const callPhone = () => {
 
                   <!-- Stats Cards -->
                   <div class="p-3 sm:p-6">
-                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
                       <!-- Recette du jour -->
-                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-4">
-                          <Icon name="document" class="w-6 h-6" />
-                          <div class="text-xs font-semibold leading-tight">Recette<br/>du jour</div>
+                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="document" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Recette<br/>du jour</div>
                         </div>
-                        <div class="text-4xl font-black mb-2">487,500</div>
-                        <div class="text-xs font-medium">FCFA<br/>aujourd'hui</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">487,500</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">FCFA<br/>aujourd'hui</div>
                       </div>
 
                       <!-- CA mensuel -->
-                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-4">
-                          <Icon name="chart-bar" class="w-6 h-6" />
-                          <div class="text-xs font-semibold leading-tight">CA<br/>mensuel</div>
+                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="chart-bar" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">CA<br/>mensuel</div>
                         </div>
-                        <div class="text-4xl font-black mb-2">12.4M</div>
-                        <div class="text-xs font-medium">→ +24%<br/>vs mois dernier</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">12.4M</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">→ +24%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Ventes -->
-                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-4">
-                          <Icon name="shopping-cart" class="w-6 h-6" />
-                          <div class="text-xs font-semibold leading-tight">Ventes</div>
+                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="shopping-cart" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Ventes</div>
                         </div>
-                        <div class="text-4xl font-black mb-2">847</div>
-                        <div class="text-xs font-medium">→ +18%<br/>vs mois dernier</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">847</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">→ +18%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Clients -->
-                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg lg:col-span-1">
-                        <div class="flex items-center gap-2 mb-4">
-                          <Icon name="users-group" class="w-6 h-6" />
-                          <div class="text-xs font-semibold leading-tight">Clients</div>
+                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="users-group" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Clients</div>
                         </div>
-                        <div class="text-4xl font-black mb-2">324</div>
-                        <div class="text-xs font-medium">clients<br/>actifs</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">324</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">clients<br/>actifs</div>
                       </div>
 
                       <!-- Produits -->
-                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg lg:col-span-1">
-                        <div class="flex items-center gap-2 mb-4">
-                          <Icon name="package" class="w-6 h-6" />
-                          <div class="text-xs font-semibold leading-tight">Produits</div>
+                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="package" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Produits</div>
                         </div>
-                        <div class="text-4xl font-black mb-2">1,247</div>
-                        <div class="text-xs font-medium">en<br/>catalogue</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">1,247</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">en<br/>catalogue</div>
                       </div>
                     </div>
 
