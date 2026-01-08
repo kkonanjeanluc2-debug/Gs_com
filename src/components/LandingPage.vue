@@ -367,7 +367,7 @@ const callPhone = () => {
       <div class="container mx-auto max-w-4xl">
         <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-12 border border-slate-700 shadow-2xl">
           <div class="text-center mb-12">
-            <h2 class="text-4xl font-bold text-white mb-4">
+            <h2 class="text-4xl font-bold text-white mb-4 whitespace-nowrap">
               Contactez-nous
             </h2>
             <p class="text-xl text-gray-400">
