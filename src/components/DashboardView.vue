@@ -163,28 +163,28 @@ onMounted(() => {
     </div>
 
     <template v-else>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-4 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-emerald-100 text-sm font-medium">Recette du jour</span>
+            <span class="text-emerald-100 text-xs sm:text-sm font-medium">Recette du jour</span>
             <div class="bg-emerald-400 bg-opacity-30 p-2 rounded-lg">
-              <Icon name="money" size="w-6 h-6" />
+              <Icon name="money" size="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ formatCurrency(todayRevenue) }}</div>
+          <div class="text-2xl sm:text-3xl font-bold mb-1">{{ formatCurrency(todayRevenue) }}</div>
           <div class="text-emerald-100 text-xs">FCFA aujourd'hui</div>
         </div>
 
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-4 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-blue-100 text-sm font-medium">CA mensuel</span>
+            <span class="text-blue-100 text-xs sm:text-sm font-medium">CA mensuel</span>
             <div class="bg-blue-400 bg-opacity-30 p-2 rounded-lg">
-              <Icon name="money-bag" size="w-6 h-6" />
+              <Icon name="money-bag" size="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ formatCurrency(stats.totalRevenue) }}</div>
+          <div class="text-2xl sm:text-3xl font-bold mb-1">{{ formatCurrency(stats.totalRevenue) }}</div>
           <div class="text-blue-100 text-xs">FCFA ce mois</div>
-          <div class="mt-3 flex items-center gap-1 text-sm">
+          <div class="mt-2 sm:mt-3 flex items-center gap-1 text-xs sm:text-sm">
             <span v-if="stats.revenueGrowth > 0" class="text-green-300">↗ +{{ stats.revenueGrowth.toFixed(1) }}%</span>
             <span v-else-if="stats.revenueGrowth < 0" class="text-red-300">↘ {{ stats.revenueGrowth.toFixed(1) }}%</span>
             <span v-else class="text-blue-200">→ 0%</span>
@@ -192,16 +192,16 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-green-100 text-sm font-medium">Ventes</span>
+            <span class="text-green-100 text-xs sm:text-sm font-medium">Ventes</span>
             <div class="bg-green-400 bg-opacity-30 p-2 rounded-lg">
-              <Icon name="shopping-cart" size="w-6 h-6" />
+              <Icon name="shopping-cart" size="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ stats.totalOrders }}</div>
+          <div class="text-2xl sm:text-3xl font-bold mb-1">{{ stats.totalOrders }}</div>
           <div class="text-green-100 text-xs">ce mois</div>
-          <div class="mt-3 flex items-center gap-1 text-sm">
+          <div class="mt-2 sm:mt-3 flex items-center gap-1 text-xs sm:text-sm">
             <span v-if="stats.ordersGrowth > 0" class="text-green-300">↗ +{{ stats.ordersGrowth.toFixed(1) }}%</span>
             <span v-else-if="stats.ordersGrowth < 0" class="text-red-300">↘ {{ stats.ordersGrowth.toFixed(1) }}%</span>
             <span v-else class="text-green-200">→ 0%</span>
@@ -209,47 +209,47 @@ onMounted(() => {
           </div>
         </div>
 
-        <div v-if="isCommercial && companySettings?.commission_rate" class="bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl p-6 shadow-lg">
+        <div v-if="isCommercial && companySettings?.commission_rate" class="bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl p-4 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-teal-100 text-sm font-medium">Ma Commission</span>
+            <span class="text-teal-100 text-xs sm:text-sm font-medium">Ma Commission</span>
             <div class="bg-teal-400 bg-opacity-30 p-2 rounded-lg">
-              <Icon name="gem" size="w-6 h-6" />
+              <Icon name="gem" size="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ formatCurrency(commercialCommission) }}</div>
+          <div class="text-2xl sm:text-3xl font-bold mb-1">{{ formatCurrency(commercialCommission) }}</div>
           <div class="text-teal-100 text-xs">FCFA ce mois ({{ companySettings.commission_rate }}%)</div>
-          <div class="mt-3 flex items-center gap-1 text-sm">
-            <span class="text-teal-200 text-xs">
+          <div class="mt-2 sm:mt-3 flex items-center gap-1 text-xs">
+            <span class="text-teal-200">
               CA: {{ formatCurrency(commercialRevenue?.monthly_revenue || 0) }} FCFA
             </span>
           </div>
         </div>
 
-        <div v-else class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+        <div v-else class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-4 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-purple-100 text-sm font-medium">Clients</span>
+            <span class="text-purple-100 text-xs sm:text-sm font-medium">Clients</span>
             <div class="bg-purple-400 bg-opacity-30 p-2 rounded-lg">
-              <Icon name="users-group" size="w-6 h-6" />
+              <Icon name="users-group" size="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ stats.totalClients }}</div>
+          <div class="text-2xl sm:text-3xl font-bold mb-1">{{ stats.totalClients }}</div>
           <div class="text-purple-100 text-xs">clients actifs</div>
         </div>
 
-        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-4 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-orange-100 text-sm font-medium">Produits</span>
+            <span class="text-orange-100 text-xs sm:text-sm font-medium">Produits</span>
             <div class="bg-orange-400 bg-opacity-30 p-2 rounded-lg">
-              <Icon name="package" size="w-6 h-6" />
+              <Icon name="package" size="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
           </div>
-          <div class="text-3xl font-bold mb-1">{{ stats.totalProducts }}</div>
+          <div class="text-2xl sm:text-3xl font-bold mb-1">{{ stats.totalProducts }}</div>
           <div class="text-orange-100 text-xs">en catalogue</div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div v-if="!isCommercial" class="bg-white rounded-xl shadow-md p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div v-if="!isCommercial" class="bg-white rounded-xl shadow-md p-4 sm:p-6">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
               <div class="bg-yellow-100 p-2 rounded-lg">
@@ -325,7 +325,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-6" :class="{ 'lg:col-span-2': isCommercial }">
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-6" :class="{ 'lg:col-span-2': isCommercial }">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
               <div class="bg-blue-100 p-2 rounded-lg">
@@ -381,8 +381,8 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
               <div class="bg-purple-100 p-2 rounded-lg">
@@ -465,13 +465,13 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-6">
-          <div class="flex items-center justify-between mb-6">
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
             <div class="flex items-center gap-2">
               <div class="bg-orange-100 p-2 rounded-lg">
                 <Icon name="target" size="w-5 h-5" class="text-orange-600" />
               </div>
-              <h3 class="text-lg font-bold text-gray-800">Prospects Récents</h3>
+              <h3 class="text-base sm:text-lg font-bold text-gray-800">Prospects Récents</h3>
             </div>
             <span class="text-xs text-gray-500">5 derniers</span>
           </div>
@@ -514,15 +514,15 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold text-gray-800">📈 Évolution des Ventes</h3>
+      <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 class="text-base sm:text-lg font-bold text-gray-800">Évolution des Ventes</h3>
           <span class="text-xs text-gray-500">7 derniers jours</span>
         </div>
         <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
           Aucune donnée disponible
         </div>
-        <div v-else class="flex items-end justify-between gap-2 h-64">
+        <div v-else class="flex items-end justify-between gap-1 sm:gap-2 h-48 sm:h-64 overflow-x-auto">
           <div
             v-for="day in salesEvolution"
             :key="day.date"
