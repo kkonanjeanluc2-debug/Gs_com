@@ -12,7 +12,7 @@ const password = ref('');
 const error = ref('');
 const loading = ref(false);
 const companyLogo = ref('');
-const companyName = ref('Suivi des commerciaux');
+const companyName = ref('Gestion commerciale');
 const showPassword = ref(false);
 
 const handleLogin = async () => {
@@ -118,7 +118,7 @@ onMounted(async () => {
       <div class="mt-6 text-center">
         <p class="text-sm text-gray-600">
           Vous n'avez pas encore de compte ?
-          <a href="#/register" class="text-primary font-medium hover:underline">Suivi des commerciaux</a>
+          <a href="#/register" class="text-primary font-medium hover:underline">Créer mon entreprise</a>
         </p>
       </div>
     </div>
