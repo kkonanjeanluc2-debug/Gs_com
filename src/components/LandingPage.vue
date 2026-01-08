@@ -69,26 +69,29 @@ const callPhone = () => {
             <span class="text-2xl font-bold text-white">Ges-com</span>
           </div>
 
-          <!-- Navigation Desktop -->
-          <nav class="hidden md:flex items-center gap-8">
-            <a href="#solutions" class="text-gray-300 hover:text-white transition-colors font-medium">Solutions</a>
-            <a href="#contact-section" @click.prevent="scrollToContact" class="text-gray-300 hover:text-white transition-colors font-medium">Contact</a>
-          </nav>
+          <!-- Navigation & Auth Buttons -->
+          <div class="flex items-center gap-8">
+            <!-- Navigation Desktop -->
+            <nav class="hidden md:flex items-center gap-8">
+              <a href="#solutions" class="text-gray-300 hover:text-white transition-colors font-medium">Solutions</a>
+              <a href="#contact-section" @click.prevent="scrollToContact" class="text-gray-300 hover:text-white transition-colors font-medium">Contact</a>
+            </nav>
 
-          <!-- Auth Buttons -->
-          <div class="flex items-center gap-3">
-            <button
-              @click="emit('navigateToLogin')"
-              class="px-6 py-2.5 rounded-lg font-medium text-white border-2 border-blue-500 hover:bg-blue-500 transition-all duration-200"
-            >
-              Se connecter
-            </button>
-            <button
-              @click="emit('navigateToRegister')"
-              class="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
-              S'inscrire
-            </button>
+            <!-- Auth Buttons -->
+            <div class="flex items-center gap-3">
+              <button
+                @click="emit('navigateToLogin')"
+                class="px-6 py-2.5 rounded-lg font-medium text-white border-2 border-blue-500 hover:bg-blue-500 transition-all duration-200"
+              >
+                Se connecter
+              </button>
+              <button
+                @click="emit('navigateToRegister')"
+                class="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                S'inscrire
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -188,132 +191,132 @@ const callPhone = () => {
                   </div>
 
                   <!-- Stats Cards -->
-                  <div class="p-6">
-                    <div class="grid grid-cols-5 gap-3 mb-6">
+                  <div class="p-3 sm:p-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
                       <!-- Recette du jour -->
-                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-3">
-                          <Icon name="document" class="w-5 h-5" />
-                          <div class="text-[10px] font-semibold leading-tight">Recette<br/>du jour</div>
+                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="document" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Recette<br/>du jour</div>
                         </div>
-                        <div class="text-3xl font-black mb-1">487,500</div>
-                        <div class="text-[10px] font-medium">FCFA<br/>aujourd'hui</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">487,500</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">FCFA<br/>aujourd'hui</div>
                       </div>
 
                       <!-- CA mensuel -->
-                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-3">
-                          <Icon name="chart-bar" class="w-5 h-5" />
-                          <div class="text-[10px] font-semibold leading-tight">CA<br/>mensuel</div>
+                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="chart-bar" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">CA<br/>mensuel</div>
                         </div>
-                        <div class="text-3xl font-black mb-1">12.4M</div>
-                        <div class="text-[10px] font-medium">→ +24%<br/>vs mois dernier</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">12.4M</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">→ +24%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Ventes -->
-                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-3">
-                          <Icon name="shopping-cart" class="w-5 h-5" />
-                          <div class="text-[10px] font-semibold leading-tight">Ventes</div>
+                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="shopping-cart" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Ventes</div>
                         </div>
-                        <div class="text-3xl font-black mb-1">847</div>
-                        <div class="text-[10px] font-medium">→ +18%<br/>vs mois dernier</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">847</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">→ +18%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Clients -->
-                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-3">
-                          <Icon name="users-group" class="w-5 h-5" />
-                          <div class="text-[10px] font-semibold leading-tight">Clients</div>
+                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="users-group" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Clients</div>
                         </div>
-                        <div class="text-3xl font-black mb-1">324</div>
-                        <div class="text-[10px] font-medium">clients<br/>actifs</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">324</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">clients<br/>actifs</div>
                       </div>
 
                       <!-- Produits -->
-                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-3">
-                          <Icon name="package" class="w-5 h-5" />
-                          <div class="text-[10px] font-semibold leading-tight">Produits</div>
+                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                          <Icon name="package" class="w-4 h-4 sm:w-5 sm:h-5" />
+                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Produits</div>
                         </div>
-                        <div class="text-3xl font-black mb-1">1,247</div>
-                        <div class="text-[10px] font-medium">en<br/>catalogue</div>
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">1,247</div>
+                        <div class="text-[8px] sm:text-[10px] font-medium">en<br/>catalogue</div>
                       </div>
                     </div>
 
                     <!-- Bottom Sections -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                       <!-- Meilleurs Commerciaux -->
-                      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between mb-4">
+                      <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
                           <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
-                              <Icon name="users" class="w-5 h-5 text-yellow-600" />
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
+                              <Icon name="users" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
                             </div>
                             <div>
-                              <div class="font-bold text-gray-900 text-sm">Meilleurs Commerciaux</div>
-                              <div class="text-[10px] text-gray-600">Top 3 du mois en cours</div>
+                              <div class="font-bold text-gray-900 text-xs sm:text-sm">Meilleurs Commerciaux</div>
+                              <div class="text-[9px] sm:text-[10px] text-gray-600">Top 3 du mois en cours</div>
                             </div>
                           </div>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-2 sm:space-y-3">
                           <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-sm">1</div>
-                              <span class="font-semibold text-gray-800 text-sm">Kouassi A.</span>
+                              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs sm:text-sm">1</div>
+                              <span class="font-semibold text-gray-800 text-xs sm:text-sm">Kouassi A.</span>
                             </div>
-                            <span class="font-black text-gray-900 text-base">3.2M FCFA</span>
+                            <span class="font-black text-gray-900 text-sm sm:text-base">3.2M FCFA</span>
                           </div>
                           <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-sm">2</div>
-                              <span class="font-semibold text-gray-800 text-sm">Koné S.</span>
+                              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs sm:text-sm">2</div>
+                              <span class="font-semibold text-gray-800 text-xs sm:text-sm">Koné S.</span>
                             </div>
-                            <span class="font-black text-gray-900 text-base">2.8M FCFA</span>
+                            <span class="font-black text-gray-900 text-sm sm:text-base">2.8M FCFA</span>
                           </div>
                           <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-sm">3</div>
-                              <span class="font-semibold text-gray-800 text-sm">Diallo M.</span>
+                              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs sm:text-sm">3</div>
+                              <span class="font-semibold text-gray-800 text-xs sm:text-sm">Diallo M.</span>
                             </div>
-                            <span class="font-black text-gray-900 text-base">2.1M FCFA</span>
+                            <span class="font-black text-gray-900 text-sm sm:text-base">2.1M FCFA</span>
                           </div>
                         </div>
                       </div>
 
                       <!-- Produits les Plus Vendus -->
-                      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between mb-4">
+                      <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
                           <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                              <Icon name="chart-bar" class="w-5 h-5 text-blue-600" />
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                              <Icon name="chart-bar" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                             </div>
                             <div>
-                              <div class="font-bold text-gray-900 text-sm">Produits les Plus Vendus</div>
-                              <div class="text-[10px] text-gray-600">Top 5</div>
+                              <div class="font-bold text-gray-900 text-xs sm:text-sm">Produits les Plus Vendus</div>
+                              <div class="text-[9px] sm:text-[10px] text-gray-600">Top 5</div>
                             </div>
                           </div>
                         </div>
-                        <div class="space-y-2.5">
+                        <div class="space-y-2 sm:space-y-2.5">
                           <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-xs">Cahier 200 pages</span>
-                            <span class="font-black text-gray-900 text-sm">847 unités</span>
+                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Cahier 200 pages</span>
+                            <span class="font-black text-gray-900 text-xs sm:text-sm">847 unités</span>
                           </div>
                           <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-xs">Stylo BIC bleu</span>
-                            <span class="font-black text-gray-900 text-sm">612 unités</span>
+                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Stylo BIC bleu</span>
+                            <span class="font-black text-gray-900 text-xs sm:text-sm">612 unités</span>
                           </div>
                           <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-xs">Classeur A4</span>
-                            <span class="font-black text-gray-900 text-sm">423 unités</span>
+                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Classeur A4</span>
+                            <span class="font-black text-gray-900 text-xs sm:text-sm">423 unités</span>
                           </div>
                           <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-xs">Ramette papier</span>
-                            <span class="font-black text-gray-900 text-sm">298 unités</span>
+                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Ramette papier</span>
+                            <span class="font-black text-gray-900 text-xs sm:text-sm">298 unités</span>
                           </div>
                           <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-xs">Marqueur tableau</span>
-                            <span class="font-black text-gray-900 text-sm">276 unités</span>
+                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Marqueur tableau</span>
+                            <span class="font-black text-gray-900 text-xs sm:text-sm">276 unités</span>
                           </div>
                         </div>
                       </div>
