@@ -33,6 +33,7 @@ export interface Profile {
   full_name: string;
   role: 'admin' | 'superviseur' | 'commercial' | 'super_admin';
   phone: string | null;
+  photo_url: string | null;
   zone_affectation: string | null;
   company_id: string;
   created_at: string;

@@ -18,6 +18,8 @@ import SuperAdminSettings from './SuperAdminSettings.vue';
 import SubscriptionManagement from './SubscriptionManagement.vue';
 import SubscriptionPlans from './SubscriptionPlans.vue';
 import AppFooter from './AppFooter.vue';
+import AppSidebar from './AppSidebar.vue';
+import AppTopbar from './AppTopbar.vue';
 import { reportsService } from '../services/reports.service';
 import { whatsappService } from '../services/whatsapp';
 import type { ReportDB } from '../services/supabase';
@@ -36,8 +38,9 @@ const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
 const editingReport = ref<ReportDB | null>(null);
-const mobileMenuOpen = ref(false);
 const pendingOrdersCount = ref(0);
+const mobileMenuOpen = ref(false);
+const sidebarCollapsed = ref(false);
 
 const canManageStock = computed(() => {
   return ['admin', 'superviseur'].includes(props.profile.role);
@@ -65,18 +68,18 @@ const isSuperAdmin = computed(() => {
 
 const tabs = computed(() => {
   const allTabs = [
-    { id: 'dashboard', label: 'Tableau de bord', icon: '📊' },
-    { id: 'reports', label: 'Rapports', icon: '📝', visible: !isSuperAdmin.value },
-    { id: 'clients', label: 'CRM', icon: '👥', visible: canManageClients.value && !isSuperAdmin.value },
-    { id: 'orders', label: 'Commandes', icon: '🛒', visible: canManageClients.value && !isSuperAdmin.value },
-    { id: 'stock', label: 'Stock', icon: '📦', visible: canManageStock.value && !isSuperAdmin.value },
-    { id: 'categories', label: 'Catégories', icon: '📁', visible: canManageStock.value && !isSuperAdmin.value },
-    { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value && !isSuperAdmin.value },
-    { id: 'subscription-plans', label: 'Mon Abonnement', icon: '💳', visible: isAdmin.value && !isSuperAdmin.value },
-    { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value && !isSuperAdmin.value },
-    { id: 'companies', label: 'Entreprises', icon: '🏢', visible: isSuperAdmin.value },
-    { id: 'subscriptions', label: 'Abonnements', icon: '💳', visible: isSuperAdmin.value },
-    { id: 'settings', label: 'Paramètres', icon: '⚙️', visible: isSuperAdmin.value },
+    { id: 'dashboard', label: 'Tableau de bord', icon: '📊', badge: 0 },
+    { id: 'reports', label: 'Rapports', icon: '📝', visible: !isSuperAdmin.value, badge: 0 },
+    { id: 'clients', label: 'CRM', icon: '👥', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'orders', label: 'Commandes', icon: '🛒', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
+    { id: 'stock', label: 'Stock', icon: '📦', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'categories', label: 'Catégories', icon: '📁', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'subscription-plans', label: 'Mon Abonnement', icon: '💳', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'companies', label: 'Entreprises', icon: '🏢', visible: isSuperAdmin.value, badge: 0 },
+    { id: 'subscriptions', label: 'Abonnements', icon: '💳', visible: isSuperAdmin.value, badge: 0 },
+    { id: 'settings', label: 'Paramètres', icon: '⚙️', visible: isSuperAdmin.value, badge: 0 },
   ];
   return allTabs.filter(tab => tab.visible !== false);
 });
@@ -493,6 +496,18 @@ const selectTab = (tabId: any) => {
   mobileMenuOpen.value = false;
 };
 
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  mobileMenuOpen.value = false;
+};
+
+const handleSidebarToggled = (isCollapsed: boolean) => {
+  sidebarCollapsed.value = isCollapsed;
+};
+
 const loadPendingOrdersCount = async () => {
   try {
     const orders = await ordersService.getOrders();
@@ -510,112 +525,47 @@ loadReports();
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-white">
-    <header class="sticky top-0 z-50 bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg">
-      <div class="container mx-auto px-4 py-4">
-        <div class="flex items-center justify-between gap-4">
-          <button
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden bg-blue-700 p-2 rounded-lg hover:bg-blue-800 transition-colors"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-          </button>
-
-          <div class="flex-1">
-            <h1 class="text-xl md:text-3xl font-bold">Gestion commerciale</h1>
-            <p class="text-blue-100 text-xs md:text-sm mt-1">
-              {{ profile.full_name }} - {{ profile.role === 'admin' ? 'Administrateur' : profile.role === 'super_admin' ? 'Super Administrateur' : profile.role === 'superviseur' ? 'Superviseur' : 'Commercial' }}
-            </p>
-          </div>
-
-          <button
-            @click="handleLogout"
-            class="hidden md:block bg-white text-primary px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-          >
-            🚪 Déconnexion
-          </button>
-        </div>
-
-        <div class="hidden md:flex gap-2 mt-4 overflow-x-auto">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            @click="activeTab = tab.id as any"
-            :class="[
-              'px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap relative',
-              activeTab === tab.id
-                ? 'bg-white text-primary'
-                : 'bg-blue-700 text-white hover:bg-blue-800'
-            ]"
-          >
-            {{ tab.icon }} {{ tab.label }}
-            <span
-              v-if="tab.id === 'orders' && pendingOrdersCount > 0"
-              class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full"
-            >
-              {{ pendingOrdersCount }}
-            </span>
-          </button>
-        </div>
-      </div>
-    </header>
+  <div class="min-h-screen flex bg-gradient-to-br from-blue-50 to-white">
+    <AppSidebar
+      :profile="profile"
+      :tabs="tabs"
+      :active-tab="activeTab"
+      :mobile-menu-open="mobileMenuOpen"
+      @select-tab="selectTab"
+      @logout="handleLogout"
+      @close-mobile-menu="closeMobileMenu"
+      @sidebar-toggled="handleSidebarToggled"
+    />
 
     <div
-      v-if="mobileMenuOpen"
-      class="fixed inset-0 z-40 md:hidden"
-      @click="mobileMenuOpen = false"
+      :class="[
+        'flex-1 flex flex-col transition-all duration-300',
+        sidebarCollapsed ? 'md:ml-20' : 'md:ml-64'
+      ]"
     >
-      <div class="absolute inset-0 bg-black opacity-50"></div>
-      <div
-        class="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl"
-        @click.stop
-      >
-        <div class="p-4 bg-primary text-white">
-          <button
-            @click="mobileMenuOpen = false"
-            class="absolute top-4 right-4 text-white"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-          <h2 class="text-lg font-bold">Menu</h2>
-          <p class="text-sm text-blue-100 mt-1">{{ profile.full_name }}</p>
+      <div class="sticky top-0 z-40 flex items-center bg-white border-b border-gray-200 shadow-sm md:hidden">
+        <button
+          @click="toggleMobileMenu"
+          class="p-4 text-blue-700 hover:bg-blue-50 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+        <div class="flex-1 flex items-center justify-center pr-16">
+          <div class="bg-blue-600 rounded-lg p-1.5">
+            <span class="text-lg">📊</span>
+          </div>
+          <h1 class="text-lg font-bold text-blue-900 ml-2">ImmoGest</h1>
         </div>
-        <nav class="p-2">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            @click="selectTab(tab.id)"
-            :class="[
-              'w-full text-left px-4 py-3 rounded-lg font-medium transition-all mb-1 flex items-center justify-between',
-              activeTab === tab.id
-                ? 'bg-blue-50 text-primary'
-                : 'text-gray-700 hover:bg-gray-100'
-            ]"
-          >
-            <span>{{ tab.icon }} {{ tab.label }}</span>
-            <span
-              v-if="tab.id === 'orders' && pendingOrdersCount > 0"
-              class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full"
-            >
-              {{ pendingOrdersCount }}
-            </span>
-          </button>
-          <div class="border-t border-gray-200 my-2"></div>
-          <button
-            @click="handleLogout"
-            class="w-full text-left px-4 py-3 rounded-lg font-medium text-red-600 hover:bg-red-50 transition-all"
-          >
-            🚪 Déconnexion
-          </button>
-        </nav>
       </div>
-    </div>
 
-    <main class="flex-1 container mx-auto px-4 py-6 md:py-8">
+      <AppTopbar
+        :profile="profile"
+        @logout="handleLogout"
+      />
+
+      <main class="flex-1 container mx-auto px-4 py-6 md:py-8">
       <DashboardView v-if="activeTab === 'dashboard'" :profile="profile" />
 
       <div v-if="activeTab === 'reports'">
@@ -711,8 +661,9 @@ loadReports();
       <CompanyManagement v-if="activeTab === 'companies'" />
       <SubscriptionManagement v-if="activeTab === 'subscriptions'" />
       <SuperAdminSettings v-if="activeTab === 'settings'" />
-    </main>
+      </main>
 
-    <AppFooter />
+      <AppFooter />
+    </div>
   </div>
 </template>
