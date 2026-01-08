@@ -38,7 +38,7 @@ export const companyService = {
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, logo_url')
-      .eq('status', 'approved')
+      .eq('is_approved', true)
       .limit(1)
       .maybeSingle();
 

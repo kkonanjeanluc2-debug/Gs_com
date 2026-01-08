@@ -33,7 +33,7 @@ export class AuthService {
         .eq('id', data.user.id)
         .maybeSingle();
 
-      if (profile && profile.role !== 'super_admin') {
+      if (profile && profile.role !== 'super_admin' && profile.company_id) {
         const { data: company } = await supabase
           .from('companies')
           .select('is_approved, subscription_status, trial_end_date, subscription_end_date, blocked_reason')
