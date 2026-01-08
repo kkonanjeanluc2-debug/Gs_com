@@ -40,9 +40,6 @@ onMounted(async () => {
     if (settings?.logo_url) {
       companyLogo.value = settings.logo_url;
     }
-    if (settings?.name) {
-      companyName.value = settings.name;
-    }
   } catch (err) {
     console.log('No company settings found, using defaults');
   }
