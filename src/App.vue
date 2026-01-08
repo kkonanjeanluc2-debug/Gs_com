@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import LandingPage from './components/LandingPage.vue';
 import LoginForm from './components/LoginForm.vue';
 import CompanyRegistration from './components/CompanyRegistration.vue';
 import ForgotPassword from './components/ForgotPassword.vue';
@@ -13,19 +14,21 @@ import type { Profile } from './services/supabase';
 const loading = ref(true);
 const isAuthenticated = ref(false);
 const currentProfile = ref<Profile | null>(null);
-const currentRoute = ref('login');
+const currentRoute = ref('landing');
 let subscriptionCheckInterval: number | null = null;
 
 const updateRoute = () => {
   const hash = window.location.hash.slice(1);
-  if (hash === '/register') {
+  if (hash === '/login') {
+    currentRoute.value = 'login';
+  } else if (hash === '/register') {
     currentRoute.value = 'register';
   } else if (hash === '/forgot-password') {
     currentRoute.value = 'forgot-password';
   } else if (hash === '/reset-password') {
     currentRoute.value = 'reset-password';
   } else {
-    currentRoute.value = 'login';
+    currentRoute.value = 'landing';
   }
 };
 
@@ -178,6 +181,14 @@ const handleResetSuccess = async () => {
     console.error('Error after password reset:', error);
   }
 };
+
+const navigateToLogin = () => {
+  window.location.hash = '/login';
+};
+
+const navigateToRegister = () => {
+  window.location.hash = '/register';
+};
 </script>
 
 <template>
@@ -187,6 +198,12 @@ const handleResetSuccess = async () => {
       <p class="text-xl text-gray-600">Chargement...</p>
     </div>
   </div>
+
+  <Dashboard
+    v-else-if="isAuthenticated && currentProfile"
+    :profile="currentProfile"
+    @logout="handleLogout"
+  />
 
   <CompanyRegistration v-else-if="!isAuthenticated && currentRoute === 'register'" />
 
@@ -198,13 +215,13 @@ const handleResetSuccess = async () => {
   />
 
   <LoginForm
-    v-else-if="!isAuthenticated"
+    v-else-if="!isAuthenticated && currentRoute === 'login'"
     @success="handleLoginSuccess"
   />
 
-  <Dashboard
-    v-else-if="currentProfile"
-    :profile="currentProfile"
-    @logout="handleLogout"
+  <LandingPage
+    v-else-if="!isAuthenticated && currentRoute === 'landing'"
+    @navigate-to-login="navigateToLogin"
+    @navigate-to-register="navigateToRegister"
   />
 </template>

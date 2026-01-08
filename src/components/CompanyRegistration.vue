@@ -1,6 +1,12 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
     <div class="max-w-md w-full">
+      <div class="mb-4">
+        <a href="#/" class="inline-flex items-center text-sm text-gray-600 hover:text-primary transition-colors">
+          <span class="mr-1">←</span> Retour à l'accueil
+        </a>
+      </div>
+
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-primary mb-2">Inscription Entreprise</h1>
         <p class="text-gray-600">Créez votre compte entreprise et commencez à gérer votre activité</p>
