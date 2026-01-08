@@ -95,12 +95,19 @@ Deno.serve(async (req: Request) => {
       phone: companyPhone || null,
     });
 
+    // Calculate trial end date (30 days from now)
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 30);
+
     const { data: company, error: companyError } = await supabase
       .from('companies')
       .insert({
         name: companyName,
         email: companyEmail,
         phone: companyPhone || null,
+        is_approved: true,
+        is_approved_at: new Date().toISOString(),
+        trial_end_date: trialEndDate.toISOString(),
       })
       .select()
       .single();
@@ -210,13 +217,13 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Entreprise créée avec succès. Votre compte est en attente d\'approbation par l\'administrateur.',
+        message: 'Entreprise créée avec succès. Vous bénéficiez d\'une période d\'essai gratuite de 30 jours.',
         company: {
           id: company.id,
           name: company.name,
           email: company.email,
         },
-        pending_approval: true,
+        trial_days: 30,
       }),
       {
         status: 200,

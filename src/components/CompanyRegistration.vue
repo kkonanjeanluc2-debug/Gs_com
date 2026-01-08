@@ -170,7 +170,7 @@ const handleSubmit = async () => {
       adminName: formData.value.adminName,
     });
 
-    success.value = 'Entreprise créée avec succès ! Vous allez être redirigé vers la page de connexion...';
+    success.value = 'Entreprise créée avec succès ! Vous bénéficiez d\'une période d\'essai gratuite de 30 jours. Vous allez être redirigé vers la page de connexion...';
 
     setTimeout(() => {
       window.location.hash = '#/login';
