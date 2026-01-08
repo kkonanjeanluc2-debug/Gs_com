@@ -192,58 +192,52 @@ const callPhone = () => {
                     <div class="grid grid-cols-5 gap-3 mb-6">
                       <!-- Recette du jour -->
                       <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-3">
                           <Icon name="document" class="w-5 h-5" />
-                          <div class="text-xs font-medium">Recette du jour</div>
+                          <div class="text-[10px] font-semibold leading-tight">Recette<br/>du jour</div>
                         </div>
-                        <div class="text-2xl font-bold">487,500</div>
-                        <div class="text-xs mt-1 opacity-90">FCFA aujourd'hui</div>
+                        <div class="text-3xl font-black mb-1">487,500</div>
+                        <div class="text-[10px] font-medium">FCFA<br/>aujourd'hui</div>
                       </div>
 
                       <!-- CA mensuel -->
                       <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-3">
                           <Icon name="chart-bar" class="w-5 h-5" />
-                          <div class="text-xs font-medium">CA mensuel</div>
+                          <div class="text-[10px] font-semibold leading-tight">CA<br/>mensuel</div>
                         </div>
-                        <div class="text-2xl font-bold">12.4M</div>
-                        <div class="text-xs mt-1 flex items-center gap-1 opacity-90">
-                          <span>→ +24%</span>
-                          <span>vs mois dernier</span>
-                        </div>
+                        <div class="text-3xl font-black mb-1">12.4M</div>
+                        <div class="text-[10px] font-medium">→ +24%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Ventes -->
                       <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-3">
                           <Icon name="shopping-cart" class="w-5 h-5" />
-                          <div class="text-xs font-medium">Ventes</div>
+                          <div class="text-[10px] font-semibold leading-tight">Ventes</div>
                         </div>
-                        <div class="text-2xl font-bold">847</div>
-                        <div class="text-xs mt-1 flex items-center gap-1 opacity-90">
-                          <span>→ +18%</span>
-                          <span>vs mois dernier</span>
-                        </div>
+                        <div class="text-3xl font-black mb-1">847</div>
+                        <div class="text-[10px] font-medium">→ +18%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Clients -->
                       <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-3">
                           <Icon name="users-group" class="w-5 h-5" />
-                          <div class="text-xs font-medium">Clients</div>
+                          <div class="text-[10px] font-semibold leading-tight">Clients</div>
                         </div>
-                        <div class="text-2xl font-bold">324</div>
-                        <div class="text-xs mt-1 opacity-90">clients actifs</div>
+                        <div class="text-3xl font-black mb-1">324</div>
+                        <div class="text-[10px] font-medium">clients<br/>actifs</div>
                       </div>
 
                       <!-- Produits -->
                       <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-3">
                           <Icon name="package" class="w-5 h-5" />
-                          <div class="text-xs font-medium">Produits</div>
+                          <div class="text-[10px] font-semibold leading-tight">Produits</div>
                         </div>
-                        <div class="text-2xl font-bold">1,247</div>
-                        <div class="text-xs mt-1 opacity-90">en catalogue</div>
+                        <div class="text-3xl font-black mb-1">1,247</div>
+                        <div class="text-[10px] font-medium">en<br/>catalogue</div>
                       </div>
                     </div>
 
@@ -257,32 +251,32 @@ const callPhone = () => {
                               <Icon name="users" class="w-5 h-5 text-yellow-600" />
                             </div>
                             <div>
-                              <div class="font-bold text-gray-800 text-sm">Meilleurs Commerciaux</div>
-                              <div class="text-xs text-gray-500">Top 3 du mois en cours</div>
+                              <div class="font-bold text-gray-900 text-sm">Meilleurs Commerciaux</div>
+                              <div class="text-[10px] text-gray-600">Top 3 du mois en cours</div>
                             </div>
                           </div>
                         </div>
                         <div class="space-y-3">
-                          <div class="flex items-center justify-between text-sm">
+                          <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">1</div>
-                              <span class="font-medium text-gray-700">Kouassi A.</span>
+                              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-sm">1</div>
+                              <span class="font-semibold text-gray-800 text-sm">Kouassi A.</span>
                             </div>
-                            <span class="font-bold text-gray-800">3.2M FCFA</span>
+                            <span class="font-black text-gray-900 text-base">3.2M FCFA</span>
                           </div>
-                          <div class="flex items-center justify-between text-sm">
+                          <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">2</div>
-                              <span class="font-medium text-gray-700">Koné S.</span>
+                              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-sm">2</div>
+                              <span class="font-semibold text-gray-800 text-sm">Koné S.</span>
                             </div>
-                            <span class="font-bold text-gray-800">2.8M FCFA</span>
+                            <span class="font-black text-gray-900 text-base">2.8M FCFA</span>
                           </div>
-                          <div class="flex items-center justify-between text-sm">
+                          <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                              <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">3</div>
-                              <span class="font-medium text-gray-700">Diallo M.</span>
+                              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-sm">3</div>
+                              <span class="font-semibold text-gray-800 text-sm">Diallo M.</span>
                             </div>
-                            <span class="font-bold text-gray-800">2.1M FCFA</span>
+                            <span class="font-black text-gray-900 text-base">2.1M FCFA</span>
                           </div>
                         </div>
                       </div>
@@ -295,31 +289,31 @@ const callPhone = () => {
                               <Icon name="chart-bar" class="w-5 h-5 text-blue-600" />
                             </div>
                             <div>
-                              <div class="font-bold text-gray-800 text-sm">Produits les Plus Vendus</div>
-                              <div class="text-xs text-gray-500">Top 5</div>
+                              <div class="font-bold text-gray-900 text-sm">Produits les Plus Vendus</div>
+                              <div class="text-[10px] text-gray-600">Top 5</div>
                             </div>
                           </div>
                         </div>
                         <div class="space-y-2.5">
-                          <div class="flex items-center justify-between text-xs">
-                            <span class="font-medium text-gray-700">Cahier 200 pages</span>
-                            <span class="font-bold text-gray-800">847 unités</span>
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-gray-800 text-xs">Cahier 200 pages</span>
+                            <span class="font-black text-gray-900 text-sm">847 unités</span>
                           </div>
-                          <div class="flex items-center justify-between text-xs">
-                            <span class="font-medium text-gray-700">Stylo BIC bleu</span>
-                            <span class="font-bold text-gray-800">612 unités</span>
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-gray-800 text-xs">Stylo BIC bleu</span>
+                            <span class="font-black text-gray-900 text-sm">612 unités</span>
                           </div>
-                          <div class="flex items-center justify-between text-xs">
-                            <span class="font-medium text-gray-700">Classeur A4</span>
-                            <span class="font-bold text-gray-800">423 unités</span>
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-gray-800 text-xs">Classeur A4</span>
+                            <span class="font-black text-gray-900 text-sm">423 unités</span>
                           </div>
-                          <div class="flex items-center justify-between text-xs">
-                            <span class="font-medium text-gray-700">Ramette papier</span>
-                            <span class="font-bold text-gray-800">298 unités</span>
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-gray-800 text-xs">Ramette papier</span>
+                            <span class="font-black text-gray-900 text-sm">298 unités</span>
                           </div>
-                          <div class="flex items-center justify-between text-xs">
-                            <span class="font-medium text-gray-700">Marqueur tableau</span>
-                            <span class="font-bold text-gray-800">276 unités</span>
+                          <div class="flex items-center justify-between">
+                            <span class="font-semibold text-gray-800 text-xs">Marqueur tableau</span>
+                            <span class="font-black text-gray-900 text-sm">276 unités</span>
                           </div>
                         </div>
                       </div>
