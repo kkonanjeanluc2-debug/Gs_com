@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { analyticsService, type CommercialMonthlyRevenue } from '../services/analytics.service';
 import { companyService, type CompanySettings } from '../services/company.service';
 import type { Profile } from '../services/supabase';
+import Icon from './Icon.vue';
 import type {
   DashboardStats,
   TopCommercial,
@@ -166,7 +167,9 @@ onMounted(() => {
         <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-emerald-100 text-sm font-medium">Recette du jour</span>
-            <span class="text-2xl">💵</span>
+            <div class="bg-emerald-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="money" size="w-6 h-6" />
+            </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ formatCurrency(todayRevenue) }}</div>
           <div class="text-emerald-100 text-xs">FCFA aujourd'hui</div>
@@ -175,7 +178,9 @@ onMounted(() => {
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-blue-100 text-sm font-medium">CA mensuel</span>
-            <span class="text-2xl">💰</span>
+            <div class="bg-blue-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="money-bag" size="w-6 h-6" />
+            </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ formatCurrency(stats.totalRevenue) }}</div>
           <div class="text-blue-100 text-xs">FCFA ce mois</div>
@@ -190,7 +195,9 @@ onMounted(() => {
         <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-green-100 text-sm font-medium">Ventes</span>
-            <span class="text-2xl">🛒</span>
+            <div class="bg-green-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="shopping-cart" size="w-6 h-6" />
+            </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ stats.totalOrders }}</div>
           <div class="text-green-100 text-xs">ce mois</div>
@@ -205,7 +212,9 @@ onMounted(() => {
         <div v-if="isCommercial && companySettings?.commission_rate" class="bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-teal-100 text-sm font-medium">Ma Commission</span>
-            <span class="text-2xl">💎</span>
+            <div class="bg-teal-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="gem" size="w-6 h-6" />
+            </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ formatCurrency(commercialCommission) }}</div>
           <div class="text-teal-100 text-xs">FCFA ce mois ({{ companySettings.commission_rate }}%)</div>
@@ -219,7 +228,9 @@ onMounted(() => {
         <div v-else class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-purple-100 text-sm font-medium">Clients</span>
-            <span class="text-2xl">👥</span>
+            <div class="bg-purple-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="users-group" size="w-6 h-6" />
+            </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ stats.totalClients }}</div>
           <div class="text-purple-100 text-xs">clients actifs</div>
@@ -228,7 +239,9 @@ onMounted(() => {
         <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-orange-100 text-sm font-medium">Produits</span>
-            <span class="text-2xl">📦</span>
+            <div class="bg-orange-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="package" size="w-6 h-6" />
+            </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ stats.totalProducts }}</div>
           <div class="text-orange-100 text-xs">en catalogue</div>
@@ -238,9 +251,14 @@ onMounted(() => {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div v-if="!isCommercial" class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-800">🏆 Meilleurs Commerciaux</h3>
-              <p class="text-xs text-gray-500 mt-1">Top 5 du mois en cours</p>
+            <div class="flex items-center gap-2">
+              <div class="bg-yellow-100 p-2 rounded-lg">
+                <Icon name="trophy" size="w-5 h-5" class="text-yellow-600" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Meilleurs Commerciaux</h3>
+                <p class="text-xs text-gray-500 mt-1">Top 5 du mois en cours</p>
+              </div>
             </div>
             <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Par CA réalisé</span>
           </div>
@@ -261,16 +279,13 @@ onMounted(() => {
               <div
                 class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
                 :class="{
-                  'bg-yellow-500 text-white': index === 0,
-                  'bg-gray-400 text-white': index === 1,
-                  'bg-orange-600 text-white': index === 2,
+                  'bg-yellow-500 text-white shadow-md': index === 0,
+                  'bg-gray-400 text-white shadow-md': index === 1,
+                  'bg-orange-600 text-white shadow-md': index === 2,
                   'bg-blue-500 text-white': index > 2
                 }"
               >
-                <span v-if="index === 0">🥇</span>
-                <span v-else-if="index === 1">🥈</span>
-                <span v-else-if="index === 2">🥉</span>
-                <span v-else>{{ index + 1 }}</span>
+                {{ index + 1 }}
               </div>
               <div class="flex-shrink-0">
                 <div
@@ -312,7 +327,12 @@ onMounted(() => {
 
         <div class="bg-white rounded-xl shadow-md p-6" :class="{ 'lg:col-span-2': isCommercial }">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-gray-800">📊 Produits les Plus Vendus</h3>
+            <div class="flex items-center gap-2">
+              <div class="bg-blue-100 p-2 rounded-lg">
+                <Icon name="chart-bar" size="w-5 h-5" class="text-blue-600" />
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">Produits les Plus Vendus</h3>
+            </div>
             <span class="text-xs text-gray-500">Top 5</span>
           </div>
           <div v-if="topProducts.length === 0" class="text-center py-8 text-gray-500">
@@ -335,9 +355,9 @@ onMounted(() => {
                 ></div>
                 <div
                   v-else
-                  class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs"
+                  class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400"
                 >
-                  📦
+                  <Icon name="package" size="w-5 h-5" />
                 </div>
               </div>
               <div class="flex-1 min-w-0">
@@ -364,7 +384,12 @@ onMounted(() => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-gray-800">💎 Meilleurs Clients</h3>
+            <div class="flex items-center gap-2">
+              <div class="bg-purple-100 p-2 rounded-lg">
+                <Icon name="diamond" size="w-5 h-5" class="text-purple-600" />
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">Meilleurs Clients</h3>
+            </div>
             <span class="text-xs text-gray-500">Top 5</span>
           </div>
           <div v-if="topClients.length === 0" class="text-center py-8 text-gray-500">
@@ -396,7 +421,12 @@ onMounted(() => {
 
         <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-gray-800">🛍️ Commandes Récentes</h3>
+            <div class="flex items-center gap-2">
+              <div class="bg-green-100 p-2 rounded-lg">
+                <Icon name="shopping-bags" size="w-5 h-5" class="text-green-600" />
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">Commandes Récentes</h3>
+            </div>
             <span class="text-xs text-gray-500">5 dernières</span>
           </div>
           <div v-if="recentOrders.length === 0" class="text-center py-8 text-gray-500">
@@ -437,7 +467,12 @@ onMounted(() => {
 
         <div class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-gray-800">🎯 Prospects Récents</h3>
+            <div class="flex items-center gap-2">
+              <div class="bg-orange-100 p-2 rounded-lg">
+                <Icon name="target" size="w-5 h-5" class="text-orange-600" />
+              </div>
+              <h3 class="text-lg font-bold text-gray-800">Prospects Récents</h3>
+            </div>
             <span class="text-xs text-gray-500">5 derniers</span>
           </div>
           <div v-if="recentProspects.length === 0" class="text-center py-8 text-gray-500">
