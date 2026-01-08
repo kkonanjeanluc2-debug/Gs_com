@@ -510,13 +510,13 @@ loadReports();
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-white">
-    <header class="sticky top-0 z-50 bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg">
+  <div class="min-h-screen flex flex-col bg-gray-50">
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between gap-4">
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden bg-blue-700 p-2 rounded-lg hover:bg-blue-800 transition-colors"
+            class="md:hidden bg-gray-100 p-2 rounded-lg hover:bg-gray-200 transition-colors text-gray-700"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -524,17 +524,17 @@ loadReports();
           </button>
 
           <div class="flex-1">
-            <h1 class="text-xl md:text-3xl font-bold">Gestion commerciale</h1>
-            <p class="text-blue-100 text-xs md:text-sm mt-1">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900">Gestion commerciale</h1>
+            <p class="text-gray-500 text-xs md:text-sm mt-1">
               {{ profile.full_name }} - {{ profile.role === 'admin' ? 'Administrateur' : profile.role === 'super_admin' ? 'Super Administrateur' : profile.role === 'superviseur' ? 'Superviseur' : 'Commercial' }}
             </p>
           </div>
 
           <button
             @click="handleLogout"
-            class="hidden md:block bg-white text-primary px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            class="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
           >
-            🚪 Déconnexion
+            Déconnexion
           </button>
         </div>
 
@@ -546,8 +546,8 @@ loadReports();
             :class="[
               'px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap relative',
               activeTab === tab.id
-                ? 'bg-white text-primary'
-                : 'bg-blue-700 text-white hover:bg-blue-800'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-gray-600 hover:bg-gray-100'
             ]"
           >
             {{ tab.icon }} {{ tab.label }}
@@ -572,7 +572,7 @@ loadReports();
         class="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl"
         @click.stop
       >
-        <div class="p-4 bg-primary text-white">
+        <div class="p-4 bg-blue-600 text-white">
           <button
             @click="mobileMenuOpen = false"
             class="absolute top-4 right-4 text-white"
