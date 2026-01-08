@@ -41,7 +41,7 @@ const handleSelectTab = (tabId: string) => {
     ]"
   >
     <div class="p-6 border-b border-blue-600">
-      <div class="flex items-center justify-center">
+      <div class="flex items-center gap-3">
         <div class="bg-white rounded-lg p-2 flex-shrink-0 w-10 h-10 flex items-center justify-center">
           <img
             v-if="company?.logo_url"
@@ -50,6 +50,10 @@ const handleSelectTab = (tabId: string) => {
             class="w-full h-full object-contain"
           />
           <Icon v-else name="building" size="w-6 h-6" class="text-blue-600" />
+        </div>
+        <div v-if="!isCollapsed" class="flex-1 min-w-0">
+          <h1 class="text-xl font-bold truncate">{{ company?.name || 'ImmoGest' }}</h1>
+          <p class="text-blue-200 text-xs truncate">Gestion Pro</p>
         </div>
       </div>
     </div>
@@ -109,14 +113,20 @@ const handleSelectTab = (tabId: string) => {
     >
       <div class="p-6 border-b border-blue-600">
         <div class="flex items-center justify-between">
-          <div class="bg-white rounded-lg p-2 flex-shrink-0 w-10 h-10 flex items-center justify-center">
-            <img
-              v-if="company?.logo_url"
-              :src="company.logo_url"
-              :alt="company.name"
-              class="w-full h-full object-contain"
-            />
-            <Icon v-else name="building" size="w-6 h-6" class="text-blue-600" />
+          <div class="flex items-center gap-3">
+            <div class="bg-white rounded-lg p-2 flex-shrink-0 w-10 h-10 flex items-center justify-center">
+              <img
+                v-if="company?.logo_url"
+                :src="company.logo_url"
+                :alt="company.name"
+                class="w-full h-full object-contain"
+              />
+              <Icon v-else name="building" size="w-6 h-6" class="text-blue-600" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <h1 class="text-xl font-bold truncate">{{ company?.name || 'ImmoGest' }}</h1>
+              <p class="text-blue-200 text-xs truncate">Gestion Pro</p>
+            </div>
           </div>
           <button
             @click="emit('closeMobileMenu')"
