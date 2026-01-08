@@ -21,7 +21,9 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization');
 
     if (!authHeader) {
@@ -46,7 +48,8 @@ Deno.serve(async (req: Request) => {
       throw new Error('Le mot de passe doit contenir au moins 6 caractères');
     }
 
-    const { error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    const { error: signInError } = await supabaseClient.auth.signInWithPassword({
       email: user.email!,
       password: currentPassword,
     });
@@ -60,7 +63,8 @@ Deno.serve(async (req: Request) => {
     });
 
     if (updateError) {
-      throw updateError;
+      console.error('Error updating password:', updateError);
+      throw new Error(`Erreur lors de la mise à jour du mot de passe: ${updateError.message}`);
     }
 
     return new Response(

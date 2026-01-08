@@ -22,6 +22,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization');
 
@@ -43,7 +44,8 @@ Deno.serve(async (req: Request) => {
       throw new Error('Mot de passe et nouvel email requis');
     }
 
-    const { error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    const { error: signInError } = await supabaseClient.auth.signInWithPassword({
       email: user.email!,
       password: currentPassword,
     });
@@ -54,10 +56,12 @@ Deno.serve(async (req: Request) => {
 
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       email: newEmail,
+      email_confirm: true,
     });
 
     if (updateError) {
-      throw updateError;
+      console.error('Error updating auth user:', updateError);
+      throw new Error(`Erreur lors de la mise à jour de l'email: ${updateError.message}`);
     }
 
     const { error: profileError } = await supabaseAdmin
