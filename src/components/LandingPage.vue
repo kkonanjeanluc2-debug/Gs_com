@@ -131,51 +131,11 @@ const callPhone = () => {
           <!-- Right Image/Dashboard Preview -->
           <div class="relative">
             <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 bg-slate-800">
-              <div class="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 p-6">
-                <!-- Mockup Dashboard -->
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
-                        <Icon name="chart-bar" class="w-5 h-5 text-white" />
-                      </div>
-                      <span class="text-white font-semibold">Tableau de bord</span>
-                    </div>
-                    <div class="text-sm text-gray-400">Bienvenue sur Ges-com</div>
-                  </div>
-
-                  <div class="grid grid-cols-3 gap-3">
-                    <div class="bg-blue-500/20 rounded-lg p-3 border border-blue-500/30">
-                      <div class="text-xs text-blue-300 mb-1">Ventes</div>
-                      <div class="text-lg font-bold text-white">2 871 FCFA</div>
-                    </div>
-                    <div class="bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/30">
-                      <div class="text-xs text-emerald-300 mb-1">CA total</div>
-                      <div class="text-lg font-bold text-white">29 000 F</div>
-                    </div>
-                    <div class="bg-amber-500/20 rounded-lg p-3 border border-amber-500/30">
-                      <div class="text-xs text-amber-300 mb-1">Tendance</div>
-                      <div class="text-lg font-bold text-white">+165%</div>
-                    </div>
-                  </div>
-
-                  <div class="bg-slate-700/50 rounded-lg p-4">
-                    <div class="flex items-center gap-2 mb-2">
-                      <Icon name="chart-bar" class="w-4 h-4 text-blue-400" />
-                      <span class="text-sm text-gray-300">Évolution des ventes</span>
-                    </div>
-                    <div class="h-24 flex items-end gap-1">
-                      <div class="flex-1 bg-blue-500 rounded-t" style="height: 40%"></div>
-                      <div class="flex-1 bg-blue-500 rounded-t" style="height: 60%"></div>
-                      <div class="flex-1 bg-blue-500 rounded-t" style="height: 45%"></div>
-                      <div class="flex-1 bg-blue-500 rounded-t" style="height: 80%"></div>
-                      <div class="flex-1 bg-blue-500 rounded-t" style="height: 70%"></div>
-                      <div class="flex-1 bg-blue-500 rounded-t" style="height: 95%"></div>
-                      <div class="flex-1 bg-emerald-500 rounded-t" style="height: 100%"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="/image copy copy copy copy copy copy.png"
+                alt="Dashboard Ges-com"
+                class="w-full h-auto"
+              />
             </div>
 
             <!-- Floating elements -->
