@@ -16,6 +16,7 @@ import CompanySettings from './CompanySettings.vue';
 import CompanyManagement from './CompanyManagement.vue';
 import SuperAdminSettings from './SuperAdminSettings.vue';
 import SubscriptionManagement from './SubscriptionManagement.vue';
+import SubscriptionPlans from './SubscriptionPlans.vue';
 import AppFooter from './AppFooter.vue';
 import { reportsService } from '../services/reports.service';
 import { whatsappService } from '../services/whatsapp';
@@ -30,7 +31,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company' | 'companies' | 'subscriptions' | 'settings'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -71,6 +72,7 @@ const tabs = computed(() => {
     { id: 'stock', label: 'Stock', icon: '📦', visible: canManageStock.value && !isSuperAdmin.value },
     { id: 'categories', label: 'Catégories', icon: '📁', visible: canManageStock.value && !isSuperAdmin.value },
     { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value && !isSuperAdmin.value },
+    { id: 'subscription-plans', label: 'Mon Abonnement', icon: '💳', visible: isAdmin.value && !isSuperAdmin.value },
     { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value && !isSuperAdmin.value },
     { id: 'companies', label: 'Entreprises', icon: '🏢', visible: isSuperAdmin.value },
     { id: 'subscriptions', label: 'Abonnements', icon: '💳', visible: isSuperAdmin.value },
@@ -704,6 +706,7 @@ loadReports();
       <ProductManagement v-if="activeTab === 'stock'" />
       <CategoryManagement v-if="activeTab === 'categories'" />
       <UserManagement v-if="activeTab === 'users'" />
+      <SubscriptionPlans v-if="activeTab === 'subscription-plans'" />
       <CompanySettings v-if="activeTab === 'company'" />
       <CompanyManagement v-if="activeTab === 'companies'" />
       <SubscriptionManagement v-if="activeTab === 'subscriptions'" />
