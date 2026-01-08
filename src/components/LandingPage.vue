@@ -109,7 +109,7 @@ const callPhone = () => {
             </p>
 
             <!-- Contact Buttons -->
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button
                 @click="callPhone"
                 class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
