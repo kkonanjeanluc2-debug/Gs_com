@@ -47,11 +47,11 @@ const scrollToContact = () => {
 };
 
 const openWhatsApp = () => {
-  window.open('https://wa.me/22507088645227', '_blank');
+  window.open('https://wa.me/2250708864527', '_blank');
 };
 
 const callPhone = () => {
-  window.location.href = 'tel:+22507088645227';
+  window.location.href = 'tel:+2250708864527';
 };
 </script>
 
@@ -70,7 +70,7 @@ const callPhone = () => {
           </div>
 
           <!-- Navigation & Auth Buttons -->
-          <div class="flex items-center gap-8">
+          <div class="flex items-center gap-3 md:gap-8">
             <!-- Navigation Desktop -->
             <nav class="hidden md:flex items-center gap-8">
               <a href="#solutions" class="text-gray-300 hover:text-white transition-colors font-medium">Solutions</a>
@@ -78,16 +78,16 @@ const callPhone = () => {
             </nav>
 
             <!-- Auth Buttons -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 md:gap-3">
               <button
                 @click="emit('navigateToLogin')"
-                class="px-6 py-2.5 rounded-lg font-medium text-white border-2 border-blue-500 hover:bg-blue-500 transition-all duration-200"
+                class="px-3 py-2 md:px-6 md:py-2.5 rounded-lg text-xs md:text-base font-medium text-white border-2 border-blue-500 hover:bg-blue-500 transition-all duration-200"
               >
                 Se connecter
               </button>
               <button
                 @click="emit('navigateToRegister')"
-                class="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                class="px-3 py-2 md:px-6 md:py-2.5 rounded-lg text-xs md:text-base font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 S'inscrire
               </button>
