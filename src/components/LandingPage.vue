@@ -130,12 +130,203 @@ const callPhone = () => {
 
           <!-- Right Image/Dashboard Preview -->
           <div class="relative">
-            <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 bg-slate-800">
-              <img
-                src="/image copy copy copy copy copy copy.png"
-                alt="Dashboard Ges-com"
-                class="w-full h-auto"
-              />
+            <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 bg-white">
+              <!-- Dashboard Mockup -->
+              <div class="flex h-[600px]">
+                <!-- Sidebar -->
+                <div class="w-56 bg-blue-700 text-white p-4 flex flex-col">
+                  <!-- Logo/Company -->
+                  <div class="flex items-center gap-3 mb-8 bg-blue-800 p-3 rounded-lg">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                      <Icon name="shopping-cart" class="w-6 h-6 text-blue-700" />
+                    </div>
+                    <div>
+                      <div class="font-bold text-sm">Ges-com</div>
+                      <div class="text-xs text-blue-200">Gestion Pro</div>
+                    </div>
+                  </div>
+
+                  <!-- Menu Items -->
+                  <nav class="space-y-1 flex-1">
+                    <div class="bg-green-500 text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium">
+                      <Icon name="chart-bar" class="w-4 h-4" />
+                      <span>Tableau de bord</span>
+                    </div>
+                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                      <Icon name="document" class="w-4 h-4" />
+                      <span>Rapports</span>
+                    </div>
+                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                      <Icon name="users-group" class="w-4 h-4" />
+                      <span>CRM</span>
+                    </div>
+                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                      <Icon name="shopping-cart" class="w-4 h-4" />
+                      <span>Commandes</span>
+                    </div>
+                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
+                      <Icon name="package" class="w-4 h-4" />
+                      <span>Stock</span>
+                    </div>
+                  </nav>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1 bg-gray-50 overflow-auto">
+                  <!-- Top Bar -->
+                  <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                    <h1 class="text-xl font-bold text-gray-800">Tableau de bord</h1>
+                    <div class="flex items-center gap-3">
+                      <div class="text-right text-sm">
+                        <div class="font-semibold text-gray-800">Jean-Luc</div>
+                        <div class="text-gray-500 text-xs">Administrateur</div>
+                      </div>
+                      <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                        J
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Stats Cards -->
+                  <div class="p-6">
+                    <div class="grid grid-cols-5 gap-3 mb-6">
+                      <!-- Recette du jour -->
+                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                          <Icon name="document" class="w-5 h-5" />
+                          <div class="text-xs font-medium">Recette du jour</div>
+                        </div>
+                        <div class="text-2xl font-bold">487,500</div>
+                        <div class="text-xs mt-1 opacity-90">FCFA aujourd'hui</div>
+                      </div>
+
+                      <!-- CA mensuel -->
+                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                          <Icon name="chart-bar" class="w-5 h-5" />
+                          <div class="text-xs font-medium">CA mensuel</div>
+                        </div>
+                        <div class="text-2xl font-bold">12.4M</div>
+                        <div class="text-xs mt-1 flex items-center gap-1 opacity-90">
+                          <span>→ +24%</span>
+                          <span>vs mois dernier</span>
+                        </div>
+                      </div>
+
+                      <!-- Ventes -->
+                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                          <Icon name="shopping-cart" class="w-5 h-5" />
+                          <div class="text-xs font-medium">Ventes</div>
+                        </div>
+                        <div class="text-2xl font-bold">847</div>
+                        <div class="text-xs mt-1 flex items-center gap-1 opacity-90">
+                          <span>→ +18%</span>
+                          <span>vs mois dernier</span>
+                        </div>
+                      </div>
+
+                      <!-- Clients -->
+                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                          <Icon name="users-group" class="w-5 h-5" />
+                          <div class="text-xs font-medium">Clients</div>
+                        </div>
+                        <div class="text-2xl font-bold">324</div>
+                        <div class="text-xs mt-1 opacity-90">clients actifs</div>
+                      </div>
+
+                      <!-- Produits -->
+                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-2 mb-2">
+                          <Icon name="package" class="w-5 h-5" />
+                          <div class="text-xs font-medium">Produits</div>
+                        </div>
+                        <div class="text-2xl font-bold">1,247</div>
+                        <div class="text-xs mt-1 opacity-90">en catalogue</div>
+                      </div>
+                    </div>
+
+                    <!-- Bottom Sections -->
+                    <div class="grid grid-cols-2 gap-4">
+                      <!-- Meilleurs Commerciaux -->
+                      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                          <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
+                              <Icon name="users" class="w-5 h-5 text-yellow-600" />
+                            </div>
+                            <div>
+                              <div class="font-bold text-gray-800 text-sm">Meilleurs Commerciaux</div>
+                              <div class="text-xs text-gray-500">Top 3 du mois en cours</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="space-y-3">
+                          <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                              <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">1</div>
+                              <span class="font-medium text-gray-700">Kouassi A.</span>
+                            </div>
+                            <span class="font-bold text-gray-800">3.2M FCFA</span>
+                          </div>
+                          <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                              <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">2</div>
+                              <span class="font-medium text-gray-700">Koné S.</span>
+                            </div>
+                            <span class="font-bold text-gray-800">2.8M FCFA</span>
+                          </div>
+                          <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                              <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">3</div>
+                              <span class="font-medium text-gray-700">Diallo M.</span>
+                            </div>
+                            <span class="font-bold text-gray-800">2.1M FCFA</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Produits les Plus Vendus -->
+                      <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between mb-4">
+                          <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                              <Icon name="chart-bar" class="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <div class="font-bold text-gray-800 text-sm">Produits les Plus Vendus</div>
+                              <div class="text-xs text-gray-500">Top 5</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="space-y-2.5">
+                          <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-gray-700">Cahier 200 pages</span>
+                            <span class="font-bold text-gray-800">847 unités</span>
+                          </div>
+                          <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-gray-700">Stylo BIC bleu</span>
+                            <span class="font-bold text-gray-800">612 unités</span>
+                          </div>
+                          <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-gray-700">Classeur A4</span>
+                            <span class="font-bold text-gray-800">423 unités</span>
+                          </div>
+                          <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-gray-700">Ramette papier</span>
+                            <span class="font-bold text-gray-800">298 unités</span>
+                          </div>
+                          <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-gray-700">Marqueur tableau</span>
+                            <span class="font-bold text-gray-800">276 unités</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Floating elements -->
