@@ -60,17 +60,17 @@ const callPhone = () => {
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
       <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between h-16 sm:h-20">
+        <div class="flex items-center justify-between h-20">
           <!-- Logo -->
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-              <Icon name="shopping-cart" class="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <Icon name="shopping-cart" class="w-7 h-7 text-white" />
             </div>
-            <span class="text-xl sm:text-2xl font-bold text-white">Ges-com</span>
+            <span class="text-2xl font-bold text-white">Ges-com</span>
           </div>
 
           <!-- Navigation & Auth Buttons -->
-          <div class="flex items-center gap-2 sm:gap-8">
+          <div class="flex items-center gap-8">
             <!-- Navigation Desktop -->
             <nav class="hidden md:flex items-center gap-8">
               <a href="#solutions" class="text-gray-300 hover:text-white transition-colors font-medium">Solutions</a>
@@ -78,17 +78,16 @@ const callPhone = () => {
             </nav>
 
             <!-- Auth Buttons -->
-            <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center gap-3">
               <button
                 @click="emit('navigateToLogin')"
-                class="px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg font-medium text-white border-2 border-blue-500 hover:bg-blue-500 transition-all duration-200 text-sm sm:text-base"
+                class="px-6 py-2.5 rounded-lg font-medium text-white border-2 border-blue-500 hover:bg-blue-500 transition-all duration-200"
               >
-                <span class="hidden sm:inline">Se connecter</span>
-                <span class="sm:hidden">Connexion</span>
+                Se connecter
               </button>
               <button
                 @click="emit('navigateToRegister')"
-                class="px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                class="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 S'inscrire
               </button>
@@ -99,42 +98,41 @@ const callPhone = () => {
     </header>
 
     <!-- Hero Section -->
-    <section id="accueil" class="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4">
+    <section id="accueil" class="pt-32 pb-20 px-4">
       <div class="container mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <!-- Left Content -->
-          <div class="text-white space-y-6 sm:space-y-8 text-center lg:text-left">
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight">
+          <div class="text-white space-y-8">
+            <h1 class="text-5xl md:text-6xl font-bold leading-tight">
               Ges-com
             </h1>
 
-            <p class="text-lg sm:text-xl text-gray-300 leading-relaxed">
+            <p class="text-xl text-gray-300 leading-relaxed">
               La solution complète de suivi des commerciaux moderne pour votre entreprise. Gérez votre entreprise comme un professionnel avec nos outils intelligents.
             </p>
 
             <!-- Contact Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button
                 @click="callPhone"
-                class="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                <Icon name="phone" class="w-4 h-4 sm:w-5 sm:h-5" />
-                <span class="hidden sm:inline">Appelez-nous : 07 08 86 45 27</span>
-                <span class="sm:hidden">Appeler</span>
+                <Icon name="phone" class="w-5 h-5" />
+                <span>Appelez-nous : 07 08 86 45 27</span>
               </button>
 
               <button
                 @click="openWhatsApp"
-                class="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                <Icon name="phone" class="w-4 h-4 sm:w-5 sm:h-5" />
+                <Icon name="phone" class="w-5 h-5" />
                 <span>WhatsApp</span>
               </button>
             </div>
           </div>
 
           <!-- Right Image/Dashboard Preview -->
-          <div class="relative hidden lg:block">
+          <div class="relative">
             <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 bg-white">
               <!-- Dashboard Mockup -->
               <div class="flex h-[600px]">
@@ -337,47 +335,47 @@ const callPhone = () => {
     </section>
 
     <!-- Features Section -->
-    <section id="solutions" class="py-12 sm:py-20 px-4 bg-slate-800/50">
+    <section id="solutions" class="py-20 px-4 bg-slate-800/50">
       <div class="container mx-auto">
-        <div class="text-center mb-12 sm:mb-16">
-          <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold text-white mb-4">
             Fonctionnalités puissantes
           </h2>
-          <p class="text-lg sm:text-xl text-gray-400">
+          <p class="text-xl text-gray-400">
             Tout ce dont vous avez besoin pour gérer votre business efficacement
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <div
             v-for="feature in features"
             :key="feature.title"
-            class="bg-slate-800/80 rounded-2xl p-6 sm:p-8 border border-slate-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
+            class="bg-slate-800/80 rounded-2xl p-8 border border-slate-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
           >
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg mb-4 sm:mb-6">
-              <Icon :name="feature.icon" class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg mb-6">
+              <Icon :name="feature.icon" class="w-7 h-7 text-white" />
             </div>
-            <h3 class="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3">{{ feature.title }}</h3>
-            <p class="text-sm sm:text-base text-gray-400 leading-relaxed">{{ feature.description }}</p>
+            <h3 class="text-xl font-bold text-white mb-3">{{ feature.title }}</h3>
+            <p class="text-gray-400 leading-relaxed">{{ feature.description }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Contact Section -->
-    <section id="contact-section" class="py-12 sm:py-20 px-4">
+    <section id="contact-section" class="py-20 px-4">
       <div class="container mx-auto max-w-4xl">
-        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl sm:rounded-3xl p-6 sm:p-12 border border-slate-700 shadow-2xl">
-          <div class="text-center mb-8 sm:mb-12">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3 sm:mb-4">
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-12 border border-slate-700 shadow-2xl">
+          <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-white mb-4">
               Contactez-nous
             </h2>
-            <p class="text-lg sm:text-xl text-gray-400">
+            <p class="text-xl text-gray-400">
               Notre équipe est là pour répondre à toutes vos questions
             </p>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <button
               @click="callPhone"
               class="flex flex-col items-center gap-4 p-6 rounded-xl bg-slate-700/50 border border-slate-600 hover:border-blue-500 transition-all duration-200 group"

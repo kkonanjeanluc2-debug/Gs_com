@@ -589,16 +589,16 @@ loadReports();
         @logout="handleLogout"
       />
 
-      <main class="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+      <main class="flex-1 container mx-auto px-4 py-6 md:py-8">
       <DashboardView v-if="activeTab === 'dashboard'" :profile="profile" />
 
       <div v-if="activeTab === 'reports'">
-        <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
-          <button @click="handleNewReport" class="btn-primary inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="mb-6 flex justify-end gap-3">
+          <button @click="handleNewReport" class="btn-primary inline-flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
             <Icon name="plus" class="w-5 h-5" />
             <span>Nouveau rapport</span>
           </button>
-          <button @click="handleExportAll" class="btn-secondary inline-flex items-center justify-center gap-2">
+          <button @click="handleExportAll" class="btn-secondary inline-flex items-center gap-2">
             <Icon name="download" class="w-5 h-5" />
             <span>Exporter tous</span>
           </button>
@@ -648,29 +648,29 @@ loadReports();
       </div>
 
       <div v-if="activeTab === 'clients'">
-        <div class="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6 bg-white rounded-lg p-2 shadow-sm">
+        <div class="flex gap-2 mb-6 bg-white rounded-lg p-2 shadow-sm">
           <button
             @click="crmSubTab = 'clients'"
             :class="[
-              'flex-1 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base',
+              'flex-1 px-4 py-2 rounded-lg font-medium transition-all',
               crmSubTab === 'clients'
                 ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             ]"
           >
-            Clients & Prospects
+            👥 Clients & Prospects
           </button>
           <button
             v-if="canManageCommercials"
             @click="crmSubTab = 'commercials'"
             :class="[
-              'flex-1 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base',
+              'flex-1 px-4 py-2 rounded-lg font-medium transition-all',
               crmSubTab === 'commercials'
                 ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             ]"
           >
-            Commerciaux
+            👔 Commerciaux
           </button>
         </div>
 
