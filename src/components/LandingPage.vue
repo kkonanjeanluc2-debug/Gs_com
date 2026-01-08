@@ -47,11 +47,11 @@ const scrollToContact = () => {
 };
 
 const openWhatsApp = () => {
-  window.open('https://wa.me/22577370177', '_blank');
+  window.open('https://wa.me/22507088645227', '_blank');
 };
 
 const callPhone = () => {
-  window.location.href = 'tel:+22577370177';
+  window.location.href = 'tel:+22507088645227';
 };
 </script>
 
@@ -63,18 +63,16 @@ const callPhone = () => {
         <div class="flex items-center justify-between h-20">
           <!-- Logo -->
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-              <Icon name="shopping-cart" class="w-6 h-6 text-white" />
+            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <Icon name="shopping-cart" class="w-7 h-7 text-white" />
             </div>
-            <span class="text-2xl font-bold text-white">GescomPro</span>
+            <span class="text-2xl font-bold text-white">Ges-com</span>
           </div>
 
           <!-- Navigation Desktop -->
           <nav class="hidden md:flex items-center gap-8">
-            <a href="#accueil" class="text-gray-300 hover:text-white transition-colors font-medium">Accueil</a>
             <a href="#solutions" class="text-gray-300 hover:text-white transition-colors font-medium">Solutions</a>
             <a href="#contact-section" @click.prevent="scrollToContact" class="text-gray-300 hover:text-white transition-colors font-medium">Contact</a>
-            <a href="#boutique" class="text-gray-300 hover:text-white transition-colors font-medium">Boutique en ligne</a>
           </nav>
 
           <!-- Auth Buttons -->
@@ -102,45 +100,32 @@ const callPhone = () => {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <!-- Left Content -->
           <div class="text-white space-y-8">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-sm font-medium">
-              <Icon name="star" class="w-4 h-4" />
-              <span>Solution Tech20i</span>
-            </div>
-
             <h1 class="text-5xl md:text-6xl font-bold leading-tight">
-              Gescom<span class="text-blue-400">Pro</span>
+              Ges-com
             </h1>
 
             <p class="text-xl text-gray-300 leading-relaxed">
-              La solution complète de gestion commerciale moderne pour votre entreprise. Gérez votre boutique comme un professionnel avec nos outils intelligents.
+              La solution complète de suivi des commerciaux moderne pour votre entreprise. Gérez votre entreprise comme un professionnel avec nos outils intelligents.
             </p>
 
             <!-- Contact Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex flex-col gap-4">
               <button
                 @click="callPhone"
-                class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-xl hover:shadow-2xl"
+                class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <Icon name="phone" class="w-5 h-5" />
-                <span>Appelez-nous : 77 370 17 27</span>
+                <span>Appelez-nous : 07 08 86 45 27</span>
               </button>
 
               <button
                 @click="openWhatsApp"
-                class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-xl hover:shadow-2xl"
+                class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <Icon name="phone" class="w-5 h-5" />
                 <span>WhatsApp</span>
               </button>
             </div>
-
-            <button
-              @click="scrollToContact"
-              class="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
-            >
-              <Icon name="mail" class="w-5 h-5" />
-              <span>contact@gescompro.com</span>
-            </button>
           </div>
 
           <!-- Right Image/Dashboard Preview -->
@@ -156,7 +141,7 @@ const callPhone = () => {
                       </div>
                       <span class="text-white font-semibold">Tableau de bord</span>
                     </div>
-                    <div class="text-sm text-gray-400">Bienvenue sur GescomPro</div>
+                    <div class="text-sm text-gray-400">Bienvenue sur Ges-com</div>
                   </div>
 
                   <div class="grid grid-cols-3 gap-3">
@@ -242,7 +227,7 @@ const callPhone = () => {
             </p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <button
               @click="callPhone"
               class="flex flex-col items-center gap-4 p-6 rounded-xl bg-slate-700/50 border border-slate-600 hover:border-blue-500 transition-all duration-200 group"
@@ -252,7 +237,7 @@ const callPhone = () => {
               </div>
               <div class="text-center">
                 <div class="text-sm text-gray-400 mb-1">Téléphone</div>
-                <div class="text-white font-semibold">77 370 17 27</div>
+                <div class="text-white font-semibold">07 08 86 45 27</div>
               </div>
             </button>
 
@@ -265,19 +250,9 @@ const callPhone = () => {
               </div>
               <div class="text-center">
                 <div class="text-sm text-gray-400 mb-1">WhatsApp</div>
-                <div class="text-white font-semibold">77 370 17 27</div>
+                <div class="text-white font-semibold">07 08 86 45 27</div>
               </div>
             </button>
-
-            <div class="flex flex-col items-center gap-4 p-6 rounded-xl bg-slate-700/50 border border-slate-600">
-              <div class="w-16 h-16 rounded-full bg-gray-500/20 flex items-center justify-center">
-                <Icon name="mail" class="w-8 h-8 text-gray-400" />
-              </div>
-              <div class="text-center">
-                <div class="text-sm text-gray-400 mb-1">Email</div>
-                <div class="text-white font-semibold text-sm">contact@gescompro.com</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -291,11 +266,11 @@ const callPhone = () => {
             <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
               <Icon name="shopping-cart" class="w-6 h-6 text-white" />
             </div>
-            <span class="text-xl font-bold text-white">GescomPro</span>
+            <span class="text-xl font-bold text-white">Ges-com</span>
           </div>
 
           <div class="text-gray-400 text-sm">
-            © 2025 GescomPro - Solution Tech20i. Tous droits réservés.
+            © 2025 Ges-com. Tous droits réservés.
           </div>
 
           <div class="flex gap-4">
