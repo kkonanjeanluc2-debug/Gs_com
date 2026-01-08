@@ -106,14 +106,29 @@ const handleSubmit = async () => {
 };
 
 const handleDelete = async (client: Client) => {
-  if (!confirm(`Supprimer "${client.name}" ?`)) return;
+  if (!confirm(`Supprimer "${client.name}" ?\n\nAttention : Cette action est irréversible.`)) return;
 
   try {
     await clientsService.deleteClient(client.id);
     await loadClients();
-  } catch (error) {
+    alert(`Le client "${client.name}" a été supprimé avec succès.`);
+  } catch (error: any) {
     console.error('Error deleting client:', error);
-    alert('Erreur lors de la suppression');
+
+    // Check if error is due to foreign key constraint
+    if (error?.message?.includes('violates foreign key constraint') ||
+        error?.code === '23503' ||
+        error?.message?.includes('orders')) {
+      alert(
+        `Impossible de supprimer "${client.name}".\n\n` +
+        `Ce client a des commandes associées et ne peut pas être supprimé pour préserver l'historique.\n\n` +
+        `Vous pouvez plutôt :\n` +
+        `• Changer son statut en "Inactif" pour le désactiver\n` +
+        `• Le convertir en prospect s'il n'est plus actif`
+      );
+    } else {
+      alert(`Erreur lors de la suppression du client : ${error?.message || 'Erreur inconnue'}`);
+    }
   }
 };
 

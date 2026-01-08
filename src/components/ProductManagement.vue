@@ -183,7 +183,7 @@ const getSubcategoryName = (subcategoryId: string | null) => {
 };
 
 const handleDelete = async (product: Product) => {
-  if (!confirm(`Supprimer le produit "${product.name}" ?`)) return;
+  if (!confirm(`Supprimer le produit "${product.name}" ?\n\nAttention : Cette action est irréversible.`)) return;
 
   try {
     if (product.image_url) {
@@ -191,9 +191,24 @@ const handleDelete = async (product: Product) => {
     }
     await productsService.deleteProduct(product.id);
     await loadProducts();
-  } catch (error) {
+    alert(`Le produit "${product.name}" a été supprimé avec succès.`);
+  } catch (error: any) {
     console.error('Error deleting product:', error);
-    alert('Erreur lors de la suppression');
+
+    // Check if error is due to foreign key constraint
+    if (error?.message?.includes('violates foreign key constraint') ||
+        error?.code === '23503' ||
+        error?.message?.includes('order_items')) {
+      alert(
+        `Impossible de supprimer "${product.name}".\n\n` +
+        `Ce produit a été utilisé dans des commandes et ne peut pas être supprimé pour préserver l'historique.\n\n` +
+        `Vous pouvez :\n` +
+        `• Modifier le stock à 0 pour le rendre indisponible\n` +
+        `• Modifier le nom en ajoutant "(Archivé)" pour le masquer`
+      );
+    } else {
+      alert(`Erreur lors de la suppression du produit : ${error?.message || 'Erreur inconnue'}`);
+    }
   }
 };
 
