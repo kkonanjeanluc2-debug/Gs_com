@@ -568,15 +568,18 @@ loadReports();
           </svg>
         </button>
         <div class="flex-1 flex items-center justify-center pr-16">
-          <div class="bg-blue-600 rounded-lg p-1.5 w-8 h-8 flex items-center justify-center">
-            <img
-              v-if="currentCompany?.logo_url"
-              :src="currentCompany.logo_url"
-              :alt="currentCompany.name"
-              class="w-full h-full object-contain"
-            />
+          <div
+            v-if="profile.photo_url"
+            class="w-8 h-8 rounded-full bg-gray-200 bg-cover bg-center"
+            :style="{ backgroundImage: `url(${profile.photo_url})` }"
+          ></div>
+          <div
+            v-else
+            class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-sm"
+          >
+            {{ profile.full_name.charAt(0).toUpperCase() }}
           </div>
-          <h1 class="text-lg font-bold text-blue-900 ml-2">{{ currentCompany?.name || 'ImmoGest' }}</h1>
+          <h1 class="text-lg font-bold text-blue-900 ml-2 truncate">{{ profile.full_name }}</h1>
         </div>
       </div>
 
