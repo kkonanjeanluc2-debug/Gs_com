@@ -171,7 +171,11 @@ const handleSubmit = async () => {
     }, 2000);
   } catch (err: any) {
     console.error('Registration error:', err);
-    error.value = err.message || 'Erreur lors de l\'inscription';
+    if (err.details) {
+      error.value = `${err.message}: ${err.details}`;
+    } else {
+      error.value = err.message || 'Erreur lors de l\'inscription de l\'entreprise';
+    }
   } finally {
     loading.value = false;
   }

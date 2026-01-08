@@ -42,7 +42,10 @@ class CompaniesService {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.error || 'Erreur lors de l\'inscription de l\'entreprise');
+      const error: any = new Error(result.error || 'Erreur lors de l\'inscription de l\'entreprise');
+      error.details = result.details;
+      error.code = result.code;
+      throw error;
     }
   }
 
