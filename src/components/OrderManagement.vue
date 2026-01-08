@@ -669,9 +669,18 @@ const printOrder = (order: Order) => {
 
   printWindow.document.write(html);
   printWindow.document.close();
+
+  printWindow.onload = () => {
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
+  };
+
   setTimeout(() => {
-    printWindow.print();
-  }, 250);
+    if (printWindow.document.readyState === 'complete') {
+      printWindow.print();
+    }
+  }, 1000);
 };
 
 const getStatusClass = (status: string) => {
