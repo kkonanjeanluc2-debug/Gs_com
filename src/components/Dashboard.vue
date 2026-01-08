@@ -22,6 +22,7 @@ import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
 import { reportsService } from '../services/reports.service';
 import { whatsappService } from '../services/whatsapp';
+import { companiesService, type Company } from '../services/companies.service';
 import type { ReportDB } from '../services/supabase';
 import type { Report } from '../services/storage';
 
@@ -41,6 +42,7 @@ const editingReport = ref<ReportDB | null>(null);
 const pendingOrdersCount = ref(0);
 const mobileMenuOpen = ref(false);
 const sidebarCollapsed = ref(false);
+const currentCompany = ref<Company | null>(null);
 
 const canManageStock = computed(() => {
   return ['admin', 'superviseur'].includes(props.profile.role);
@@ -68,18 +70,18 @@ const isSuperAdmin = computed(() => {
 
 const tabs = computed(() => {
   const allTabs = [
-    { id: 'dashboard', label: 'Tableau de bord', icon: '📊', badge: 0 },
-    { id: 'reports', label: 'Rapports', icon: '📝', visible: !isSuperAdmin.value, badge: 0 },
-    { id: 'clients', label: 'CRM', icon: '👥', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'orders', label: 'Commandes', icon: '🛒', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
-    { id: 'stock', label: 'Stock', icon: '📦', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'categories', label: 'Catégories', icon: '📁', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'users', label: 'Utilisateurs', icon: '👤', visible: canManageUsers.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'subscription-plans', label: 'Mon Abonnement', icon: '💳', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'company', label: 'Entreprise', icon: '🏢', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'companies', label: 'Entreprises', icon: '🏢', visible: isSuperAdmin.value, badge: 0 },
-    { id: 'subscriptions', label: 'Abonnements', icon: '💳', visible: isSuperAdmin.value, badge: 0 },
-    { id: 'settings', label: 'Paramètres', icon: '⚙️', visible: isSuperAdmin.value, badge: 0 },
+    { id: 'dashboard', label: 'Tableau de bord', icon: 'chart', badge: 0 },
+    { id: 'reports', label: 'Rapports', icon: 'document', visible: !isSuperAdmin.value, badge: 0 },
+    { id: 'clients', label: 'CRM', icon: 'users', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'orders', label: 'Commandes', icon: 'cart', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
+    { id: 'stock', label: 'Stock', icon: 'box', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'categories', label: 'Catégories', icon: 'folder', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'users', label: 'Utilisateurs', icon: 'user', visible: canManageUsers.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'subscription-plans', label: 'Mon Abonnement', icon: 'credit-card', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'company', label: 'Entreprise', icon: 'building', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'companies', label: 'Entreprises', icon: 'buildings', visible: isSuperAdmin.value, badge: 0 },
+    { id: 'subscriptions', label: 'Abonnements', icon: 'credit-card', visible: isSuperAdmin.value, badge: 0 },
+    { id: 'settings', label: 'Paramètres', icon: 'settings', visible: isSuperAdmin.value, badge: 0 },
   ];
   return allTabs.filter(tab => tab.visible !== false);
 });
@@ -517,8 +519,20 @@ const loadPendingOrdersCount = async () => {
   }
 };
 
+const loadCompanyInfo = async () => {
+  try {
+    if (props.profile.role !== 'super_admin') {
+      const company = await companiesService.getCurrentCompany();
+      currentCompany.value = company;
+    }
+  } catch (error) {
+    console.error('Error loading company:', error);
+  }
+};
+
 onMounted(() => {
   loadPendingOrdersCount();
+  loadCompanyInfo();
 });
 
 loadReports();
@@ -528,6 +542,7 @@ loadReports();
   <div class="min-h-screen flex bg-gradient-to-br from-blue-50 to-white">
     <AppSidebar
       :profile="profile"
+      :company="currentCompany"
       :tabs="tabs"
       :active-tab="activeTab"
       :mobile-menu-open="mobileMenuOpen"
@@ -553,10 +568,15 @@ loadReports();
           </svg>
         </button>
         <div class="flex-1 flex items-center justify-center pr-16">
-          <div class="bg-blue-600 rounded-lg p-1.5">
-            <span class="text-lg">📊</span>
+          <div class="bg-blue-600 rounded-lg p-1.5 w-8 h-8 flex items-center justify-center">
+            <img
+              v-if="currentCompany?.logo_url"
+              :src="currentCompany.logo_url"
+              :alt="currentCompany.name"
+              class="w-full h-full object-contain"
+            />
           </div>
-          <h1 class="text-lg font-bold text-blue-900 ml-2">ImmoGest</h1>
+          <h1 class="text-lg font-bold text-blue-900 ml-2">{{ currentCompany?.name || 'ImmoGest' }}</h1>
         </div>
       </div>
 

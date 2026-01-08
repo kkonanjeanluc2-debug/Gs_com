@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { Profile } from '../services/supabase';
+import type { Company } from '../services/companies.service';
+import Icon from './Icon.vue';
 
 defineProps<{
   profile: Profile;
+  company: Company | null;
   tabs: Array<{ id: string; label: string; icon: string; badge?: number }>;
   activeTab: string;
   mobileMenuOpen?: boolean;
@@ -39,11 +42,17 @@ const handleSelectTab = (tabId: string) => {
   >
     <div class="p-6 border-b border-blue-600">
       <div class="flex items-center gap-3">
-        <div class="bg-white rounded-lg p-2 flex-shrink-0">
-          <span class="text-2xl">📊</span>
+        <div class="bg-white rounded-lg p-2 flex-shrink-0 w-10 h-10 flex items-center justify-center">
+          <img
+            v-if="company?.logo_url"
+            :src="company.logo_url"
+            :alt="company.name"
+            class="w-full h-full object-contain"
+          />
+          <Icon v-else name="building" size="w-6 h-6" class="text-blue-600" />
         </div>
         <div v-if="!isCollapsed" class="flex-1 min-w-0">
-          <h1 class="text-xl font-bold truncate">ImmoGest</h1>
+          <h1 class="text-xl font-bold truncate">{{ company?.name || 'ImmoGest' }}</h1>
           <p class="text-blue-200 text-xs truncate">Gestion Pro</p>
         </div>
       </div>
@@ -61,7 +70,7 @@ const handleSelectTab = (tabId: string) => {
             : 'text-blue-100 hover:bg-blue-800'
         ]"
       >
-        <span class="text-xl flex-shrink-0">{{ tab.icon }}</span>
+        <Icon :name="tab.icon" class="flex-shrink-0" />
         <span v-if="!isCollapsed" class="flex-1 text-left truncate">{{ tab.label }}</span>
         <span
           v-if="tab.badge && tab.badge > 0"
@@ -86,7 +95,7 @@ const handleSelectTab = (tabId: string) => {
         @click="toggleSidebar"
         class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-blue-100 hover:bg-blue-800 transition-all"
       >
-        <span class="text-xl flex-shrink-0">{{ isCollapsed ? '→' : '←' }}</span>
+        <Icon :name="isCollapsed ? 'arrow-right' : 'arrow-left'" class="flex-shrink-0" />
         <span v-if="!isCollapsed" class="flex-1 text-left">Réduire</span>
       </button>
     </div>
@@ -105,11 +114,17 @@ const handleSelectTab = (tabId: string) => {
       <div class="p-6 border-b border-blue-600">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="bg-white rounded-lg p-2 flex-shrink-0">
-              <span class="text-2xl">📊</span>
+            <div class="bg-white rounded-lg p-2 flex-shrink-0 w-10 h-10 flex items-center justify-center">
+              <img
+                v-if="company?.logo_url"
+                :src="company.logo_url"
+                :alt="company.name"
+                class="w-full h-full object-contain"
+              />
+              <Icon v-else name="building" size="w-6 h-6" class="text-blue-600" />
             </div>
             <div class="flex-1 min-w-0">
-              <h1 class="text-xl font-bold truncate">ImmoGest</h1>
+              <h1 class="text-xl font-bold truncate">{{ company?.name || 'ImmoGest' }}</h1>
               <p class="text-blue-200 text-xs truncate">Gestion Pro</p>
             </div>
           </div>
@@ -136,7 +151,7 @@ const handleSelectTab = (tabId: string) => {
               : 'text-blue-100 hover:bg-blue-800'
           ]"
         >
-          <span class="text-xl flex-shrink-0">{{ tab.icon }}</span>
+          <Icon :name="tab.icon" class="flex-shrink-0" />
           <span class="flex-1 text-left truncate">{{ tab.label }}</span>
           <span
             v-if="tab.badge && tab.badge > 0"
@@ -152,7 +167,7 @@ const handleSelectTab = (tabId: string) => {
           @click="emit('logout')"
           class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-blue-100 hover:bg-red-600 transition-all"
         >
-          <span class="text-xl flex-shrink-0">🚪</span>
+          <Icon name="logout" class="flex-shrink-0" />
           <span class="flex-1 text-left">Déconnexion</span>
         </button>
       </div>
