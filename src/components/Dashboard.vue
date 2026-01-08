@@ -20,6 +20,7 @@ import SubscriptionPlans from './SubscriptionPlans.vue';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
+import Icon from './Icon.vue';
 import { reportsService } from '../services/reports.service';
 import { whatsappService } from '../services/whatsapp';
 import { companiesService, type Company } from '../services/companies.service';
@@ -593,11 +594,13 @@ loadReports();
 
       <div v-if="activeTab === 'reports'">
         <div class="mb-6 flex justify-end gap-3">
-          <button @click="handleNewReport" class="btn-primary">
-            ➕ Nouveau rapport
+          <button @click="handleNewReport" class="btn-primary inline-flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
+            <Icon name="plus" class="w-5 h-5" />
+            <span>Nouveau rapport</span>
           </button>
-          <button @click="handleExportAll" class="btn-secondary">
-            📤 Exporter tous
+          <button @click="handleExportAll" class="btn-secondary inline-flex items-center gap-2">
+            <Icon name="download" class="w-5 h-5" />
+            <span>Exporter tous</span>
           </button>
         </div>
 
