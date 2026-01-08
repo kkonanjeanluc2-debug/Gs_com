@@ -132,191 +132,191 @@ const callPhone = () => {
           </div>
 
           <!-- Right Image/Dashboard Preview -->
-          <div class="relative">
-            <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-700 bg-white">
+          <div class="relative w-full">
+            <div class="relative rounded-xl md:rounded-2xl overflow-hidden shadow-2xl border-2 md:border-4 border-slate-700 bg-white">
               <!-- Dashboard Mockup -->
-              <div class="flex h-[600px]">
+              <div class="flex h-[400px] sm:h-[500px] md:h-[550px] lg:h-[600px]">
                 <!-- Sidebar -->
-                <div class="w-56 bg-blue-700 text-white p-4 flex flex-col">
+                <div class="w-16 sm:w-32 md:w-44 lg:w-56 bg-blue-700 text-white p-2 sm:p-3 md:p-4 flex flex-col flex-shrink-0">
                   <!-- Logo/Company -->
-                  <div class="flex items-center gap-3 mb-8 bg-blue-800 p-3 rounded-lg">
-                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                      <Icon name="shopping-cart" class="w-6 h-6 text-blue-700" />
+                  <div class="flex items-center gap-1 sm:gap-2 md:gap-3 mb-4 sm:mb-6 md:mb-8 bg-blue-800 p-1.5 sm:p-2 md:p-3 rounded-lg">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Icon name="shopping-cart" class="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-blue-700" />
                     </div>
-                    <div>
-                      <div class="font-bold text-sm">Ges-com</div>
-                      <div class="text-xs text-blue-200">Gestion Pro</div>
+                    <div class="hidden sm:block">
+                      <div class="font-bold text-[10px] sm:text-xs md:text-sm truncate">Ges-com</div>
+                      <div class="text-[8px] sm:text-[10px] md:text-xs text-blue-200 truncate">Gestion Pro</div>
                     </div>
                   </div>
 
                   <!-- Menu Items -->
-                  <nav class="space-y-1 flex-1">
-                    <div class="bg-green-500 text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm font-medium">
-                      <Icon name="chart-bar" class="w-4 h-4" />
-                      <span>Tableau de bord</span>
+                  <nav class="space-y-0.5 sm:space-y-1 flex-1">
+                    <div class="bg-green-500 text-white px-1.5 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-lg flex items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm font-medium">
+                      <Icon name="chart-bar" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span class="hidden sm:block truncate">Tableau de bord</span>
                     </div>
-                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
-                      <Icon name="document" class="w-4 h-4" />
-                      <span>Rapports</span>
+                    <div class="text-white/80 hover:text-white px-1.5 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-lg flex items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm">
+                      <Icon name="document" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span class="hidden sm:block truncate">Rapports</span>
                     </div>
-                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
-                      <Icon name="users-group" class="w-4 h-4" />
-                      <span>CRM</span>
+                    <div class="text-white/80 hover:text-white px-1.5 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-lg flex items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm">
+                      <Icon name="users-group" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span class="hidden sm:block truncate">CRM</span>
                     </div>
-                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
-                      <Icon name="shopping-cart" class="w-4 h-4" />
-                      <span>Commandes</span>
+                    <div class="text-white/80 hover:text-white px-1.5 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-lg flex items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm">
+                      <Icon name="shopping-cart" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span class="hidden sm:block truncate">Commandes</span>
                     </div>
-                    <div class="text-white/80 hover:text-white px-3 py-2.5 rounded-lg flex items-center gap-2 text-sm">
-                      <Icon name="package" class="w-4 h-4" />
-                      <span>Stock</span>
+                    <div class="text-white/80 hover:text-white px-1.5 sm:px-2 md:px-3 py-1.5 sm:py-2 md:py-2.5 rounded-lg flex items-center gap-1 sm:gap-1.5 md:gap-2 text-[10px] sm:text-xs md:text-sm">
+                      <Icon name="package" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                      <span class="hidden sm:block truncate">Stock</span>
                     </div>
                   </nav>
                 </div>
 
                 <!-- Main Content -->
-                <div class="flex-1 bg-gray-50 overflow-auto">
+                <div class="flex-1 bg-gray-50 overflow-auto min-w-0">
                   <!-- Top Bar -->
-                  <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                    <h1 class="text-xl font-bold text-gray-800">Tableau de bord</h1>
-                    <div class="flex items-center gap-3">
-                      <div class="text-right text-sm">
-                        <div class="font-semibold text-gray-800">Jean-Luc</div>
-                        <div class="text-gray-500 text-xs">Administrateur</div>
+                  <div class="bg-white border-b border-gray-200 px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 flex items-center justify-between">
+                    <h1 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-800 truncate">Tableau de bord</h1>
+                    <div class="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
+                      <div class="hidden md:block text-right text-xs md:text-sm">
+                        <div class="font-semibold text-gray-800 truncate">Jean-Luc</div>
+                        <div class="text-gray-500 text-[10px] md:text-xs truncate">Administrateur</div>
                       </div>
-                      <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                      <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm md:text-base flex-shrink-0">
                         J
                       </div>
                     </div>
                   </div>
 
                   <!-- Stats Cards -->
-                  <div class="p-3 sm:p-6">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                  <div class="p-2 sm:p-3 md:p-4 lg:p-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2 md:gap-3 mb-3 sm:mb-4 md:mb-6">
                       <!-- Recette du jour -->
-                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                          <Icon name="document" class="w-4 h-4 sm:w-5 sm:h-5" />
-                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Recette<br/>du jour</div>
+                      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg md:rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-0.5 sm:gap-1 md:gap-2 mb-1 sm:mb-1.5 md:mb-2 lg:mb-3">
+                          <Icon name="document" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                          <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold leading-tight">Recette<br/>du jour</div>
                         </div>
-                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">487,500</div>
-                        <div class="text-[8px] sm:text-[10px] font-medium">FCFA<br/>aujourd'hui</div>
+                        <div class="text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl font-black mb-0.5 sm:mb-1">487,500</div>
+                        <div class="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] font-medium">FCFA<br/>aujourd'hui</div>
                       </div>
 
                       <!-- CA mensuel -->
-                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                          <Icon name="chart-bar" class="w-4 h-4 sm:w-5 sm:h-5" />
-                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">CA<br/>mensuel</div>
+                      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg md:rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-0.5 sm:gap-1 md:gap-2 mb-1 sm:mb-1.5 md:mb-2 lg:mb-3">
+                          <Icon name="chart-bar" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                          <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold leading-tight">CA<br/>mensuel</div>
                         </div>
-                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">12.4M</div>
-                        <div class="text-[8px] sm:text-[10px] font-medium">→ +24%<br/>vs mois dernier</div>
+                        <div class="text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl font-black mb-0.5 sm:mb-1">12.4M</div>
+                        <div class="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] font-medium">→ +24%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Ventes -->
-                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                          <Icon name="shopping-cart" class="w-4 h-4 sm:w-5 sm:h-5" />
-                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Ventes</div>
+                      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg md:rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4 text-white shadow-lg">
+                        <div class="flex items-center gap-0.5 sm:gap-1 md:gap-2 mb-1 sm:mb-1.5 md:mb-2 lg:mb-3">
+                          <Icon name="shopping-cart" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                          <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold leading-tight">Ventes</div>
                         </div>
-                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">847</div>
-                        <div class="text-[8px] sm:text-[10px] font-medium">→ +18%<br/>vs mois dernier</div>
+                        <div class="text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl font-black mb-0.5 sm:mb-1">847</div>
+                        <div class="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] font-medium">→ +18%<br/>vs mois dernier</div>
                       </div>
 
                       <!-- Clients -->
-                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                          <Icon name="users-group" class="w-4 h-4 sm:w-5 sm:h-5" />
-                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Clients</div>
+                      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg md:rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4 text-white shadow-lg col-span-1">
+                        <div class="flex items-center gap-0.5 sm:gap-1 md:gap-2 mb-1 sm:mb-1.5 md:mb-2 lg:mb-3">
+                          <Icon name="users-group" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                          <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold leading-tight">Clients</div>
                         </div>
-                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">324</div>
-                        <div class="text-[8px] sm:text-[10px] font-medium">clients<br/>actifs</div>
+                        <div class="text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl font-black mb-0.5 sm:mb-1">324</div>
+                        <div class="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] font-medium">clients<br/>actifs</div>
                       </div>
 
                       <!-- Produits -->
-                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 sm:p-4 text-white shadow-lg">
-                        <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                          <Icon name="package" class="w-4 h-4 sm:w-5 sm:h-5" />
-                          <div class="text-[9px] sm:text-[10px] font-semibold leading-tight">Produits</div>
+                      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg md:rounded-xl p-2 sm:p-2.5 md:p-3 lg:p-4 text-white shadow-lg col-span-1">
+                        <div class="flex items-center gap-0.5 sm:gap-1 md:gap-2 mb-1 sm:mb-1.5 md:mb-2 lg:mb-3">
+                          <Icon name="package" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 flex-shrink-0" />
+                          <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold leading-tight">Produits</div>
                         </div>
-                        <div class="text-xl sm:text-2xl lg:text-3xl font-black mb-1">1,247</div>
-                        <div class="text-[8px] sm:text-[10px] font-medium">en<br/>catalogue</div>
+                        <div class="text-sm sm:text-base md:text-lg lg:text-2xl xl:text-3xl font-black mb-0.5 sm:mb-1">1,247</div>
+                        <div class="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] font-medium">en<br/>catalogue</div>
                       </div>
                     </div>
 
                     <!-- Bottom Sections -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                       <!-- Meilleurs Commerciaux -->
-                      <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between mb-3 sm:mb-4">
-                          <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
-                              <Icon name="users" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
+                      <div class="bg-white rounded-lg md:rounded-xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+                          <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-lg bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                              <Icon name="users" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-600" />
                             </div>
-                            <div>
-                              <div class="font-bold text-gray-900 text-xs sm:text-sm">Meilleurs Commerciaux</div>
-                              <div class="text-[9px] sm:text-[10px] text-gray-600">Top 3 du mois en cours</div>
+                            <div class="min-w-0">
+                              <div class="font-bold text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm truncate">Meilleurs Commerciaux</div>
+                              <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-gray-600 truncate">Top 3 du mois</div>
                             </div>
                           </div>
                         </div>
-                        <div class="space-y-2 sm:space-y-3">
-                          <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs sm:text-sm">1</div>
-                              <span class="font-semibold text-gray-800 text-xs sm:text-sm">Kouassi A.</span>
+                        <div class="space-y-1.5 sm:space-y-2 md:space-y-3">
+                          <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2 min-w-0">
+                              <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-[9px] sm:text-[10px] md:text-xs lg:text-sm flex-shrink-0">1</div>
+                              <span class="font-semibold text-gray-800 text-[9px] sm:text-[10px] md:text-xs lg:text-sm truncate">Kouassi A.</span>
                             </div>
-                            <span class="font-black text-gray-900 text-sm sm:text-base">3.2M FCFA</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">3.2M</span>
                           </div>
-                          <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs sm:text-sm">2</div>
-                              <span class="font-semibold text-gray-800 text-xs sm:text-sm">Koné S.</span>
+                          <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2 min-w-0">
+                              <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-[9px] sm:text-[10px] md:text-xs lg:text-sm flex-shrink-0">2</div>
+                              <span class="font-semibold text-gray-800 text-[9px] sm:text-[10px] md:text-xs lg:text-sm truncate">Koné S.</span>
                             </div>
-                            <span class="font-black text-gray-900 text-sm sm:text-base">2.8M FCFA</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">2.8M</span>
                           </div>
-                          <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                              <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xs sm:text-sm">3</div>
-                              <span class="font-semibold text-gray-800 text-xs sm:text-sm">Diallo M.</span>
+                          <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2 min-w-0">
+                              <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-[9px] sm:text-[10px] md:text-xs lg:text-sm flex-shrink-0">3</div>
+                              <span class="font-semibold text-gray-800 text-[9px] sm:text-[10px] md:text-xs lg:text-sm truncate">Diallo M.</span>
                             </div>
-                            <span class="font-black text-gray-900 text-sm sm:text-base">2.1M FCFA</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">2.1M</span>
                           </div>
                         </div>
                       </div>
 
                       <!-- Produits les Plus Vendus -->
-                      <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between mb-3 sm:mb-4">
-                          <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                              <Icon name="chart-bar" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                      <div class="bg-white rounded-lg md:rounded-xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+                          <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+                            <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                              <Icon name="chart-bar" class="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-blue-600" />
                             </div>
-                            <div>
-                              <div class="font-bold text-gray-900 text-xs sm:text-sm">Produits les Plus Vendus</div>
-                              <div class="text-[9px] sm:text-[10px] text-gray-600">Top 5</div>
+                            <div class="min-w-0">
+                              <div class="font-bold text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm truncate">Produits Plus Vendus</div>
+                              <div class="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] text-gray-600 truncate">Top 5</div>
                             </div>
                           </div>
                         </div>
-                        <div class="space-y-2 sm:space-y-2.5">
-                          <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Cahier 200 pages</span>
-                            <span class="font-black text-gray-900 text-xs sm:text-sm">847 unités</span>
+                        <div class="space-y-1.5 sm:space-y-2 md:space-y-2.5">
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-gray-800 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs truncate">Cahier 200 pages</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">847</span>
                           </div>
-                          <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Stylo BIC bleu</span>
-                            <span class="font-black text-gray-900 text-xs sm:text-sm">612 unités</span>
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-gray-800 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs truncate">Stylo BIC bleu</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">612</span>
                           </div>
-                          <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Classeur A4</span>
-                            <span class="font-black text-gray-900 text-xs sm:text-sm">423 unités</span>
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-gray-800 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs truncate">Classeur A4</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">423</span>
                           </div>
-                          <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Ramette papier</span>
-                            <span class="font-black text-gray-900 text-xs sm:text-sm">298 unités</span>
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-gray-800 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs truncate">Ramette papier</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">298</span>
                           </div>
-                          <div class="flex items-center justify-between">
-                            <span class="font-semibold text-gray-800 text-[10px] sm:text-xs">Marqueur tableau</span>
-                            <span class="font-black text-gray-900 text-xs sm:text-sm">276 unités</span>
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-gray-800 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs truncate">Marqueur tableau</span>
+                            <span class="font-black text-gray-900 text-[9px] sm:text-[10px] md:text-xs lg:text-sm whitespace-nowrap">276</span>
                           </div>
                         </div>
                       </div>
@@ -327,8 +327,8 @@ const callPhone = () => {
             </div>
 
             <!-- Floating elements -->
-            <div class="absolute -top-6 -left-6 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
-            <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
+            <div class="absolute -top-4 -left-4 md:-top-6 md:-left-6 w-16 h-16 md:w-24 md:h-24 bg-blue-500/20 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-4 -right-4 md:-bottom-6 md:-right-6 w-20 h-20 md:w-32 md:h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
           </div>
         </div>
       </div>
