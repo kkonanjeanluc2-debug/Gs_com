@@ -12,6 +12,8 @@ import CommercialManagement from './CommercialManagement.vue';
 import UserManagement from './UserManagement.vue';
 import CategoryManagement from './CategoryManagement.vue';
 import OrderManagement from './OrderManagement.vue';
+import SupplierManagement from './SupplierManagement.vue';
+import PurchaseManagement from './PurchaseManagement.vue';
 import CompanySettings from './CompanySettings.vue';
 import CompanyManagement from './CompanyManagement.vue';
 import SuperAdminSettings from './SuperAdminSettings.vue';
@@ -35,7 +37,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'suppliers' | 'purchases' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -77,6 +79,8 @@ const tabs = computed(() => {
     { id: 'orders', label: 'Commandes', icon: 'cart', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
     { id: 'stock', label: 'Stock', icon: 'box', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
     { id: 'categories', label: 'Catégories', icon: 'folder', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'suppliers', label: 'Fournisseurs', icon: 'truck', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'purchases', label: 'Achats', icon: 'shopping-bags', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
     { id: 'users', label: 'Utilisateurs', icon: 'user', visible: canManageUsers.value && !isSuperAdmin.value, badge: 0 },
     { id: 'subscription-plans', label: 'Mon Abonnement', icon: 'credit-card', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
     { id: 'company', label: 'Entreprise', icon: 'building', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
@@ -681,6 +685,8 @@ loadReports();
       <OrderManagement v-if="activeTab === 'orders'" />
       <ProductManagement v-if="activeTab === 'stock'" />
       <CategoryManagement v-if="activeTab === 'categories'" />
+      <SupplierManagement v-if="activeTab === 'suppliers'" />
+      <PurchaseManagement v-if="activeTab === 'purchases'" />
       <UserManagement v-if="activeTab === 'users'" />
       <SubscriptionPlans v-if="activeTab === 'subscription-plans'" />
       <CompanySettings v-if="activeTab === 'company'" />
