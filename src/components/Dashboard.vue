@@ -9,6 +9,7 @@ import ReportList from './ReportList.vue';
 import ProductManagement from './ProductManagement.vue';
 import ClientManagement from './ClientManagement.vue';
 import CommercialManagement from './CommercialManagement.vue';
+import CommercialTracking from './CommercialTracking.vue';
 import UserManagement from './UserManagement.vue';
 import CategoryManagement from './CategoryManagement.vue';
 import OrderManagement from './OrderManagement.vue';
@@ -37,7 +38,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'suppliers' | 'purchases' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'suppliers' | 'purchases' | 'tracking' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -76,6 +77,7 @@ const tabs = computed(() => {
     { id: 'dashboard', label: 'Tableau de bord', icon: 'chart', badge: 0 },
     { id: 'reports', label: 'Rapports', icon: 'document', visible: !isSuperAdmin.value, badge: 0 },
     { id: 'clients', label: 'CRM', icon: 'users', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'tracking', label: 'Suivi GPS', icon: 'location', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'orders', label: 'Commandes', icon: 'cart', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
     { id: 'stock', label: 'Stock', icon: 'box', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
     { id: 'categories', label: 'Catégories', icon: 'folder', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
@@ -683,6 +685,7 @@ loadReports();
       </div>
 
       <OrderManagement v-if="activeTab === 'orders'" />
+      <CommercialTracking v-if="activeTab === 'tracking'" :profile="profile" :company-id="currentCompany?.id || ''" />
       <ProductManagement v-if="activeTab === 'stock'" />
       <CategoryManagement v-if="activeTab === 'categories'" />
       <SupplierManagement v-if="activeTab === 'suppliers'" />
