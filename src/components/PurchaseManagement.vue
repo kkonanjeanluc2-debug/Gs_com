@@ -17,7 +17,6 @@ const filterStatus = ref<'all' | 'pending' | 'completed' | 'cancelled'>('all');
 const formData = ref({
   supplier_id: '',
   purchase_date: new Date().toISOString().split('T')[0],
-  notes: '',
   items: [] as { product_id: string; quantity: number; unit_price: number; showDropdown?: boolean }[],
 });
 
@@ -62,7 +61,7 @@ const hideDropdown = (index: number) => {
 };
 
 const addProduct = () => {
-  formData.value.items.push({
+  formData.value.items.unshift({
     product_id: '',
     quantity: 1,
     unit_price: 0,
@@ -125,7 +124,6 @@ const handleSubmit = async () => {
     const purchaseData: CreatePurchaseData = {
       supplier_id: formData.value.supplier_id,
       purchase_date: formData.value.purchase_date,
-      notes: formData.value.notes,
       items: formData.value.items.map(item => ({
         product_id: item.product_id,
         quantity: item.quantity,
@@ -356,7 +354,6 @@ const closeForm = () => {
   formData.value = {
     supplier_id: '',
     purchase_date: new Date().toISOString().split('T')[0],
-    notes: '',
     items: [],
   };
   productSearch.value = {};
@@ -588,18 +585,6 @@ onMounted(() => {
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Notes
-            </label>
-            <textarea
-              v-model="formData.notes"
-              rows="2"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Notes supplémentaires..."
-            ></textarea>
           </div>
 
           <div class="border-t pt-4">
