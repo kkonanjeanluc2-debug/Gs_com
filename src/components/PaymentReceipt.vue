@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { orderPaymentsService } from '../services/order-payments.service';
 import { supabase } from '../services/supabase';
+import { pdfGeneratorService } from '../services/pdf-generator.service';
 import Icon from './Icon.vue';
 
 const props = defineProps<{
@@ -13,6 +14,7 @@ const emit = defineEmits(['close']);
 const payment = ref<any>(null);
 const companySettings = ref<any>(null);
 const loading = ref(true);
+const generatingPDF = ref(false);
 
 const remainingAmount = computed(() => {
   if (!payment.value?.order) return 0;
@@ -51,53 +53,38 @@ const printReceipt = () => {
   window.print();
 };
 
-const sendToWhatsApp = () => {
+const sendToWhatsApp = async () => {
   if (!payment.value?.client?.phone) {
     alert('Aucun numéro de téléphone disponible pour ce client');
     return;
   }
 
-  const clientName = payment.value.client.entity_type === 'entreprise'
-    ? payment.value.client.company_name
-    : payment.value.client.name;
+  try {
+    generatingPDF.value = true;
 
-  const message = `
-🧾 *REÇU DE PAIEMENT*
+    const filename = `Recu_${payment.value.receipt_number}.pdf`;
+    const blob = await pdfGeneratorService.generatePDF('receipt-content');
 
-📋 Reçu N°: ${payment.value.receipt_number}
-📅 Date: ${new Date(payment.value.payment_date).toLocaleDateString('fr-FR')}
+    pdfGeneratorService.downloadPDF(blob, filename);
 
-👤 Client: ${clientName}
-📝 Commande N°: ${payment.value.order?.order_number}
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-💰 *DÉTAILS DU PAIEMENT*
-Montant payé: ${Number(payment.value.amount).toLocaleString('fr-FR')} FCFA
-Mode de paiement: ${orderPaymentsService.getPaymentMethodLabel(payment.value.payment_method)}
-${payment.value.payment_reference ? `Référence: ${payment.value.payment_reference}` : ''}
+    const clientName = payment.value.client.entity_type === 'entreprise'
+      ? payment.value.client.company_name
+      : payment.value.client.name;
 
-📊 *RÉSUMÉ COMMANDE*
-Montant total: ${Number(payment.value.order?.total_amount).toLocaleString('fr-FR')} FCFA
-Total payé: ${Number(payment.value.order?.total_paid).toLocaleString('fr-FR')} FCFA
-Reste à payer: ${remainingAmount.value.toLocaleString('fr-FR')} FCFA
+    const message = `Bonjour ${clientName},\n\nVoici le reçu de paiement N°${payment.value.receipt_number}.\n\nMerci de votre confiance!\n\n${companySettings.value?.name || 'Votre entreprise'}`;
 
----
-${companySettings.value?.name || 'Votre entreprise'}
-${companySettings.value?.phone || ''}
-`.trim();
+    const cleanPhone = payment.value.client.phone.replace(/\s+/g, '');
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
 
-  const cleanPhone = payment.value.client.phone.replace(/\s+/g, '');
-  const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Erreur lors de la génération du PDF');
+  } finally {
+    generatingPDF.value = false;
+  }
 };
 
 const getClientDisplayName = () => {
@@ -124,10 +111,11 @@ const getClientDisplayName = () => {
           <button
             v-if="payment?.client?.phone"
             @click="sendToWhatsApp"
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 inline-flex items-center gap-2"
+            :disabled="generatingPDF"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Icon name="phone" class="w-5 h-5" />
-            <span>WhatsApp</span>
+            <span>{{ generatingPDF ? 'Génération...' : 'Envoyer PDF WhatsApp' }}</span>
           </button>
           <button
             @click="emit('close')"
@@ -143,88 +131,72 @@ const getClientDisplayName = () => {
       </div>
 
       <div v-else-if="payment" class="p-8 print:p-0">
-        <div class="max-w-3xl mx-auto bg-white print:shadow-none shadow-lg rounded-lg p-8">
-          <div class="text-center mb-8 border-b-2 border-gray-800 pb-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">REÇU DE PAIEMENT</h1>
+        <div id="receipt-content" class="max-w-3xl mx-auto bg-white print:shadow-none shadow-lg rounded-lg p-8">
+          <div class="text-center mb-6 border-b-2 border-gray-800 pb-4">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">REÇU DE PAIEMENT</h1>
             <p class="text-lg font-bold text-gray-800">{{ companySettings?.name || 'Votre entreprise' }}</p>
-            <p v-if="companySettings?.address" class="text-sm text-gray-600">{{ companySettings.address }}</p>
             <p v-if="companySettings?.phone" class="text-sm text-gray-600">Tél: {{ companySettings.phone }}</p>
-            <p v-if="companySettings?.email" class="text-sm text-gray-600">Email: {{ companySettings.email }}</p>
+            <p v-if="companySettings?.email" class="text-sm text-gray-600">{{ companySettings.email }}</p>
           </div>
 
-          <div class="grid grid-cols-2 gap-6 mb-8">
+          <div class="grid grid-cols-2 gap-4 mb-6">
             <div>
-              <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Informations du reçu</h3>
-              <p class="text-lg"><span class="font-semibold">N° Reçu:</span> {{ payment.receipt_number }}</p>
-              <p><span class="font-semibold">Date:</span> {{ formatDate(payment.payment_date) }}</p>
-              <p><span class="font-semibold">Commande:</span> {{ payment.order?.order_number }}</p>
+              <p class="text-sm text-gray-600 mb-1">N° Reçu</p>
+              <p class="text-lg font-bold">{{ payment.receipt_number }}</p>
             </div>
             <div>
-              <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Client</h3>
-              <p class="text-lg font-semibold">{{ getClientDisplayName() }}</p>
-              <p v-if="payment.client?.entity_type === 'entreprise' && payment.client?.contact_person" class="text-sm text-gray-600">
-                Contact: {{ payment.client.contact_person }}
-              </p>
-              <p v-if="payment.client?.phone">Tél: {{ payment.client.phone }}</p>
-              <p v-if="payment.client?.email" class="text-sm">{{ payment.client.email }}</p>
-              <p v-if="payment.client?.address" class="text-sm text-gray-600">{{ payment.client.address }}</p>
+              <p class="text-sm text-gray-600 mb-1">Date</p>
+              <p class="font-semibold">{{ new Date(payment.payment_date).toLocaleDateString('fr-FR') }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Client</p>
+              <p class="font-semibold">{{ getClientDisplayName() }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 mb-1">Commande N°</p>
+              <p class="font-semibold">{{ payment.order?.order_number }}</p>
             </div>
           </div>
 
-          <div class="bg-gray-50 rounded-lg p-6 mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Détails du paiement</h3>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Montant payé:</span>
-                <span class="text-xl font-bold text-green-600">{{ Number(payment.amount).toLocaleString('fr-FR') }} FCFA</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Mode de paiement:</span>
-                <span class="font-semibold">{{ orderPaymentsService.getPaymentMethodLabel(payment.payment_method) }}</span>
-              </div>
-              <div v-if="payment.payment_reference" class="flex justify-between">
-                <span class="text-gray-600">Référence:</span>
-                <span class="font-mono">{{ payment.payment_reference }}</span>
-              </div>
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-700 font-semibold">Montant payé</span>
+              <span class="text-2xl font-bold text-green-600">{{ Number(payment.amount).toLocaleString('fr-FR') }} FCFA</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Mode de paiement:</span>
+              <span class="font-semibold">{{ orderPaymentsService.getPaymentMethodLabel(payment.payment_method) }}</span>
+            </div>
+            <div v-if="payment.payment_reference" class="flex justify-between text-sm mt-1">
+              <span class="text-gray-600">Référence:</span>
+              <span class="font-mono text-xs">{{ payment.payment_reference }}</span>
             </div>
           </div>
 
-          <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Résumé de la commande</h3>
-            <div class="space-y-3">
-              <div class="flex justify-between text-lg">
-                <span class="text-gray-700">Montant total de la commande:</span>
-                <span class="font-bold">{{ Number(payment.order?.total_amount).toLocaleString('fr-FR') }} FCFA</span>
-              </div>
-              <div class="flex justify-between text-lg">
-                <span class="text-gray-700">Total payé à ce jour:</span>
-                <span class="font-bold text-green-600">{{ Number(payment.order?.total_paid).toLocaleString('fr-FR') }} FCFA</span>
-              </div>
-              <div class="border-t-2 border-blue-300 pt-3"></div>
-              <div class="flex justify-between text-xl">
-                <span class="font-semibold text-gray-800">Reste à payer:</span>
-                <span :class="[
-                  'font-bold',
-                  remainingAmount > 0 ? 'text-red-600' : 'text-green-600'
-                ]">
-                  {{ remainingAmount.toLocaleString('fr-FR') }} FCFA
-                </span>
-              </div>
+          <div class="border-t-2 border-gray-300 pt-4 space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-700">Total commande:</span>
+              <span class="font-bold">{{ Number(payment.order?.total_amount).toLocaleString('fr-FR') }} FCFA</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-700">Total payé:</span>
+              <span class="font-bold text-green-600">{{ Number(payment.order?.total_paid).toLocaleString('fr-FR') }} FCFA</span>
+            </div>
+            <div class="flex justify-between text-lg border-t pt-2">
+              <span class="font-bold text-gray-800">Reste à payer:</span>
+              <span :class="[
+                'font-bold',
+                remainingAmount > 0 ? 'text-red-600' : 'text-green-600'
+              ]">
+                {{ remainingAmount.toLocaleString('fr-FR') }} FCFA
+              </span>
             </div>
           </div>
 
-          <div v-if="payment.notes" class="mb-8">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase mb-2">Notes</h3>
-            <p class="text-gray-700">{{ payment.notes }}</p>
-          </div>
-
-          <div class="border-t-2 border-gray-200 pt-6 text-center">
-            <p class="text-sm text-gray-600 mb-2">Merci pour votre confiance!</p>
-            <p class="text-xs text-gray-500">
-              Ce reçu a été généré le {{ new Date().toLocaleDateString('fr-FR') }} à {{ new Date().toLocaleTimeString('fr-FR') }}
-            </p>
-            <p v-if="payment.creator" class="text-xs text-gray-500 mt-1">
-              Émis par: {{ payment.creator.full_name }}
+          <div class="border-t border-gray-200 mt-6 pt-4 text-center">
+            <p class="text-sm text-gray-600">Merci pour votre confiance!</p>
+            <p class="text-xs text-gray-500 mt-2">
+              Généré le {{ new Date().toLocaleDateString('fr-FR') }}
             </p>
           </div>
         </div>
