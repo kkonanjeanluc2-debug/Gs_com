@@ -1,14 +1,41 @@
 <template>
   <div class="space-y-6">
-    <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-gray-900">Informations de l'entreprise</h2>
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">Paramètres de l'entreprise</h2>
     </div>
 
-    <div v-if="loading" class="text-center py-12">
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="-mb-px flex space-x-8">
+        <button
+          @click="activeTab = 'company'"
+          :class="[
+            'pb-4 px-1 border-b-2 font-medium text-sm',
+            activeTab === 'company'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          ]"
+        >
+          Informations générales
+        </button>
+        <button
+          @click="activeTab = 'payments'"
+          :class="[
+            'pb-4 px-1 border-b-2 font-medium text-sm',
+            activeTab === 'payments'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          ]"
+        >
+          Moyens de paiement
+        </button>
+      </nav>
+    </div>
+
+    <div v-if="loading && activeTab === 'company'" class="text-center py-12">
       <p class="text-gray-500">Chargement...</p>
     </div>
 
-    <div v-else class="bg-white rounded-lg shadow-md p-6">
+    <div v-if="activeTab === 'company'" v-show="!loading" class="bg-white rounded-lg shadow-md p-6">
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <div class="flex flex-col items-center mb-6">
           <div class="relative">
@@ -219,6 +246,8 @@
         </div>
       </form>
     </div>
+
+    <PaymentConfigurationSettings v-if="activeTab === 'payments'" />
   </div>
 </template>
 
@@ -227,7 +256,9 @@ import { ref, onMounted } from 'vue';
 import { companyService, type CompanySettings } from '../services/company.service';
 import { subscriptionService, type SubscriptionInfo } from '../services/subscription.service';
 import { updateFavicon } from '../utils/favicon';
+import PaymentConfigurationSettings from './PaymentConfigurationSettings.vue';
 
+const activeTab = ref<'company' | 'payments'>('company');
 const loading = ref(true);
 const saving = ref(false);
 const error = ref('');

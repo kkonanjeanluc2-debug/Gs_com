@@ -360,7 +360,7 @@ export class AnalyticsService {
 
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
-      .select('commercial_id, total_amount')
+      .select('commercial_id, total_paid')
       .eq('company_id', company_id)
       .eq('status', 'delivered')
       .gte('created_at', currentMonthStart)
@@ -378,7 +378,7 @@ export class AnalyticsService {
       }
 
       const stats = revenueMap.get(order.commercial_id)!;
-      stats.monthly_revenue += Number(order.total_amount);
+      stats.monthly_revenue += Number(order.total_paid);
       stats.monthly_orders += 1;
     });
 
