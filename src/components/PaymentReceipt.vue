@@ -30,12 +30,15 @@ const loadPaymentData = async () => {
     loading.value = true;
     payment.value = await orderPaymentsService.getPaymentById(props.paymentId);
 
-    const { data: settings } = await supabase
-      .from('company_settings')
-      .select('*')
-      .maybeSingle();
+    if (payment.value?.company_id) {
+      const { data: company } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('id', payment.value.company_id)
+        .maybeSingle();
 
-    companySettings.value = settings;
+      companySettings.value = company;
+    }
   } catch (error) {
     console.error('Error loading payment:', error);
     alert('Erreur lors du chargement du paiement');
@@ -78,7 +81,7 @@ Total payé: ${Number(payment.value.order?.total_paid).toLocaleString('fr-FR')} 
 Reste à payer: ${remainingAmount.value.toLocaleString('fr-FR')} FCFA
 
 ---
-${companySettings.value?.company_name || 'Votre entreprise'}
+${companySettings.value?.name || 'Votre entreprise'}
 ${companySettings.value?.phone || ''}
 `.trim();
 
@@ -143,7 +146,7 @@ const getClientDisplayName = () => {
         <div class="max-w-3xl mx-auto bg-white print:shadow-none shadow-lg rounded-lg p-8">
           <div class="text-center mb-8 border-b-2 border-gray-800 pb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">REÇU DE PAIEMENT</h1>
-            <p class="text-lg text-gray-600">{{ companySettings?.company_name || 'Votre entreprise' }}</p>
+            <p class="text-lg font-bold text-gray-800">{{ companySettings?.name || 'Votre entreprise' }}</p>
             <p v-if="companySettings?.address" class="text-sm text-gray-600">{{ companySettings.address }}</p>
             <p v-if="companySettings?.phone" class="text-sm text-gray-600">Tél: {{ companySettings.phone }}</p>
             <p v-if="companySettings?.email" class="text-sm text-gray-600">Email: {{ companySettings.email }}</p>
