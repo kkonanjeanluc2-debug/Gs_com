@@ -11,6 +11,7 @@ export interface Company {
   tax_id: string | null;
   rccm: string | null;
   ncc: string | null;
+  business_sector?: string | null;
   status: 'active' | 'suspended' | 'inactive';
   subscription_plan: 'free' | 'basic' | 'premium';
   max_users: number;
@@ -22,6 +23,7 @@ export interface RegisterCompanyData {
   companyName: string;
   companyEmail: string;
   companyPhone?: string;
+  businessSector: string;
   adminEmail: string;
   adminPassword: string;
   adminName: string;

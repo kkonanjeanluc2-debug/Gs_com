@@ -10,6 +10,7 @@ interface RegisterCompanyRequest {
   companyName: string;
   companyEmail: string;
   companyPhone?: string;
+  businessSector: string;
   adminEmail: string;
   adminPassword: string;
   adminName: string;
@@ -34,11 +35,11 @@ Deno.serve(async (req: Request) => {
     });
 
     const body: RegisterCompanyRequest = await req.json();
-    const { companyName, companyEmail, companyPhone, adminEmail, adminPassword, adminName } = body;
+    const { companyName, companyEmail, companyPhone, businessSector, adminEmail, adminPassword, adminName } = body;
 
-    console.log('Registration attempt:', { companyName, companyEmail, adminEmail, adminName });
+    console.log('Registration attempt:', { companyName, companyEmail, businessSector, adminEmail, adminName });
 
-    if (!companyName || !adminEmail || !adminPassword || !adminName) {
+    if (!companyName || !businessSector || !adminEmail || !adminPassword || !adminName) {
       return new Response(
         JSON.stringify({ error: 'Tous les champs obligatoires doivent être remplis' }),
         {
@@ -93,6 +94,7 @@ Deno.serve(async (req: Request) => {
       name: companyName,
       email: companyEmail,
       phone: companyPhone || null,
+      business_sector: businessSector,
     });
 
     // Calculate trial end date (30 days from now)
@@ -105,6 +107,7 @@ Deno.serve(async (req: Request) => {
         name: companyName,
         email: companyEmail,
         phone: companyPhone || null,
+        business_sector: businessSector,
         is_approved: true,
         is_approved_at: new Date().toISOString(),
         trial_end_date: trialEndDate.toISOString(),
