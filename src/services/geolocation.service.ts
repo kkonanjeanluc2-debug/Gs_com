@@ -15,8 +15,7 @@ export interface CommercialLocation {
 
 export interface CommercialLocationWithProfile extends CommercialLocation {
   profile: {
-    first_name: string;
-    last_name: string;
+    full_name: string;
     photo_url?: string;
   };
 }
@@ -137,8 +136,7 @@ class GeolocationService {
       .select(`
         *,
         profile:profiles!commercial_locations_user_id_fkey(
-          first_name,
-          last_name,
+          full_name,
           photo_url
         )
       `)

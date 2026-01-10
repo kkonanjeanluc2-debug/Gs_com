@@ -247,18 +247,18 @@ onUnmounted(() => {
           >
             <div class="flex items-start gap-2 md:gap-3">
               <div v-if="location.profile.photo_url" class="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex-shrink-0">
-                <img :src="location.profile.photo_url" :alt="location.profile.first_name" class="w-full h-full object-cover" />
+                <img :src="location.profile.photo_url" :alt="location.profile.full_name" class="w-full h-full object-cover" />
               </div>
               <div v-else class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
                 <span class="text-base md:text-lg font-bold">
-                  {{ location.profile.first_name[0] }}{{ location.profile.last_name[0] }}
+                  {{ location.profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2) }}
                 </span>
               </div>
 
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between mb-1">
                   <h4 class="font-semibold text-gray-900 truncate text-sm md:text-base">
-                    {{ location.profile.first_name }} {{ location.profile.last_name }}
+                    {{ location.profile.full_name }}
                   </h4>
                   <span :class="[
                     'w-2 h-2 rounded-full flex-shrink-0',
@@ -303,16 +303,16 @@ onUnmounted(() => {
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2 md:gap-3 min-w-0">
                     <div v-if="location.profile.photo_url" class="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex-shrink-0">
-                      <img :src="location.profile.photo_url" :alt="location.profile.first_name" class="w-full h-full object-cover" />
+                      <img :src="location.profile.photo_url" :alt="location.profile.full_name" class="w-full h-full object-cover" />
                     </div>
                     <div v-else class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
                       <span class="text-base md:text-lg font-bold">
-                        {{ location.profile.first_name[0] }}{{ location.profile.last_name[0] }}
+                        {{ location.profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2) }}
                       </span>
                     </div>
                     <div class="min-w-0">
                       <h3 class="font-semibold text-gray-900 text-sm md:text-base truncate">
-                        {{ location.profile.first_name }} {{ location.profile.last_name }}
+                        {{ location.profile.full_name }}
                       </h3>
                       <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <span :class="[
