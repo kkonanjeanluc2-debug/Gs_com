@@ -18,6 +18,7 @@ const isTracking = ref(false);
 const currentActivity = ref<'en_visite' | 'en_deplacement' | 'pause' | 'inactif'>('en_deplacement');
 const mapCenter = ref({ lat: 5.3600, lng: -4.0083 });
 const mapZoom = ref(12);
+const mapUrl = ref('');
 
 const canViewAllLocations = computed(() => {
   return ['admin', 'superviseur'].includes(props.profile.role);
@@ -41,12 +42,33 @@ const activityLabels = {
   inactif: 'Inactif',
 };
 
+const updateMapUrl = () => {
+  if (locations.value.length === 0) {
+    mapUrl.value = '';
+    return;
+  }
+
+  const markers = locations.value.map((loc, index) => {
+    const color = loc.activity_type === 'en_visite' ? 'blue' :
+                  loc.activity_type === 'en_deplacement' ? 'green' :
+                  loc.activity_type === 'pause' ? 'yellow' : 'red';
+    return `markers=color:${color}%7Clabel:${index + 1}%7C${loc.latitude},${loc.longitude}`;
+  }).join('&');
+
+  const center = locations.value.length > 0
+    ? `${locations.value[0].latitude},${locations.value[0].longitude}`
+    : '5.3600,-4.0083';
+
+  mapUrl.value = `https://maps.googleapis.com/maps/api/staticmap?center=${center}&zoom=12&size=800x600&${markers}&key=YOUR_API_KEY`;
+};
+
 const loadLocations = async () => {
   if (!canViewAllLocations.value) return;
 
   try {
     loading.value = true;
     locations.value = await geolocationService.getActiveLocations(props.companyId);
+    updateMapUrl();
   } catch (error) {
     console.error('Erreur lors du chargement des positions:', error);
   } finally {
@@ -77,10 +99,7 @@ const stopTracking = () => {
 
 const updateActivity = async (activity: 'en_visite' | 'en_deplacement' | 'pause' | 'inactif') => {
   currentActivity.value = activity;
-  if (isTracking.value) {
-    stopTracking();
-    await startTracking();
-  }
+  geolocationService.updateTrackingActivity(activity);
 };
 
 const centerOnCommercial = (location: CommercialLocationWithProfile) => {
@@ -110,6 +129,13 @@ const getGoogleMapsLink = (lat: number, lng: number): string => {
 };
 
 onMounted(async () => {
+  // Restore tracking status from service
+  if (isCommercial.value) {
+    const status = geolocationService.getTrackingStatus();
+    isTracking.value = status.isActive;
+    currentActivity.value = status.activity as any;
+  }
+
   if (canViewAllLocations.value) {
     await loadLocations();
 
@@ -123,9 +149,7 @@ onUnmounted(() => {
   if (refreshInterval.value) {
     clearInterval(refreshInterval.value);
   }
-  if (isTracking.value) {
-    stopTracking();
-  }
+  // Don't stop tracking on unmount - let it persist
 });
 </script>
 
@@ -254,21 +278,88 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="flex-1 relative bg-gray-200">
-        <div class="absolute inset-0 flex items-center justify-center">
+      <div class="flex-1 relative bg-white">
+        <div v-if="locations.length === 0" class="absolute inset-0 flex items-center justify-center bg-gray-50">
           <div class="text-center">
             <Icon name="location" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p class="text-gray-600 mb-2">Carte interactive</p>
-            <p class="text-sm text-gray-500">La carte affichera les positions des commerciaux</p>
-            <div class="mt-4 space-y-2">
-              <div v-for="location in locations" :key="location.id" class="text-sm text-gray-600">
+            <p class="text-gray-600 mb-2">Aucun commercial actif</p>
+            <p class="text-sm text-gray-500">Les positions GPS s'afficheront ici</p>
+          </div>
+        </div>
+
+        <div v-else class="h-full overflow-auto">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
+            <div
+              v-for="location in locations"
+              :key="location.id"
+              class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+            >
+              <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div v-if="location.profile.photo_url" class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                      <img :src="location.profile.photo_url" :alt="location.profile.first_name" class="w-full h-full object-cover" />
+                    </div>
+                    <div v-else class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+                      <span class="text-lg font-bold">
+                        {{ location.profile.first_name[0] }}{{ location.profile.last_name[0] }}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-gray-900">
+                        {{ location.profile.first_name }} {{ location.profile.last_name }}
+                      </h3>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span :class="[
+                          'px-2 py-0.5 rounded-full text-xs font-medium',
+                          activityColors[location.activity_type].replace('bg-', 'bg-opacity-20 bg-'),
+                          activityColors[location.activity_type].replace('bg-', 'text-')
+                        ]">
+                          {{ activityLabels[location.activity_type] }}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                          {{ getTimeSince(location.timestamp) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <span :class="[
+                    'w-3 h-3 rounded-full flex-shrink-0 animate-pulse',
+                    activityColors[location.activity_type]
+                  ]"></span>
+                </div>
+              </div>
+
+              <div class="aspect-video relative">
+                <iframe
+                  :src="`https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d15000!2d${location.longitude}!3d${location.latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sfr!2sci!4v1234567890`"
+                  class="w-full h-full border-0"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+
+              <div class="p-4 bg-gray-50">
+                <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+                  <div>
+                    <p class="text-gray-500">Latitude</p>
+                    <p class="font-mono font-medium text-gray-900">{{ Number(location.latitude).toFixed(6) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500">Longitude</p>
+                    <p class="font-mono font-medium text-gray-900">{{ Number(location.longitude).toFixed(6) }}</p>
+                  </div>
+                </div>
+                <div v-if="location.accuracy" class="text-xs text-gray-500 mb-3">
+                  Précision: ±{{ Math.round(location.accuracy) }} mètres
+                </div>
                 <a
                   :href="getGoogleMapsLink(Number(location.latitude), Number(location.longitude))"
                   target="_blank"
-                  class="text-blue-600 hover:underline flex items-center justify-center gap-2"
+                  class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Icon name="location" class="w-4 h-4" />
-                  {{ location.profile.first_name }} {{ location.profile.last_name }} - Voir sur Google Maps
+                  Ouvrir dans Google Maps
                 </a>
               </div>
             </div>

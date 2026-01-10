@@ -31,6 +31,63 @@ export interface LocationUpdate {
 class GeolocationService {
   private watchId: number | null = null;
   private updateInterval: NodeJS.Timeout | null = null;
+  private isTrackingActive: boolean = false;
+  private currentUserId: string | null = null;
+  private currentCompanyId: string | null = null;
+  private currentActivity: 'en_visite' | 'en_deplacement' | 'pause' | 'inactif' = 'en_deplacement';
+
+  constructor() {
+    // Restore tracking state from localStorage
+    this.restoreTrackingState();
+  }
+
+  private restoreTrackingState(): void {
+    const savedState = localStorage.getItem('gps_tracking_state');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        if (state.isTracking && state.userId && state.companyId) {
+          this.isTrackingActive = true;
+          this.currentUserId = state.userId;
+          this.currentCompanyId = state.companyId;
+          this.currentActivity = state.activity || 'en_deplacement';
+          // Auto-restart tracking
+          this.startTracking(
+            state.userId,
+            state.companyId,
+            state.intervalMinutes || 5,
+            state.activity || 'en_deplacement'
+          );
+        }
+      } catch (error) {
+        console.error('Error restoring tracking state:', error);
+      }
+    }
+  }
+
+  private saveTrackingState(): void {
+    if (this.isTrackingActive && this.currentUserId && this.currentCompanyId) {
+      localStorage.setItem('gps_tracking_state', JSON.stringify({
+        isTracking: true,
+        userId: this.currentUserId,
+        companyId: this.currentCompanyId,
+        activity: this.currentActivity,
+        intervalMinutes: 5
+      }));
+    } else {
+      localStorage.removeItem('gps_tracking_state');
+    }
+  }
+
+  getTrackingStatus(): {
+    isActive: boolean;
+    activity: string;
+  } {
+    return {
+      isActive: this.isTrackingActive,
+      activity: this.currentActivity
+    };
+  }
 
   async getCurrentPosition(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
@@ -140,6 +197,12 @@ class GeolocationService {
       this.stopTracking();
     }
 
+    this.isTrackingActive = true;
+    this.currentUserId = userId;
+    this.currentCompanyId = companyId;
+    this.currentActivity = activityType;
+    this.saveTrackingState();
+
     const updatePosition = async () => {
       try {
         const position = await this.getCurrentPosition();
@@ -168,6 +231,21 @@ class GeolocationService {
     if (this.watchId !== null) {
       navigator.geolocation.clearWatch(this.watchId);
       this.watchId = null;
+    }
+
+    this.isTrackingActive = false;
+    this.currentUserId = null;
+    this.currentCompanyId = null;
+    this.saveTrackingState();
+  }
+
+  updateTrackingActivity(activity: 'en_visite' | 'en_deplacement' | 'pause' | 'inactif'): void {
+    this.currentActivity = activity;
+    this.saveTrackingState();
+
+    // Restart tracking with new activity
+    if (this.isTrackingActive && this.currentUserId && this.currentCompanyId) {
+      this.startTracking(this.currentUserId, this.currentCompanyId, 5, activity);
     }
   }
 
