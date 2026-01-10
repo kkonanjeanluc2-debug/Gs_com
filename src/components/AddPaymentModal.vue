@@ -5,6 +5,7 @@ import { authService } from '../services/auth';
 import { paymentConfigService, type PaymentConfiguration } from '../services/payment-config.service';
 import { wavePaymentService } from '../services/wave-payment.service';
 import { mobileMoneyService, type MobileMoneyProvider } from '../services/mobile-money.service';
+import { paydunyaService } from '../services/paydunya.service';
 import type { Order } from '../services/orders.service';
 import Icon from './Icon.vue';
 
@@ -26,7 +27,7 @@ const transactionId = ref('');
 
 const formData = ref({
   amount: 0,
-  payment_method: 'especes' as 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire' | 'wave' | 'orange_money' | 'mtn_money' | 'moov_money',
+  payment_method: 'especes' as 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire' | 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'paydunya',
   payment_reference: '',
   payment_date: new Date().toISOString().split('T')[0],
   notes: ''
@@ -112,7 +113,28 @@ const initiateOnlinePayment = async () => {
     paymentStatus.value = 'idle';
     paymentMessage.value = '';
 
-    if (selectedProvider.value === 'wave') {
+    if (selectedProvider.value === 'paydunya') {
+      const response = await paydunyaService.initiatePayment({
+        amount: formData.value.amount,
+        currency: 'XOF',
+        customerPhone: customerPhone.value,
+        customerName: props.order.client?.name || 'Client',
+        customerEmail: props.order.client?.email,
+        orderId: props.order.id!,
+        description: `Paiement commande ${props.order.order_number}`
+      });
+
+      if (response.success && response.paymentUrl) {
+        paymentStatus.value = 'pending';
+        paymentMessage.value = 'Redirection vers PayDunya...';
+        transactionId.value = response.transactionId || '';
+        window.open(response.paymentUrl, '_blank');
+        startStatusCheck();
+      } else {
+        paymentStatus.value = 'failed';
+        paymentMessage.value = response.error || 'Erreur lors de l\'initialisation du paiement';
+      }
+    } else if (selectedProvider.value === 'wave') {
       const response = await wavePaymentService.initiatePayment({
         amount: formData.value.amount,
         currency: 'XOF',
@@ -182,7 +204,9 @@ const startStatusCheck = () => {
       checkingStatus.value = true;
       let status;
 
-      if (selectedProvider.value === 'wave') {
+      if (selectedProvider.value === 'paydunya') {
+        status = await paydunyaService.checkPaymentStatus(transactionId.value);
+      } else if (selectedProvider.value === 'wave') {
         status = await wavePaymentService.checkPaymentStatus(transactionId.value);
       } else if (['orange_money', 'mtn_money', 'moov_money'].includes(selectedProvider.value)) {
         status = await mobileMoneyService.checkPaymentStatus(

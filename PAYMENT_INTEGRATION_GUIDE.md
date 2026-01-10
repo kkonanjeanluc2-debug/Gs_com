@@ -23,7 +23,7 @@ L'application supporte maintenant plusieurs méthodes de paiement locales:
 - **Orange Money** - Paiement mobile Orange
 - **MTN Mobile Money** - Paiement mobile MTN
 - **Moov Money** - Paiement mobile Moov
-- **CinetPay** - Passerelle de paiement (déjà existant)
+- **PayDunya** - Passerelle de paiement multi-moyens (Mobile Money, Cartes bancaires)
 
 ### 3. Configuration des Moyens de Paiement
 

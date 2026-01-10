@@ -16,7 +16,7 @@ const formData = ref({
   test_mode: true
 });
 
-const providers: PaymentProvider[] = ['wave', 'orange_money', 'mtn_money', 'moov_money', 'cinetpay'];
+const providers: PaymentProvider[] = ['wave', 'orange_money', 'mtn_money', 'moov_money', 'paydunya'];
 
 onMounted(async () => {
   await loadConfigurations();
@@ -116,7 +116,7 @@ const getProviderIcon = (provider: PaymentProvider): string => {
     'orange_money': 'smartphone',
     'mtn_money': 'smartphone',
     'moov_money': 'smartphone',
-    'cinetpay': 'credit-card'
+    'paydunya': 'credit-card'
   };
   return icons[provider];
 };
@@ -127,7 +127,7 @@ const getProviderColor = (provider: PaymentProvider): string => {
     'orange_money': 'bg-orange-500',
     'mtn_money': 'bg-yellow-500',
     'moov_money': 'bg-green-500',
-    'cinetpay': 'bg-purple-500'
+    'paydunya': 'bg-indigo-600'
   };
   return colors[provider];
 };

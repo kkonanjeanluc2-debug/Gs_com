@@ -1,6 +1,6 @@
 import { supabase, getCurrentUserCompanyId } from './supabase';
 
-export type PaymentProvider = 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'cinetpay';
+export type PaymentProvider = 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'paydunya';
 
 export interface PaymentConfiguration {
   id: string;
@@ -131,7 +131,7 @@ class PaymentConfigService {
       'orange_money': 'Orange Money',
       'mtn_money': 'MTN Mobile Money',
       'moov_money': 'Moov Money',
-      'cinetpay': 'CinetPay'
+      'paydunya': 'PayDunya'
     };
     return labels[provider];
   }
@@ -142,7 +142,7 @@ class PaymentConfigService {
       'orange_money': 'Paiement mobile Orange Money',
       'mtn_money': 'Paiement mobile MTN Mobile Money',
       'moov_money': 'Paiement mobile Moov Money',
-      'cinetpay': 'Passerelle de paiement CinetPay'
+      'paydunya': 'Passerelle de paiement PayDunya (Mobile Money, Cartes bancaires)'
     };
     return descriptions[provider];
   }
