@@ -22,6 +22,10 @@ const formData = ref({
   type: 'prospect' as 'prospect' | 'client',
   status: 'actif' as 'actif' | 'inactif' | 'en_negociation',
   assigned_to: null as string | null,
+  entity_type: 'particulier' as 'particulier' | 'entreprise',
+  company_name: '',
+  sector: '',
+  contact_person: '',
 });
 
 const gettingLocation = ref(false);
@@ -68,6 +72,10 @@ const openForm = (client?: Client) => {
       type: client.type,
       status: client.status,
       assigned_to: client.assigned_to,
+      entity_type: client.entity_type || 'particulier',
+      company_name: client.company_name || '',
+      sector: client.sector || '',
+      contact_person: client.contact_person || '',
     };
   } else {
     editingClient.value = null;
@@ -81,6 +89,10 @@ const openForm = (client?: Client) => {
       type: 'prospect',
       status: 'actif',
       assigned_to: currentProfile.value?.id || null,
+      entity_type: 'particulier',
+      company_name: '',
+      sector: '',
+      contact_person: '',
     };
   }
   showForm.value = true;
@@ -93,10 +105,32 @@ const closeForm = () => {
 
 const handleSubmit = async () => {
   try {
-    if (editingClient.value) {
-      await clientsService.updateClient(editingClient.value.id, formData.value);
+    const dataToSubmit = { ...formData.value };
+
+    if (dataToSubmit.entity_type === 'entreprise') {
+      if (!dataToSubmit.company_name) {
+        alert('Veuillez remplir la raison sociale');
+        return;
+      }
+      if (!dataToSubmit.contact_person) {
+        alert('Veuillez remplir le nom du contact principal');
+        return;
+      }
+      dataToSubmit.name = dataToSubmit.company_name;
     } else {
-      await clientsService.createClient(formData.value);
+      if (!dataToSubmit.name) {
+        alert('Veuillez remplir le nom complet');
+        return;
+      }
+      dataToSubmit.company_name = '';
+      dataToSubmit.sector = '';
+      dataToSubmit.contact_person = '';
+    }
+
+    if (editingClient.value) {
+      await clientsService.updateClient(editingClient.value.id, dataToSubmit);
+    } else {
+      await clientsService.createClient(dataToSubmit);
     }
     await loadClients();
     closeForm();
@@ -346,43 +380,130 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="label">Nom complet</label>
-            <input v-model="formData.name" type="text" class="input-field" required />
-          </div>
-          <div>
-            <label class="label">Email</label>
-            <input v-model="formData.email" type="email" class="input-field" />
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <label class="label mb-3">Type de contact</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              @click="formData.entity_type = 'particulier'"
+              :class="[
+                'p-4 rounded-lg border-2 transition-all font-medium flex flex-col items-center gap-2',
+                formData.entity_type === 'particulier'
+                  ? 'border-blue-500 bg-blue-500 text-white shadow-lg'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300'
+              ]"
+            >
+              <Icon name="user" class="w-6 h-6" />
+              <span>Particulier</span>
+            </button>
+            <button
+              type="button"
+              @click="formData.entity_type = 'entreprise'"
+              :class="[
+                'p-4 rounded-lg border-2 transition-all font-medium flex flex-col items-center gap-2',
+                formData.entity_type === 'entreprise'
+                  ? 'border-blue-500 bg-blue-500 text-white shadow-lg'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300'
+              ]"
+            >
+              <Icon name="briefcase" class="w-6 h-6" />
+              <span>Entreprise</span>
+            </button>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="label">Téléphone WhatsApp</label>
-            <input v-model="formData.phone" type="tel" class="input-field" placeholder="Numéro de téléphone" />
+        <div v-if="formData.entity_type === 'particulier'" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Nom complet</label>
+              <input v-model="formData.name" type="text" class="input-field" required />
+            </div>
+            <div>
+              <label class="label">Email</label>
+              <input v-model="formData.email" type="email" class="input-field" />
+            </div>
           </div>
-          <div>
-            <label class="label">Type</label>
-            <select v-model="formData.type" class="input-field">
-              <option value="prospect">Prospect</option>
-              <option value="client">Client</option>
-            </select>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Téléphone WhatsApp</label>
+              <input v-model="formData.phone" type="tel" class="input-field" placeholder="Numéro de téléphone" />
+            </div>
+            <div>
+              <label class="label">Type</label>
+              <select v-model="formData.type" class="input-field">
+                <option value="prospect">Prospect</option>
+                <option value="client">Client</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Statut</label>
+              <select v-model="formData.status" class="input-field">
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+                <option value="en_negociation">En négociation</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Adresse</label>
+              <input v-model="formData.address" type="text" class="input-field" />
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="label">Statut</label>
-            <select v-model="formData.status" class="input-field">
-              <option value="actif">Actif</option>
-              <option value="inactif">Inactif</option>
-              <option value="en_negociation">En négociation</option>
-            </select>
+        <div v-else class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Raison sociale</label>
+              <input v-model="formData.company_name" type="text" class="input-field" required />
+            </div>
+            <div>
+              <label class="label">Secteur d'activité</label>
+              <input v-model="formData.sector" type="text" class="input-field" placeholder="Ex: Commerce, Industrie..." />
+            </div>
           </div>
-          <div>
-            <label class="label">Adresse</label>
-            <input v-model="formData.address" type="text" class="input-field" />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Nom du contact principal</label>
+              <input v-model="formData.contact_person" type="text" class="input-field" required />
+            </div>
+            <div>
+              <label class="label">Email</label>
+              <input v-model="formData.email" type="email" class="input-field" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Téléphone WhatsApp</label>
+              <input v-model="formData.phone" type="tel" class="input-field" placeholder="Numéro de téléphone" />
+            </div>
+            <div>
+              <label class="label">Type</label>
+              <select v-model="formData.type" class="input-field">
+                <option value="prospect">Prospect</option>
+                <option value="client">Client</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Statut</label>
+              <select v-model="formData.status" class="input-field">
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+                <option value="en_negociation">En négociation</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Adresse</label>
+              <input v-model="formData.address" type="text" class="input-field" />
+            </div>
           </div>
         </div>
 
@@ -447,23 +568,47 @@ const openGoogleMaps = (latitude: number, longitude: number) => {
       <div v-for="client in filteredClients" :key="client.id" class="card hover:shadow-xl transition-all duration-200 border border-gray-100">
         <div class="flex justify-between items-start mb-4">
           <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md flex-shrink-0">
-              <Icon name="user" class="w-5 h-5 text-white" />
+            <div :class="[
+              'w-10 h-10 rounded-lg flex items-center justify-center shadow-md flex-shrink-0',
+              client.entity_type === 'entreprise'
+                ? 'bg-gradient-to-br from-purple-500 to-purple-600'
+                : 'bg-gradient-to-br from-blue-500 to-blue-600'
+            ]">
+              <Icon :name="client.entity_type === 'entreprise' ? 'briefcase' : 'user'" class="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 class="font-bold text-lg text-gray-800">{{ client.name }}</h3>
+              <h3 class="font-bold text-lg text-gray-800">
+                {{ client.entity_type === 'entreprise' ? client.company_name : client.name }}
+              </h3>
+              <p v-if="client.entity_type === 'entreprise' && client.contact_person" class="text-sm text-gray-600">
+                Contact: {{ client.contact_person }}
+              </p>
+              <p v-if="client.entity_type === 'entreprise' && client.sector" class="text-xs text-gray-500">
+                {{ client.sector }}
+              </p>
               <span :class="['inline-block px-2.5 py-1 rounded-full text-xs font-semibold mt-1', getStatusColor(client.status)]">
                 {{ getStatusLabel(client.status) }}
               </span>
             </div>
           </div>
-          <span :class="[
-            'px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1',
-            client.type === 'client' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-          ]">
-            <Icon :name="client.type === 'client' ? 'check-circle' : 'target'" class="w-3.5 h-3.5" />
-            <span>{{ client.type === 'client' ? 'Client' : 'Prospect' }}</span>
-          </span>
+          <div class="flex flex-col gap-1 items-end">
+            <span :class="[
+              'px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1',
+              client.type === 'client' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+            ]">
+              <Icon :name="client.type === 'client' ? 'check-circle' : 'target'" class="w-3.5 h-3.5" />
+              <span>{{ client.type === 'client' ? 'Client' : 'Prospect' }}</span>
+            </span>
+            <span :class="[
+              'px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1',
+              client.entity_type === 'entreprise'
+                ? 'bg-purple-100 text-purple-800'
+                : 'bg-blue-100 text-blue-800'
+            ]">
+              <Icon :name="client.entity_type === 'entreprise' ? 'briefcase' : 'user'" class="w-3.5 h-3.5" />
+              <span>{{ client.entity_type === 'entreprise' ? 'Entreprise' : 'Particulier' }}</span>
+            </span>
+          </div>
         </div>
 
         <div class="space-y-2.5 text-sm text-gray-600 mb-4">

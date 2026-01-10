@@ -82,6 +82,10 @@ export interface Client {
   type: 'prospect' | 'client';
   status: 'actif' | 'inactif' | 'en_negociation';
   assigned_to: string | null;
+  entity_type: 'particulier' | 'entreprise';
+  company_name: string | null;
+  sector: string | null;
+  contact_person: string | null;
   created_at: string;
   updated_at: string;
 }
