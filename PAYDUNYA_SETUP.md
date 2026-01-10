@@ -15,12 +15,27 @@ PayDunya est un agrégateur de paiements africains qui permet d'accepter plusieu
 
 ### 1. Obtenir les Clés API
 
+Pour PayDunya, vous avez besoin de **3 clés différentes**:
+
+#### Étape 1: Créer un compte
+1. Allez sur [https://paydunya.com](https://paydunya.com) ou [https://app.paydunya.com](https://app.paydunya.com)
+2. Créez un compte marchand
+3. Complétez les informations de votre entreprise
+
+#### Étape 2: Accéder aux clés API
 1. Connectez-vous à votre compte PayDunya
-2. Allez dans **Paramètres** → **API**
-3. Notez les informations suivantes:
-   - **Master Key** (clé publique)
-   - **Private Key** (clé privée)
-   - **Token** (identifiant du compte)
+2. Allez dans **Paramètres** → **Clés API** ou **API Keys**
+3. Vous verrez 3 clés importantes:
+
+**Les 3 clés requises:**
+
+| Champ dans l'app | Nom dans PayDunya | Description |
+|------------------|-------------------|-------------|
+| **Clé API** | Master Key ou Public Key | Clé publique (commence souvent par "test_" en mode test) |
+| **Clé Secrète** | Private Key ou Secret Key | Clé privée (à garder confidentielle) |
+| **Merchant ID** | Token ou Store Token | Identifiant unique de votre boutique |
+
+**IMPORTANT:** Tous les 3 champs sont obligatoires!
 
 ### 2. Configuration dans l'Application
 

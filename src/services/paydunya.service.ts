@@ -31,7 +31,7 @@ class PayDunyaService {
       .from('payment_configurations')
       .select('*')
       .eq('provider', 'paydunya')
-      .eq('is_active', true)
+      .eq('is_enabled', true)
       .maybeSingle();
 
     if (error) throw error;

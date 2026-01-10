@@ -69,6 +69,17 @@ const saveConfiguration = async () => {
   try {
     saving.value = true;
 
+    if (editingProvider.value === 'paydunya') {
+      if (!formData.value.api_key || !formData.value.api_secret || !formData.value.merchant_id) {
+        alert('Pour PayDunya, vous devez renseigner:\n\n' +
+              '1. Clé API (Master Key)\n' +
+              '2. Clé Secrète (Private Key)\n' +
+              '3. Merchant ID (Token)\n\n' +
+              'Ces 3 informations sont disponibles dans votre tableau de bord PayDunya → Paramètres → Clés API');
+        return;
+      }
+    }
+
     await paymentConfigService.createOrUpdateConfiguration({
       provider: editingProvider.value,
       ...formData.value
@@ -77,9 +88,10 @@ const saveConfiguration = async () => {
     alert('Configuration enregistrée avec succès');
     await loadConfigurations();
     closeEditModal();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving configuration:', error);
-    alert('Erreur lors de l\'enregistrement de la configuration');
+    const errorMessage = error.message || 'Erreur lors de l\'enregistrement de la configuration';
+    alert(`Erreur: ${errorMessage}`);
   } finally {
     saving.value = false;
   }
