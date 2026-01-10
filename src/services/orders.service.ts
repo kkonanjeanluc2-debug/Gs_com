@@ -19,6 +19,8 @@ export interface Order {
   client_id: string;
   commercial_id: string;
   total_amount: number;
+  total_paid?: number;
+  payment_status?: 'non_paye' | 'partiellement_paye' | 'totalement_paye';
   status: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
   notes?: string;
   created_at?: string;
@@ -29,6 +31,8 @@ export interface Order {
     phone?: string;
     address?: string;
     type?: string;
+    entity_type?: string;
+    company_name?: string;
   };
   commercial?: {
     full_name: string;
@@ -36,6 +40,23 @@ export interface Order {
     phone?: string;
   };
   order_items?: OrderItem[];
+  order_payments?: OrderPayment[];
+}
+
+export interface OrderPayment {
+  id?: string;
+  order_id: string;
+  client_id: string;
+  company_id: string;
+  amount: number;
+  payment_method: 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire';
+  payment_reference?: string;
+  payment_date: string;
+  notes?: string;
+  created_by: string;
+  receipt_number?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateOrderData {

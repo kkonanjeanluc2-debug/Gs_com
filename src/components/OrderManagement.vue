@@ -174,6 +174,7 @@
             <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Client</th>
             <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Commercial</th>
             <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Montant</th>
+            <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Paiement</th>
             <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Statut</th>
             <th class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Date</th>
             <th class="px-4 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Actions</th>
@@ -187,7 +188,29 @@
               <div v-if="order.client?.type" class="text-xs text-gray-500">{{ order.client.type === 'client' ? 'Client' : 'Prospect' }}</div>
             </td>
             <td class="px-4 md:px-6 py-4 text-sm whitespace-nowrap">{{ order.commercial?.full_name }}</td>
-            <td class="px-4 md:px-6 py-4 whitespace-nowrap font-semibold text-sm">{{ order.total_amount }} F CFA</td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap font-semibold text-sm">
+              <div>{{ order.total_amount }} F CFA</div>
+              <div v-if="order.total_paid && order.total_paid > 0" class="text-xs text-green-600">
+                Payé: {{ order.total_paid }} F CFA
+              </div>
+            </td>
+            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
+              <div class="flex flex-col gap-1">
+                <span
+                  v-if="order.payment_status"
+                  :class="['text-xs px-2 py-1 rounded-full border inline-block text-center', getPaymentStatusColor(order.payment_status)]"
+                >
+                  {{ getPaymentStatusLabel(order.payment_status) }}
+                </span>
+                <button
+                  v-if="order.payment_status !== 'totalement_paye'"
+                  @click="openPaymentModal(order)"
+                  class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-xs font-medium"
+                >
+                  💰 Paiement
+                </button>
+              </div>
+            </td>
             <td class="px-4 md:px-6 py-4 whitespace-nowrap">
               <select
                 :value="order.status"
@@ -309,6 +332,19 @@
         </div>
       </div>
     </div>
+
+    <AddPaymentModal
+      v-if="showPaymentModal && selectedOrderForPayment"
+      :order="selectedOrderForPayment"
+      @close="closePaymentModal"
+      @success="handlePaymentSuccess"
+    />
+
+    <PaymentReceipt
+      v-if="showReceipt && selectedPaymentId"
+      :payment-id="selectedPaymentId"
+      @close="closeReceipt"
+    />
   </div>
 </template>
 
@@ -318,6 +354,9 @@ import { ordersService, type Order, type CreateOrderData } from '../services/ord
 import { clientsService, type Client } from '../services/clients.service';
 import { productsService, type Product } from '../services/products.service';
 import { companyService, type CompanySettings } from '../services/company.service';
+import { orderPaymentsService } from '../services/order-payments.service';
+import AddPaymentModal from './AddPaymentModal.vue';
+import PaymentReceipt from './PaymentReceipt.vue';
 
 interface OrderItemForm {
   product_id: string;
@@ -341,6 +380,10 @@ const showForm = ref(false);
 const error = ref('');
 const selectedOrder = ref<Order | null>(null);
 const productSearch = ref<string[]>([]);
+const showPaymentModal = ref(false);
+const selectedOrderForPayment = ref<Order | null>(null);
+const showReceipt = ref(false);
+const selectedPaymentId = ref<string | null>(null);
 
 const formData = ref<OrderFormData>({
   client_id: '',
@@ -712,6 +755,45 @@ const openWhatsApp = (phone: string) => {
   const cleanPhone = phone.replace(/\s+/g, '');
   const url = `https://wa.me/${cleanPhone}`;
   window.open(url, '_blank');
+};
+
+const openPaymentModal = (order: Order) => {
+  selectedOrderForPayment.value = order;
+  showPaymentModal.value = true;
+};
+
+const closePaymentModal = () => {
+  showPaymentModal.value = false;
+  selectedOrderForPayment.value = null;
+};
+
+const handlePaymentSuccess = async (payment: any) => {
+  closePaymentModal();
+  await loadOrders();
+  selectedPaymentId.value = payment.id;
+  showReceipt.value = true;
+};
+
+const closeReceipt = () => {
+  showReceipt.value = false;
+  selectedPaymentId.value = null;
+};
+
+const getPaymentStatusColor = (status: string) => {
+  switch (status) {
+    case 'totalement_paye':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'partiellement_paye':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'non_paye':
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+const getPaymentStatusLabel = (status: string) => {
+  return orderPaymentsService.getPaymentStatusLabel(status);
 };
 
 onMounted(() => {
