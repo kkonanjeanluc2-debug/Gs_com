@@ -155,56 +155,59 @@ onUnmounted(() => {
 
 <template>
   <div class="h-full flex flex-col bg-gray-50">
-    <div class="bg-white border-b border-gray-200 p-6">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">Suivi GPS des Commerciaux</h2>
-          <p class="text-gray-600 text-sm mt-1">Suivez les positions en temps réel</p>
+    <div class="bg-white border-b border-gray-200 p-3 md:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div class="flex-1">
+          <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Icon name="location" class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+            Suivi GPS
+          </h2>
+          <p class="text-gray-600 text-xs md:text-sm mt-1">Positions en temps réel</p>
         </div>
-        <div class="flex gap-3">
+        <div class="flex gap-2">
           <button
             v-if="canViewAllLocations"
             @click="loadLocations"
             :disabled="loading"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+            class="px-3 py-2 md:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 text-sm"
           >
-            <Icon name="refresh" class="w-5 h-5" />
-            Actualiser
+            <Icon name="refresh" class="w-4 h-4 md:w-5 md:h-5" />
+            <span class="hidden sm:inline">Actualiser</span>
           </button>
         </div>
       </div>
 
-      <div v-if="isCommercial" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="font-semibold text-gray-900">Mon suivi GPS</h3>
-            <p class="text-sm text-gray-600">Partagez votre position en temps réel</p>
+      <div v-if="isCommercial" class="bg-blue-50 border border-blue-200 rounded-lg p-3 md:p-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <div class="flex-1">
+            <h3 class="font-semibold text-gray-900 text-sm md:text-base">Mon suivi GPS</h3>
+            <p class="text-xs md:text-sm text-gray-600">Partagez votre position</p>
           </div>
           <button
             v-if="!isTracking"
             @click="startTracking"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+            class="px-3 py-2 md:px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2 text-sm whitespace-nowrap"
           >
-            <Icon name="location" class="w-5 h-5" />
+            <Icon name="location" class="w-4 h-4 md:w-5 md:h-5" />
             Activer le suivi
           </button>
           <button
             v-else
             @click="stopTracking"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2"
+            class="px-3 py-2 md:px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center justify-center gap-2 text-sm whitespace-nowrap"
           >
-            <Icon name="x" class="w-5 h-5" />
-            Arrêter le suivi
+            <Icon name="x" class="w-4 h-4 md:w-5 md:h-5" />
+            Arrêter
           </button>
         </div>
 
-        <div v-if="isTracking" class="flex gap-2">
+        <div v-if="isTracking" class="grid grid-cols-2 md:flex gap-2">
           <button
             v-for="(label, activity) in activityLabels"
             :key="activity"
             @click="updateActivity(activity as any)"
             :class="[
-              'flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+              'flex-1 px-2 py-2 rounded-lg text-xs md:text-sm font-medium transition-all',
               currentActivity === activity
                 ? `${activityColors[activity as keyof typeof activityColors]} text-white`
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
@@ -216,17 +219,19 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="canViewAllLocations" class="flex-1 flex overflow-hidden">
-      <div class="w-96 bg-white border-r border-gray-200 overflow-y-auto">
-        <div class="p-4 border-b border-gray-200">
-          <h3 class="font-semibold text-gray-900">Commerciaux actifs ({{ locations.length }})</h3>
+    <div v-if="canViewAllLocations" class="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div class="md:w-80 lg:w-96 bg-white border-b md:border-b-0 md:border-r border-gray-200 overflow-y-auto max-h-64 md:max-h-none">
+        <div class="p-3 md:p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <h3 class="font-semibold text-gray-900 text-sm md:text-base">
+            Commerciaux actifs ({{ locations.length }})
+          </h3>
         </div>
 
-        <div v-if="loading" class="p-8 text-center text-gray-500">
+        <div v-if="loading" class="p-6 md:p-8 text-center text-gray-500 text-sm">
           Chargement...
         </div>
 
-        <div v-else-if="locations.length === 0" class="p-8 text-center text-gray-500">
+        <div v-else-if="locations.length === 0" class="p-6 md:p-8 text-center text-gray-500 text-sm">
           Aucun commercial actif
         </div>
 
@@ -236,23 +241,23 @@ onUnmounted(() => {
             :key="location.id"
             @click="centerOnCommercial(location)"
             :class="[
-              'w-full p-4 text-left hover:bg-gray-50 transition-colors',
+              'w-full p-3 md:p-4 text-left hover:bg-gray-50 transition-colors',
               selectedCommercial?.id === location.id ? 'bg-blue-50' : ''
             ]"
           >
-            <div class="flex items-start gap-3">
-              <div v-if="location.profile.photo_url" class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+            <div class="flex items-start gap-2 md:gap-3">
+              <div v-if="location.profile.photo_url" class="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex-shrink-0">
                 <img :src="location.profile.photo_url" :alt="location.profile.first_name" class="w-full h-full object-cover" />
               </div>
-              <div v-else class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
-                <span class="text-lg font-bold">
+              <div v-else class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+                <span class="text-base md:text-lg font-bold">
                   {{ location.profile.first_name[0] }}{{ location.profile.last_name[0] }}
                 </span>
               </div>
 
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between mb-1">
-                  <h4 class="font-semibold text-gray-900 truncate">
+                  <h4 class="font-semibold text-gray-900 truncate text-sm md:text-base">
                     {{ location.profile.first_name }} {{ location.profile.last_name }}
                   </h4>
                   <span :class="[
@@ -261,7 +266,7 @@ onUnmounted(() => {
                   ]"></span>
                 </div>
 
-                <p class="text-sm text-gray-600 mb-1">
+                <p class="text-xs md:text-sm text-gray-600 mb-1">
                   {{ activityLabels[location.activity_type] }}
                 </p>
 
@@ -278,38 +283,38 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="flex-1 relative bg-white">
+      <div class="flex-1 relative bg-white overflow-hidden">
         <div v-if="locations.length === 0" class="absolute inset-0 flex items-center justify-center bg-gray-50">
-          <div class="text-center">
-            <Icon name="location" class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p class="text-gray-600 mb-2">Aucun commercial actif</p>
-            <p class="text-sm text-gray-500">Les positions GPS s'afficheront ici</p>
+          <div class="text-center p-4">
+            <Icon name="location" class="w-12 h-12 md:w-16 md:h-16 text-gray-400 mx-auto mb-4" />
+            <p class="text-gray-600 mb-2 text-sm md:text-base">Aucun commercial actif</p>
+            <p class="text-xs md:text-sm text-gray-500">Les positions GPS s'afficheront ici</p>
           </div>
         </div>
 
         <div v-else class="h-full overflow-auto">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4">
+          <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 p-3 md:p-4">
             <div
               v-for="location in locations"
               :key="location.id"
               class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
-              <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+              <div class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div v-if="location.profile.photo_url" class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                  <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                    <div v-if="location.profile.photo_url" class="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden flex-shrink-0">
                       <img :src="location.profile.photo_url" :alt="location.profile.first_name" class="w-full h-full object-cover" />
                     </div>
-                    <div v-else class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
-                      <span class="text-lg font-bold">
+                    <div v-else class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+                      <span class="text-base md:text-lg font-bold">
                         {{ location.profile.first_name[0] }}{{ location.profile.last_name[0] }}
                       </span>
                     </div>
-                    <div>
-                      <h3 class="font-semibold text-gray-900">
+                    <div class="min-w-0">
+                      <h3 class="font-semibold text-gray-900 text-sm md:text-base truncate">
                         {{ location.profile.first_name }} {{ location.profile.last_name }}
                       </h3>
-                      <div class="flex items-center gap-2 mt-1">
+                      <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <span :class="[
                           'px-2 py-0.5 rounded-full text-xs font-medium',
                           activityColors[location.activity_type].replace('bg-', 'bg-opacity-20 bg-'),
@@ -339,15 +344,15 @@ onUnmounted(() => {
                 ></iframe>
               </div>
 
-              <div class="p-4 bg-gray-50">
-                <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+              <div class="p-3 md:p-4 bg-gray-50">
+                <div class="grid grid-cols-2 gap-3 md:gap-4 text-sm mb-3">
                   <div>
-                    <p class="text-gray-500">Latitude</p>
-                    <p class="font-mono font-medium text-gray-900">{{ Number(location.latitude).toFixed(6) }}</p>
+                    <p class="text-gray-500 text-xs md:text-sm">Latitude</p>
+                    <p class="font-mono font-medium text-gray-900 text-xs md:text-sm">{{ Number(location.latitude).toFixed(6) }}</p>
                   </div>
                   <div>
-                    <p class="text-gray-500">Longitude</p>
-                    <p class="font-mono font-medium text-gray-900">{{ Number(location.longitude).toFixed(6) }}</p>
+                    <p class="text-gray-500 text-xs md:text-sm">Longitude</p>
+                    <p class="font-mono font-medium text-gray-900 text-xs md:text-sm">{{ Number(location.longitude).toFixed(6) }}</p>
                   </div>
                 </div>
                 <div v-if="location.accuracy" class="text-xs text-gray-500 mb-3">
@@ -356,10 +361,10 @@ onUnmounted(() => {
                 <a
                   :href="getGoogleMapsLink(Number(location.latitude), Number(location.longitude))"
                   target="_blank"
-                  class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  class="w-full flex items-center justify-center gap-2 px-3 py-2 md:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                 >
                   <Icon name="location" class="w-4 h-4" />
-                  Ouvrir dans Google Maps
+                  <span class="hidden sm:inline">Ouvrir dans</span> Google Maps
                 </a>
               </div>
             </div>
