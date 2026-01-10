@@ -82,6 +82,48 @@ Les reçus de paiement peuvent maintenant être:
 1. Contactez Moov Africa pour obtenir un compte marchand
 2. Obtenez vos identifiants API
 
+## Initier une Transaction de Paiement
+
+### Interface de Paiement
+
+Lorsqu'un client souhaite effectuer un paiement, deux options sont disponibles:
+
+#### 1. Paiement Manuel
+- Pour les paiements en espèces, chèques, virements
+- Enregistrement manuel des informations de paiement
+- Possibilité d'ajouter une référence et des notes
+
+#### 2. Paiement en Ligne
+- Disponible si au moins un moyen de paiement est configuré
+- Le commercial peut initier directement le paiement
+- Vérification automatique du statut en temps réel
+
+### Comment Initier un Paiement en Ligne:
+
+1. Dans la liste des commandes, cliquez sur **Ajouter un paiement**
+2. Sélectionnez l'onglet **Paiement en ligne**
+3. Entrez le montant à payer (ou cliquez sur "Solde" pour le montant total)
+4. Choisissez le moyen de paiement (Wave, Orange Money, MTN, Moov)
+5. Vérifiez le numéro de téléphone du client (pré-rempli si disponible)
+6. Cliquez sur **Initier le paiement**
+
+**Pour Wave:**
+- Une nouvelle fenêtre s'ouvrira avec le formulaire de paiement Wave
+- Le client finalise le paiement dans cette fenêtre
+- Le statut est vérifié automatiquement toutes les 3 secondes
+
+**Pour Mobile Money:**
+- Le client reçoit une notification USSD sur son téléphone
+- Il doit composer le code pour valider le paiement
+- Le statut est vérifié automatiquement toutes les 3 secondes
+
+### Vérification Automatique du Statut
+
+- Le système vérifie automatiquement le statut du paiement
+- Maximum 30 tentatives (1.5 minutes)
+- Notification immédiate quand le paiement est confirmé
+- La commande est automatiquement mise à jour
+
 ## Sécurité
 
 - Les clés API sont stockées de manière sécurisée dans la base de données
