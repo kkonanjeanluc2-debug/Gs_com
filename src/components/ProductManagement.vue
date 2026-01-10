@@ -4,8 +4,6 @@ import { productsService } from '../services/products.service';
 import { categoriesService, type Category, type Subcategory } from '../services/categories.service';
 import { imageUploadService } from '../services/image-upload.service';
 import { productImportService } from '../services/product-import.service';
-import { companiesService } from '../services/companies.service';
-import { businessSectorConfigService, type ProductField } from '../services/business-sector-config.service';
 import type { Product } from '../services/supabase';
 import Icon from './Icon.vue';
 
@@ -21,9 +19,6 @@ const imagePreviewUrl = ref<string | null>(null);
 const importing = ref(false);
 const showImportDialog = ref(false);
 const importFileInput = ref<HTMLInputElement | null>(null);
-const businessSector = ref<string>('');
-const sectorFields = ref<ProductField[]>([]);
-const sectorData = ref<Record<string, any>>({});
 
 const formData = ref({
   name: '',
@@ -40,11 +35,10 @@ const filteredSubcategories = computed(() => {
   return subcategories.value.filter(sub => sub.category_id === formData.value.category_id);
 });
 
-onMounted(async () => {
+onMounted(() => {
   loadProducts();
   loadCategories();
   loadSubcategories();
-  await loadBusinessSector();
 });
 
 const loadProducts = async () => {
@@ -72,18 +66,6 @@ const loadSubcategories = async () => {
     subcategories.value = await categoriesService.getAllSubcategories();
   } catch (error) {
     console.error('Error loading subcategories:', error);
-  }
-};
-
-const loadBusinessSector = async () => {
-  try {
-    const company = await companiesService.getCurrentCompany();
-    if (company?.business_sector) {
-      businessSector.value = company.business_sector;
-      sectorFields.value = businessSectorConfigService.getSectorFields(company.business_sector);
-    }
-  } catch (error) {
-    console.error('Error loading business sector:', error);
   }
 };
 
@@ -133,7 +115,6 @@ const openForm = (product?: Product) => {
       subcategory_id: product.subcategory_id || '',
     };
     imagePreviewUrl.value = product.image_url;
-    sectorData.value = (product as any).sector_data || {};
   } else {
     editingProduct.value = null;
     formData.value = {
@@ -146,7 +127,6 @@ const openForm = (product?: Product) => {
       subcategory_id: '',
     };
     imagePreviewUrl.value = null;
-    sectorData.value = {};
   }
   selectedImageFile.value = null;
   showForm.value = true;
@@ -173,7 +153,6 @@ const handleSubmit = async () => {
       category_id: formData.value.category_id || null,
       subcategory_id: formData.value.subcategory_id || null,
       image_url: imageUrl || null,
-      sector_data: sectorData.value,
     };
 
     if (editingProduct.value) {
@@ -466,62 +445,6 @@ const handleImportFile = async (event: Event) => {
           </select>
         </div>
 
-        <div v-if="sectorFields.length > 0" class="pt-4 border-t border-gray-200">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">
-            Informations spécifiques - {{ businessSectorConfigService.getSectorLabel(businessSector) }}
-          </h3>
-
-          <div v-for="field in sectorFields" :key="field.name" class="mb-4">
-            <label class="label">
-              {{ field.label }}
-              <span v-if="field.required" class="text-red-500">*</span>
-            </label>
-
-            <input
-              v-if="field.type === 'text' || field.type === 'date'"
-              v-model="sectorData[field.name]"
-              :type="field.type"
-              :required="field.required"
-              :placeholder="field.placeholder"
-              class="input-field"
-            />
-
-            <input
-              v-else-if="field.type === 'number'"
-              v-model.number="sectorData[field.name]"
-              type="number"
-              :required="field.required"
-              :placeholder="field.placeholder"
-              class="input-field"
-            />
-
-            <textarea
-              v-else-if="field.type === 'textarea'"
-              v-model="sectorData[field.name]"
-              :required="field.required"
-              :placeholder="field.placeholder"
-              rows="3"
-              class="input-field"
-            />
-
-            <select
-              v-else-if="field.type === 'select'"
-              v-model="sectorData[field.name]"
-              :required="field.required"
-              class="input-field"
-            >
-              <option value="">Sélectionnez...</option>
-              <option v-for="option in field.options" :key="option" :value="option">
-                {{ option }}
-              </option>
-            </select>
-
-            <p v-if="field.description" class="text-xs text-gray-500 mt-1">
-              {{ field.description }}
-            </p>
-          </div>
-        </div>
-
         <div class="flex gap-3">
           <button type="submit" :disabled="uploading" class="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
             <span v-if="uploading">Téléversement en cours...</span>
@@ -563,16 +486,6 @@ const handleImportFile = async (event: Event) => {
               <span v-if="product.subcategory_id" class="inline-block px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
                 {{ getSubcategoryName(product.subcategory_id) }}
               </span>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="product.sector_data && Object.keys(product.sector_data).length > 0" class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p class="text-xs font-semibold text-gray-700 mb-2">Informations spécifiques</p>
-          <div class="space-y-1">
-            <div v-for="(value, key) in product.sector_data" :key="key" class="text-xs">
-              <span class="text-gray-600">{{ key }}:</span>
-              <span class="text-gray-900 font-medium ml-1">{{ value }}</span>
             </div>
           </div>
         </div>

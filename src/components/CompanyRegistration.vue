@@ -55,26 +55,6 @@
                   placeholder="Numéro de téléphone"
                 />
               </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Secteur d'activité *
-                </label>
-                <select
-                  v-model="formData.businessSector"
-                  required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Sélectionnez un secteur</option>
-                  <option value="distribution">Distribution et commerce</option>
-                  <option value="agroalimentaire">Agroalimentaire</option>
-                  <option value="telecom_numerique">Télécom et services numériques</option>
-                  <option value="pharmacie_sante">Pharmacie et santé</option>
-                  <option value="btp">Bâtiment et travaux publics (BTP)</option>
-                  <option value="transport_logistique">Transport et logistique</option>
-                  <option value="services">Services (nettoyage, sécurité, maintenance)</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -166,7 +146,6 @@ const formData = ref({
   companyName: '',
   companyEmail: '',
   companyPhone: '',
-  businessSector: '',
   adminName: '',
   adminEmail: '',
   adminPassword: '',
@@ -186,7 +165,6 @@ const handleSubmit = async () => {
       companyName: formData.value.companyName,
       companyEmail: formData.value.companyEmail,
       companyPhone: formData.value.companyPhone || undefined,
-      businessSector: formData.value.businessSector,
       adminEmail: formData.value.adminEmail,
       adminPassword: formData.value.adminPassword,
       adminName: formData.value.adminName,

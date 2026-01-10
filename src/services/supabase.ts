@@ -67,7 +67,6 @@ export interface Product {
   image_url: string | null;
   category_id: string | null;
   subcategory_id: string | null;
-  sector_data?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
