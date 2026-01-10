@@ -10,6 +10,7 @@ export interface PaymentConfiguration {
   api_key?: string;
   api_secret?: string;
   merchant_id?: string;
+  master_key?: string;
   webhook_url?: string;
   test_mode: boolean;
   config_data: Record<string, any>;
@@ -23,6 +24,7 @@ export interface PaymentConfigInput {
   api_key?: string;
   api_secret?: string;
   merchant_id?: string;
+  master_key?: string;
   test_mode: boolean;
   config_data?: Record<string, any>;
 }
@@ -82,6 +84,7 @@ class PaymentConfigService {
           api_key: input.api_key,
           api_secret: input.api_secret,
           merchant_id: input.merchant_id,
+          master_key: input.master_key,
           test_mode: input.test_mode,
           config_data: input.config_data || {},
           updated_at: new Date().toISOString()
@@ -102,6 +105,7 @@ class PaymentConfigService {
           api_key: input.api_key,
           api_secret: input.api_secret,
           merchant_id: input.merchant_id,
+          master_key: input.master_key,
           test_mode: input.test_mode,
           config_data: input.config_data || {}
         })

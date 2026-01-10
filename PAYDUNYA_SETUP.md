@@ -15,7 +15,7 @@ PayDunya est un agrégateur de paiements africains qui permet d'accepter plusieu
 
 ### 1. Obtenir les Clés API
 
-Pour PayDunya, vous avez besoin de **3 clés différentes**:
+Pour PayDunya, vous avez besoin de **4 clés différentes**:
 
 #### Étape 1: Créer un compte
 1. Allez sur [https://paydunya.com](https://paydunya.com) ou [https://app.paydunya.com](https://app.paydunya.com)
@@ -25,29 +25,31 @@ Pour PayDunya, vous avez besoin de **3 clés différentes**:
 #### Étape 2: Accéder aux clés API
 1. Connectez-vous à votre compte PayDunya
 2. Allez dans **Paramètres** → **Clés API** ou **API Keys**
-3. Vous verrez 3 clés importantes:
+3. Vous verrez 4 clés importantes:
 
-**Les 3 clés requises:**
+**Les 4 clés requises:**
 
 | Champ dans l'app | Nom dans PayDunya | Description |
 |------------------|-------------------|-------------|
-| **Clé API** | Master Key ou Public Key | Clé publique (commence souvent par "test_" en mode test) |
-| **Clé Secrète** | Private Key ou Secret Key | Clé privée (à garder confidentielle) |
+| **Master Key** | Master Key | Clé principale publique (commence souvent par "test_public_" en mode test) |
+| **Clé API** | Public Key | Clé publique secondaire |
+| **Clé Secrète** | Private Key | Clé privée (à garder confidentielle, commence par "test_private_") |
 | **Merchant ID** | Token ou Store Token | Identifiant unique de votre boutique |
 
-**IMPORTANT:** Tous les 3 champs sont obligatoires!
+**IMPORTANT:** Tous les 4 champs sont obligatoires!
 
 ### 2. Configuration dans l'Application
 
 1. Connectez-vous en tant qu'**Administrateur**
 2. Allez dans **Paramètres** → **Moyens de paiement**
-3. Sélectionnez **PayDunya**
-4. Remplissez les champs:
-   - **Clé API**: Votre Master Key
+3. Cliquez sur **Configurer** pour **PayDunya**
+4. Remplissez les 4 champs obligatoires:
+   - **Master Key**: Votre Master Key (clé principale publique)
+   - **Clé API**: Votre Public Key
    - **Clé secrète**: Votre Private Key
-   - **ID Marchand**: Votre Token
+   - **Merchant ID**: Votre Token/Store ID
    - **Mode test**: Activé pour les tests, désactivé pour la production
-5. Activez le moyen de paiement
+5. Cochez **Activer ce moyen de paiement**
 6. Cliquez sur **Enregistrer**
 
 ### 3. Mode Test vs Production

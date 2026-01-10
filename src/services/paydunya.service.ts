@@ -70,8 +70,9 @@ class PayDunyaService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'PAYDUNYA-MASTER-KEY': config.api_key,
+          'PAYDUNYA-MASTER-KEY': config.master_key || config.api_key,
           'PAYDUNYA-PRIVATE-KEY': config.api_secret,
+          'PAYDUNYA-PUBLIC-KEY': config.api_key,
           'PAYDUNYA-TOKEN': config.merchant_id
         },
         body: JSON.stringify(payload)
@@ -128,8 +129,9 @@ class PayDunyaService {
       const response = await fetch(`${apiUrl}/checkout-invoice/confirm/${transactionId}`, {
         method: 'GET',
         headers: {
-          'PAYDUNYA-MASTER-KEY': config.api_key,
+          'PAYDUNYA-MASTER-KEY': config.master_key || config.api_key,
           'PAYDUNYA-PRIVATE-KEY': config.api_secret,
+          'PAYDUNYA-PUBLIC-KEY': config.api_key,
           'PAYDUNYA-TOKEN': config.merchant_id
         }
       });

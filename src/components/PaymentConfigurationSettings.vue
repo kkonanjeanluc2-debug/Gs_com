@@ -13,6 +13,7 @@ const formData = ref({
   api_key: '',
   api_secret: '',
   merchant_id: '',
+  master_key: '',
   test_mode: true
 });
 
@@ -46,6 +47,7 @@ const openEditModal = (provider: PaymentProvider) => {
     api_key: config?.api_key || '',
     api_secret: config?.api_secret || '',
     merchant_id: config?.merchant_id || '',
+    master_key: config?.master_key || '',
     test_mode: config?.test_mode !== false
   };
 
@@ -59,6 +61,7 @@ const closeEditModal = () => {
     api_key: '',
     api_secret: '',
     merchant_id: '',
+    master_key: '',
     test_mode: true
   };
 };
@@ -70,12 +73,13 @@ const saveConfiguration = async () => {
     saving.value = true;
 
     if (editingProvider.value === 'paydunya') {
-      if (!formData.value.api_key || !formData.value.api_secret || !formData.value.merchant_id) {
-        alert('Pour PayDunya, vous devez renseigner:\n\n' +
-              '1. Clé API (Master Key)\n' +
-              '2. Clé Secrète (Private Key)\n' +
-              '3. Merchant ID (Token)\n\n' +
-              'Ces 3 informations sont disponibles dans votre tableau de bord PayDunya → Paramètres → Clés API');
+      if (!formData.value.master_key || !formData.value.api_key || !formData.value.api_secret || !formData.value.merchant_id) {
+        alert('Pour PayDunya, vous devez renseigner TOUS les champs:\n\n' +
+              '1. Master Key (Clé principale publique)\n' +
+              '2. Clé API (Public Key)\n' +
+              '3. Clé Secrète (Private Key)\n' +
+              '4. Merchant ID (Token)\n\n' +
+              'Ces 4 informations sont disponibles dans votre tableau de bord PayDunya → Paramètres → Clés API');
         return;
       }
     }
@@ -112,6 +116,7 @@ const toggleProvider = async (provider: PaymentProvider) => {
       api_key: config.api_key,
       api_secret: config.api_secret,
       merchant_id: config.merchant_id,
+      master_key: config.master_key,
       test_mode: config.test_mode
     });
 
@@ -251,6 +256,20 @@ const getProviderColor = (provider: PaymentProvider): string => {
             </label>
           </div>
 
+          <div v-if="editingProvider === 'paydunya'">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Master Key *
+            </label>
+            <input
+              v-model="formData.master_key"
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Entrez votre Master Key (clé principale publique)"
+              required
+            />
+            <p class="text-xs text-gray-500 mt-1">Clé principale publique de PayDunya</p>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Clé API *
@@ -259,33 +278,36 @@ const getProviderColor = (provider: PaymentProvider): string => {
               v-model="formData.api_key"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez votre clé API"
+              :placeholder="editingProvider === 'paydunya' ? 'Entrez votre Public Key' : 'Entrez votre clé API'"
               required
             />
+            <p v-if="editingProvider === 'paydunya'" class="text-xs text-gray-500 mt-1">Public Key de PayDunya</p>
           </div>
 
           <div v-if="editingProvider !== 'wave'">
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Clé Secrète
+              Clé Secrète *
             </label>
             <input
               v-model="formData.api_secret"
               type="password"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez votre clé secrète"
+              :placeholder="editingProvider === 'paydunya' ? 'Entrez votre Private Key' : 'Entrez votre clé secrète'"
             />
+            <p v-if="editingProvider === 'paydunya'" class="text-xs text-gray-500 mt-1">Private Key de PayDunya (confidentielle)</p>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Merchant ID
+              Merchant ID *
             </label>
             <input
               v-model="formData.merchant_id"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez votre Merchant ID"
+              :placeholder="editingProvider === 'paydunya' ? 'Entrez votre Token' : 'Entrez votre Merchant ID'"
             />
+            <p v-if="editingProvider === 'paydunya'" class="text-xs text-gray-500 mt-1">Token / Store ID de PayDunya</p>
           </div>
 
           <div>
