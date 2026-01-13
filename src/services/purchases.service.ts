@@ -25,6 +25,11 @@ export interface Purchase {
   status: 'pending' | 'completed' | 'cancelled';
   total_amount: number;
   notes?: string;
+  payment_method?: 'cash' | 'mobile_money' | 'bank_transfer' | 'check';
+  payment_status: 'unpaid' | 'partial' | 'paid';
+  payment_date?: string;
+  payment_reference?: string;
+  paid_amount: number;
   created_by: string;
   supplier?: Supplier;
   items?: PurchaseItem[];
@@ -36,6 +41,11 @@ export interface CreatePurchaseData {
   supplier_id: string;
   purchase_date: string;
   notes?: string;
+  payment_method?: 'cash' | 'mobile_money' | 'bank_transfer' | 'check';
+  payment_status?: 'unpaid' | 'partial' | 'paid';
+  payment_date?: string;
+  payment_reference?: string;
+  paid_amount?: number;
   items: {
     product_id: string;
     quantity: number;
@@ -48,6 +58,11 @@ export interface UpdatePurchaseData {
   purchase_date?: string;
   status?: 'pending' | 'completed' | 'cancelled';
   notes?: string;
+  payment_method?: 'cash' | 'mobile_money' | 'bank_transfer' | 'check';
+  payment_status?: 'unpaid' | 'partial' | 'paid';
+  payment_date?: string;
+  payment_reference?: string;
+  paid_amount?: number;
 }
 
 class PurchasesService {
@@ -118,6 +133,11 @@ class PurchasesService {
         purchase_date: purchaseData.purchase_date,
         total_amount: totalAmount,
         notes: purchaseData.notes,
+        payment_method: purchaseData.payment_method,
+        payment_status: purchaseData.payment_status || 'unpaid',
+        payment_date: purchaseData.payment_date,
+        payment_reference: purchaseData.payment_reference,
+        paid_amount: purchaseData.paid_amount || 0,
         created_by: profile.id,
         status: 'pending',
       })

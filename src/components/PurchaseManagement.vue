@@ -17,6 +17,11 @@ const filterStatus = ref<'all' | 'pending' | 'completed' | 'cancelled'>('all');
 const formData = ref({
   supplier_id: '',
   purchase_date: new Date().toISOString().split('T')[0],
+  payment_method: undefined as 'cash' | 'mobile_money' | 'bank_transfer' | 'check' | undefined,
+  payment_status: 'unpaid' as 'unpaid' | 'partial' | 'paid',
+  payment_date: undefined as string | undefined,
+  payment_reference: '',
+  paid_amount: 0,
   items: [] as { product_id: string; quantity: number; unit_price: number; showDropdown?: boolean }[],
 });
 
@@ -124,6 +129,11 @@ const handleSubmit = async () => {
     const purchaseData: CreatePurchaseData = {
       supplier_id: formData.value.supplier_id,
       purchase_date: formData.value.purchase_date,
+      payment_method: formData.value.payment_method,
+      payment_status: formData.value.payment_status,
+      payment_date: formData.value.payment_date,
+      payment_reference: formData.value.payment_reference,
+      paid_amount: formData.value.paid_amount,
       items: formData.value.items.map(item => ({
         product_id: item.product_id,
         quantity: item.quantity,
@@ -354,6 +364,11 @@ const closeForm = () => {
   formData.value = {
     supplier_id: '',
     purchase_date: new Date().toISOString().split('T')[0],
+    payment_method: undefined,
+    payment_status: 'unpaid',
+    payment_date: undefined,
+    payment_reference: '',
+    paid_amount: 0,
     items: [],
   };
   productSearch.value = {};
@@ -587,6 +602,94 @@ onMounted(() => {
             </div>
           </div>
 
+          <div class="border-t pt-4 mt-4">
+            <h4 class="font-semibold text-base mb-4 text-gray-800">Informations de paiement</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Mode de paiement
+                </label>
+                <select
+                  v-model="formData.payment_method"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option :value="undefined">Non spécifié</option>
+                  <option value="cash">Espèces</option>
+                  <option value="mobile_money">Mobile Money</option>
+                  <option value="bank_transfer">Virement bancaire</option>
+                  <option value="check">Chèque</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Statut du paiement
+                </label>
+                <select
+                  v-model="formData.payment_status"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="unpaid">Non payé</option>
+                  <option value="partial">Payé partiellement</option>
+                  <option value="paid">Payé intégralement</option>
+                </select>
+              </div>
+
+              <div v-if="formData.payment_status !== 'unpaid'">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Date de paiement
+                </label>
+                <input
+                  v-model="formData.payment_date"
+                  type="date"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div v-if="formData.payment_status !== 'unpaid'">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Montant payé (FCFA)
+                </label>
+                <input
+                  v-model.number="formData.paid_amount"
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div v-if="formData.payment_method && formData.payment_status !== 'unpaid'" class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Référence de paiement (N° transaction, chèque, etc.)
+                </label>
+                <input
+                  v-model="formData.payment_reference"
+                  type="text"
+                  placeholder="Ex: TRX12345, CHQ001, etc."
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div v-if="formData.payment_status !== 'unpaid' && totalAmount > 0" class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-700">Montant total:</span>
+                <span class="font-semibold text-gray-900">{{ totalAmount.toLocaleString('fr-FR') }} FCFA</span>
+              </div>
+              <div class="flex justify-between items-center text-sm mt-1">
+                <span class="text-gray-700">Montant payé:</span>
+                <span class="font-semibold text-gray-900">{{ formData.paid_amount.toLocaleString('fr-FR') }} FCFA</span>
+              </div>
+              <div class="flex justify-between items-center text-sm mt-1 pt-2 border-t border-blue-300">
+                <span class="font-medium text-gray-800">Reste à payer:</span>
+                <span :class="['font-bold', (totalAmount - formData.paid_amount) > 0 ? 'text-red-600' : 'text-green-600']">
+                  {{ (totalAmount - formData.paid_amount).toLocaleString('fr-FR') }} FCFA
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div class="border-t pt-4">
             <div class="flex justify-between items-center mb-4">
               <h4 class="font-semibold text-base">Produits</h4>
@@ -734,6 +837,54 @@ onMounted(() => {
               <span :class="['px-3 py-1 inline-flex text-sm font-semibold rounded-full', getStatusColor(selectedPurchase.status)]">
                 {{ getStatusLabel(selectedPurchase.status) }}
               </span>
+            </div>
+          </div>
+
+          <div v-if="selectedPurchase.payment_method" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h4 class="font-semibold text-base mb-3 text-gray-800">Informations de paiement</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">Mode de paiement</p>
+                <p class="text-base font-medium text-gray-900">
+                  {{ selectedPurchase.payment_method === 'cash' ? 'Espèces' :
+                     selectedPurchase.payment_method === 'mobile_money' ? 'Mobile Money' :
+                     selectedPurchase.payment_method === 'bank_transfer' ? 'Virement bancaire' :
+                     selectedPurchase.payment_method === 'check' ? 'Chèque' : '-' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Statut du paiement</p>
+                <span :class="[
+                  'px-3 py-1 inline-flex text-xs font-semibold rounded-full',
+                  selectedPurchase.payment_status === 'paid' ? 'bg-green-100 text-green-800' :
+                  selectedPurchase.payment_status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                ]">
+                  {{ selectedPurchase.payment_status === 'paid' ? 'Payé intégralement' :
+                     selectedPurchase.payment_status === 'partial' ? 'Payé partiellement' :
+                     'Non payé' }}
+                </span>
+              </div>
+              <div v-if="selectedPurchase.payment_date">
+                <p class="text-sm text-gray-500">Date de paiement</p>
+                <p class="text-base font-medium text-gray-900">{{ new Date(selectedPurchase.payment_date).toLocaleDateString('fr-FR') }}</p>
+              </div>
+              <div v-if="selectedPurchase.paid_amount > 0">
+                <p class="text-sm text-gray-500">Montant payé</p>
+                <p class="text-base font-medium text-gray-900">{{ selectedPurchase.paid_amount.toLocaleString('fr-FR') }} FCFA</p>
+              </div>
+              <div v-if="selectedPurchase.payment_reference" class="col-span-2">
+                <p class="text-sm text-gray-500">Référence de paiement</p>
+                <p class="text-base font-medium text-gray-900">{{ selectedPurchase.payment_reference }}</p>
+              </div>
+              <div v-if="selectedPurchase.paid_amount < selectedPurchase.total_amount" class="col-span-2 pt-2 border-t border-gray-300">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-700">Reste à payer:</span>
+                  <span class="text-lg font-bold text-red-600">
+                    {{ (selectedPurchase.total_amount - selectedPurchase.paid_amount).toLocaleString('fr-FR') }} FCFA
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
