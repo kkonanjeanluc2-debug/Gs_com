@@ -43,6 +43,24 @@ const revokeApproval = async (companyId: string) => {
   }
 };
 
+const deleteCompany = async (companyId: string, companyName: string) => {
+  if (!confirm(`⚠️ ATTENTION : Êtes-vous sûr de vouloir supprimer l'entreprise "${companyName}" ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Tous les utilisateurs de l'entreprise\n- Tous les produits\n- Toutes les commandes\n- Tous les clients\n- Toutes les données liées\n\nTapez OUI pour confirmer la suppression.`)) return;
+
+  const confirmation = prompt(`Pour confirmer, tapez le nom de l'entreprise : "${companyName}"`);
+  if (confirmation !== companyName) {
+    alert('Le nom ne correspond pas. Suppression annulée.');
+    return;
+  }
+
+  try {
+    await superAdminService.deleteCompany(companyId);
+    alert(`L'entreprise "${companyName}" a été supprimée avec succès.`);
+    await loadCompanies();
+  } catch (e: any) {
+    alert('Erreur: ' + (e.message || 'Impossible de supprimer l\'entreprise'));
+  }
+};
+
 const filteredCompanies = () => {
   let filtered = companies.value;
 
@@ -186,20 +204,29 @@ onMounted(() => {
                 {{ formatDate(company.created_at) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button
-                  v-if="!company.approved"
-                  @click="approveCompany(company.id)"
-                  class="text-green-600 hover:text-green-900 mr-3"
-                >
-                  Approuver
-                </button>
-                <button
-                  v-else
-                  @click="revokeApproval(company.id)"
-                  class="text-red-600 hover:text-red-900"
-                >
-                  Révoquer
-                </button>
+                <div class="flex items-center gap-3">
+                  <button
+                    v-if="!company.approved"
+                    @click="approveCompany(company.id)"
+                    class="text-green-600 hover:text-green-900"
+                  >
+                    Approuver
+                  </button>
+                  <button
+                    v-else
+                    @click="revokeApproval(company.id)"
+                    class="text-orange-600 hover:text-orange-900"
+                  >
+                    Révoquer
+                  </button>
+                  <button
+                    @click="deleteCompany(company.id, company.name)"
+                    class="text-red-600 hover:text-red-900 font-semibold"
+                    title="Supprimer l'entreprise"
+                  >
+                    Supprimer
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -213,6 +240,15 @@ onMounted(() => {
         <li>• Les entreprises en attente ne peuvent pas se connecter à l'application</li>
         <li>• Approuver une entreprise permet à tous ses utilisateurs de se connecter</li>
         <li>• Révoquer une entreprise bloque immédiatement l'accès pour tous ses utilisateurs</li>
+      </ul>
+    </div>
+
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <h3 class="text-sm font-semibold text-red-800 mb-2">⚠️ Suppression d'entreprise</h3>
+      <ul class="text-sm text-red-700 space-y-1">
+        <li>• La suppression est IRRÉVERSIBLE et supprime toutes les données de l'entreprise</li>
+        <li>• Tous les utilisateurs, produits, commandes et clients seront définitivement supprimés</li>
+        <li>• Une double confirmation est requise pour éviter les suppressions accidentelles</li>
       </ul>
     </div>
   </div>

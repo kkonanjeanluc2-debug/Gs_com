@@ -37,6 +37,14 @@ export class SuperAdminService {
     if (error) throw error;
   }
 
+  async deleteCompany(companyId: string): Promise<void> {
+    const { error } = await supabase.rpc('delete_company', {
+      company_uuid: companyId
+    });
+
+    if (error) throw error;
+  }
+
   async checkIsSuperAdmin(): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
