@@ -282,7 +282,7 @@ const getProviderColor = (provider: PaymentProvider): string => {
             <p v-if="editingProvider === 'dexchange'" class="text-xs text-gray-500 mt-1">Bearer Token de Dexchange</p>
           </div>
 
-          <div v-if="editingProvider !== 'wave'">
+          <div v-if="editingProvider !== 'wave' && editingProvider !== 'dexchange'">
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Clé Secrète *
             </label>
@@ -290,12 +290,11 @@ const getProviderColor = (provider: PaymentProvider): string => {
               v-model="formData.api_secret"
               type="password"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              :placeholder="editingProvider === 'dexchange' ? 'Optionnel pour Dexchange' : 'Entrez votre clé secrète'"
+              placeholder="Entrez votre clé secrète"
             />
-            <p v-if="editingProvider === 'dexchange'" class="text-xs text-gray-500 mt-1">Non utilisé pour Dexchange</p>
           </div>
 
-          <div>
+          <div v-if="editingProvider !== 'dexchange'">
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Merchant ID *
             </label>
@@ -303,9 +302,8 @@ const getProviderColor = (provider: PaymentProvider): string => {
               v-model="formData.merchant_id"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              :placeholder="editingProvider === 'dexchange' ? 'Optionnel pour Dexchange' : 'Entrez votre Merchant ID'"
+              placeholder="Entrez votre Merchant ID"
             />
-            <p v-if="editingProvider === 'dexchange'" class="text-xs text-gray-500 mt-1">Non utilisé pour Dexchange</p>
           </div>
 
           <div>
