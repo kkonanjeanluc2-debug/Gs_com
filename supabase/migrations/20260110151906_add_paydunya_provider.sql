@@ -14,7 +14,7 @@
 ALTER TABLE payment_configurations
 DROP CONSTRAINT IF EXISTS payment_configurations_provider_check;
 
--- Ajouter la nouvelle contrainte avec PayDunya inclus
+-- Ajouter la nouvelle contrainte avec PayDunya et Dexchange inclus
 ALTER TABLE payment_configurations
 ADD CONSTRAINT payment_configurations_provider_check
-CHECK (provider IN ('wave', 'orange_money', 'mtn_money', 'moov_money', 'cinetpay', 'paydunya'));
+CHECK (provider IN ('wave', 'orange_money', 'mtn_money', 'moov_money', 'cinetpay', 'paydunya', 'dexchange'));
