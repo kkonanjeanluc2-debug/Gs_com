@@ -66,7 +66,7 @@ const callPhone = () => {
             <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
               <Icon name="shopping-cart" class="w-7 h-7 text-white" />
             </div>
-            <span class="text-2xl font-bold text-white">Ges-com</span>
+            <span class="text-2xl font-bold text-white">Ges-<span class="text-green-500">com</span></span>
           </div>
 
           <!-- Navigation & Auth Buttons -->
@@ -104,7 +104,7 @@ const callPhone = () => {
           <!-- Left Content -->
           <div class="text-white space-y-8">
             <h1 class="text-5xl md:text-6xl font-bold leading-tight">
-              Ges-com
+              Ges-<span class="text-green-500">com</span>
             </h1>
 
             <p class="text-xl text-gray-300 leading-relaxed">
@@ -144,7 +144,7 @@ const callPhone = () => {
                       <Icon name="shopping-cart" class="w-3 h-3 sm:w-4 sm:h-4 md:w-6 md:h-6 text-blue-700" />
                     </div>
                     <div class="hidden sm:block">
-                      <div class="font-bold text-[10px] sm:text-xs md:text-sm truncate">Ges-com</div>
+                      <div class="font-bold text-[10px] sm:text-xs md:text-sm truncate">Ges-<span class="text-green-500">com</span></div>
                       <div class="text-[8px] sm:text-[10px] md:text-xs text-blue-200 truncate">Gestion Pro</div>
                     </div>
                   </div>
@@ -414,11 +414,11 @@ const callPhone = () => {
             <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
               <Icon name="shopping-cart" class="w-6 h-6 text-white" />
             </div>
-            <span class="text-xl font-bold text-white">Ges-com</span>
+            <span class="text-xl font-bold text-white">Ges-<span class="text-green-500">com</span></span>
           </div>
 
           <div class="text-gray-400 text-sm">
-            © 2025 Ges-com. Tous droits réservés.
+            © 2025 Ges-<span class="text-green-500">com</span>. Tous droits réservés.
           </div>
 
           <div class="flex gap-4">
