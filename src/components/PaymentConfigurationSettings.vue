@@ -14,10 +14,11 @@ const formData = ref({
   api_secret: '',
   merchant_id: '',
   master_key: '',
-  test_mode: true
+  test_mode: true,
+  config_data: {} as Record<string, any>
 });
 
-const providers: PaymentProvider[] = ['wave', 'orange_money', 'mtn_money', 'moov_money', 'paydunya'];
+const providers: PaymentProvider[] = ['wave', 'orange_money', 'mtn_money', 'moov_money', 'dexchange'];
 
 onMounted(async () => {
   await loadConfigurations();
@@ -48,7 +49,8 @@ const openEditModal = (provider: PaymentProvider) => {
     api_secret: config?.api_secret || '',
     merchant_id: config?.merchant_id || '',
     master_key: config?.master_key || '',
-    test_mode: config?.test_mode !== false
+    test_mode: config?.test_mode !== false,
+    config_data: config?.config_data || {}
   };
 
   editingProvider.value = provider;
@@ -62,7 +64,8 @@ const closeEditModal = () => {
     api_secret: '',
     merchant_id: '',
     master_key: '',
-    test_mode: true
+    test_mode: true,
+    config_data: {}
   };
 };
 
@@ -72,14 +75,10 @@ const saveConfiguration = async () => {
   try {
     saving.value = true;
 
-    if (editingProvider.value === 'paydunya') {
-      if (!formData.value.master_key || !formData.value.api_key || !formData.value.api_secret || !formData.value.merchant_id) {
-        alert('Pour PayDunya, vous devez renseigner TOUS les champs:\n\n' +
-              '1. Master Key (Clé principale publique)\n' +
-              '2. Clé API (Public Key)\n' +
-              '3. Clé Secrète (Private Key)\n' +
-              '4. Merchant ID (Token)\n\n' +
-              'Ces 4 informations sont disponibles dans votre tableau de bord PayDunya → Paramètres → Clés API');
+    if (editingProvider.value === 'dexchange') {
+      if (!formData.value.api_key) {
+        alert('Pour Dexchange, vous devez renseigner au minimum la clé API Bearer Token.\n\n' +
+              'Cette clé est disponible dans votre tableau de bord Dexchange → API → Clés API');
         return;
       }
     }
@@ -133,7 +132,7 @@ const getProviderIcon = (provider: PaymentProvider): string => {
     'orange_money': 'smartphone',
     'mtn_money': 'smartphone',
     'moov_money': 'smartphone',
-    'paydunya': 'credit-card'
+    'dexchange': 'credit-card'
   };
   return icons[provider];
 };
@@ -144,7 +143,7 @@ const getProviderColor = (provider: PaymentProvider): string => {
     'orange_money': 'bg-orange-500',
     'mtn_money': 'bg-yellow-500',
     'moov_money': 'bg-green-500',
-    'paydunya': 'bg-indigo-600'
+    'dexchange': 'bg-blue-600'
   };
   return colors[provider];
 };
@@ -256,18 +255,17 @@ const getProviderColor = (provider: PaymentProvider): string => {
             </label>
           </div>
 
-          <div v-if="editingProvider === 'paydunya'">
+          <div v-if="editingProvider === 'dexchange'">
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Master Key *
+              Service Code (optionnel)
             </label>
             <input
-              v-model="formData.master_key"
+              v-model="formData.config_data.default_service_code"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Entrez votre Master Key (clé principale publique)"
-              required
+              placeholder="Ex: OM_CI_CASHOUT, MTN_CI_CASHOUT, etc."
             />
-            <p class="text-xs text-gray-500 mt-1">Clé principale publique de PayDunya</p>
+            <p class="text-xs text-gray-500 mt-1">Code de service par défaut pour les transactions (ex: OM_CI_CASHOUT pour Orange Money Côte d'Ivoire)</p>
           </div>
 
           <div>
@@ -278,10 +276,10 @@ const getProviderColor = (provider: PaymentProvider): string => {
               v-model="formData.api_key"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              :placeholder="editingProvider === 'paydunya' ? 'Entrez votre Public Key' : 'Entrez votre clé API'"
+              :placeholder="editingProvider === 'dexchange' ? 'Entrez votre Bearer Token' : 'Entrez votre clé API'"
               required
             />
-            <p v-if="editingProvider === 'paydunya'" class="text-xs text-gray-500 mt-1">Public Key de PayDunya</p>
+            <p v-if="editingProvider === 'dexchange'" class="text-xs text-gray-500 mt-1">Bearer Token de Dexchange</p>
           </div>
 
           <div v-if="editingProvider !== 'wave'">
@@ -292,9 +290,9 @@ const getProviderColor = (provider: PaymentProvider): string => {
               v-model="formData.api_secret"
               type="password"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              :placeholder="editingProvider === 'paydunya' ? 'Entrez votre Private Key' : 'Entrez votre clé secrète'"
+              :placeholder="editingProvider === 'dexchange' ? 'Optionnel pour Dexchange' : 'Entrez votre clé secrète'"
             />
-            <p v-if="editingProvider === 'paydunya'" class="text-xs text-gray-500 mt-1">Private Key de PayDunya (confidentielle)</p>
+            <p v-if="editingProvider === 'dexchange'" class="text-xs text-gray-500 mt-1">Non utilisé pour Dexchange</p>
           </div>
 
           <div>
@@ -305,9 +303,9 @@ const getProviderColor = (provider: PaymentProvider): string => {
               v-model="formData.merchant_id"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              :placeholder="editingProvider === 'paydunya' ? 'Entrez votre Token' : 'Entrez votre Merchant ID'"
+              :placeholder="editingProvider === 'dexchange' ? 'Optionnel pour Dexchange' : 'Entrez votre Merchant ID'"
             />
-            <p v-if="editingProvider === 'paydunya'" class="text-xs text-gray-500 mt-1">Token / Store ID de PayDunya</p>
+            <p v-if="editingProvider === 'dexchange'" class="text-xs text-gray-500 mt-1">Non utilisé pour Dexchange</p>
           </div>
 
           <div>

@@ -1,6 +1,6 @@
 import { supabase, getCurrentUserCompanyId } from './supabase';
 
-export type PaymentProvider = 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'paydunya';
+export type PaymentProvider = 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'dexchange';
 
 export interface PaymentConfiguration {
   id: string;
@@ -135,7 +135,7 @@ class PaymentConfigService {
       'orange_money': 'Orange Money',
       'mtn_money': 'MTN Mobile Money',
       'moov_money': 'Moov Money',
-      'paydunya': 'PayDunya'
+      'dexchange': 'Dexchange'
     };
     return labels[provider];
   }
@@ -146,7 +146,7 @@ class PaymentConfigService {
       'orange_money': 'Paiement mobile Orange Money',
       'mtn_money': 'Paiement mobile MTN Mobile Money',
       'moov_money': 'Paiement mobile Moov Money',
-      'paydunya': 'Passerelle de paiement PayDunya (Mobile Money, Cartes bancaires)'
+      'dexchange': 'Passerelle de paiement Dexchange (Mobile Money - Orange, MTN, Moov, Wave)'
     };
     return descriptions[provider];
   }

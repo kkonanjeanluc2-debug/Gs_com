@@ -5,7 +5,7 @@ import { authService } from '../services/auth';
 import { paymentConfigService, type PaymentConfiguration } from '../services/payment-config.service';
 import { wavePaymentService } from '../services/wave-payment.service';
 import { mobileMoneyService, type MobileMoneyProvider } from '../services/mobile-money.service';
-import { paydunyaService } from '../services/paydunya.service';
+import { dexchangeService } from '../services/dexchange.service';
 import type { Order } from '../services/orders.service';
 import Icon from './Icon.vue';
 
@@ -27,7 +27,7 @@ const transactionId = ref('');
 
 const formData = ref({
   amount: 0,
-  payment_method: 'especes' as 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire' | 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'paydunya',
+  payment_method: 'especes' as 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire' | 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'dexchange',
   payment_reference: '',
   payment_date: new Date().toISOString().split('T')[0],
   notes: ''
@@ -113,8 +113,8 @@ const initiateOnlinePayment = async () => {
     paymentStatus.value = 'idle';
     paymentMessage.value = '';
 
-    if (selectedProvider.value === 'paydunya') {
-      const response = await paydunyaService.initiatePayment({
+    if (selectedProvider.value === 'dexchange') {
+      const response = await dexchangeService.initiatePayment({
         amount: formData.value.amount,
         currency: 'XOF',
         customerPhone: customerPhone.value,
@@ -126,7 +126,7 @@ const initiateOnlinePayment = async () => {
 
       if (response.success && response.paymentUrl) {
         paymentStatus.value = 'pending';
-        paymentMessage.value = 'Redirection vers PayDunya...';
+        paymentMessage.value = 'Redirection vers Dexchange...';
         transactionId.value = response.transactionId || '';
         window.open(response.paymentUrl, '_blank');
         startStatusCheck();
@@ -204,8 +204,8 @@ const startStatusCheck = () => {
       checkingStatus.value = true;
       let status;
 
-      if (selectedProvider.value === 'paydunya') {
-        status = await paydunyaService.checkPaymentStatus(transactionId.value);
+      if (selectedProvider.value === 'dexchange') {
+        status = await dexchangeService.checkPaymentStatus(transactionId.value);
       } else if (selectedProvider.value === 'wave') {
         status = await wavePaymentService.checkPaymentStatus(transactionId.value);
       } else if (['orange_money', 'mtn_money', 'moov_money'].includes(selectedProvider.value)) {

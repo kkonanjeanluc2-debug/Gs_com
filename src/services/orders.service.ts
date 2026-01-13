@@ -49,7 +49,7 @@ export interface OrderPayment {
   client_id: string;
   company_id: string;
   amount: number;
-  payment_method: 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire' | 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'paydunya';
+  payment_method: 'especes' | 'mobile_money' | 'virement' | 'cheque' | 'carte_bancaire' | 'wave' | 'orange_money' | 'mtn_money' | 'moov_money' | 'dexchange';
   payment_reference?: string;
   payment_date: string;
   notes?: string;

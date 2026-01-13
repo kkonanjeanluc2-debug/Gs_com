@@ -27,17 +27,18 @@ Deno.serve(async (req: Request) => {
 
     const payload = await req.json();
 
-    console.log("PayDunya webhook received:", JSON.stringify(payload, null, 2));
+    console.log("Dexchange webhook received:", JSON.stringify(payload, null, 2));
 
-    const invoiceToken = payload.data?.invoice_token || payload.invoice_token;
-    const status = payload.data?.status || payload.status;
-    const customData = payload.data?.custom_data || payload.custom_data;
-    const orderId = customData?.order_id;
+    const transactionId = payload.id;
+    const status = payload.STATUS || payload.status;
+    const externalTransactionId = payload.externalTransactionId;
+    const amount = payload.AMOUNT || payload.amount;
+    const phoneNumber = payload.PHONE_NUMBER || payload.number;
 
-    if (!invoiceToken) {
-      console.error("Missing invoice token in webhook");
+    if (!transactionId) {
+      console.error("Missing transaction ID in webhook");
       return new Response(
-        JSON.stringify({ error: "Missing invoice token" }),
+        JSON.stringify({ error: "Missing transaction ID" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -48,7 +49,7 @@ Deno.serve(async (req: Request) => {
     const { data: transaction, error: transactionError } = await supabase
       .from("payment_transactions")
       .select("*")
-      .eq("transaction_id", invoiceToken)
+      .eq("transaction_id", transactionId)
       .maybeSingle();
 
     if (transactionError) {
@@ -57,7 +58,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!transaction) {
-      console.error("Transaction not found for invoice token:", invoiceToken);
+      console.error("Transaction not found for ID:", transactionId);
       return new Response(
         JSON.stringify({ error: "Transaction not found" }),
         {
@@ -68,11 +69,11 @@ Deno.serve(async (req: Request) => {
     }
 
     let paymentStatus = "pending";
-    if (status === "completed") {
+    if (status === "SUCCESS" || status === "COMPLETED") {
       paymentStatus = "success";
-    } else if (status === "cancelled") {
+    } else if (status === "CANCELLED") {
       paymentStatus = "cancelled";
-    } else if (status === "failed") {
+    } else if (status === "FAILED") {
       paymentStatus = "failed";
     }
 
@@ -94,11 +95,11 @@ Deno.serve(async (req: Request) => {
       throw updateError;
     }
 
-    if (paymentStatus === "success" && orderId) {
+    if (paymentStatus === "success" && transaction.order_id) {
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .select("*, client:clients(name, phone, email)")
-        .eq("id", orderId)
+        .eq("id", transaction.order_id)
         .maybeSingle();
 
       if (orderError) {
@@ -107,21 +108,21 @@ Deno.serve(async (req: Request) => {
         const { error: paymentError } = await supabase
           .from("order_payments")
           .insert({
-            order_id: orderId,
+            order_id: transaction.order_id,
             client_id: order.client_id,
             company_id: transaction.company_id,
-            amount: transaction.amount,
-            payment_method: "paydunya",
-            payment_reference: invoiceToken,
+            amount: amount || transaction.amount,
+            payment_method: "dexchange",
+            payment_reference: transactionId,
             payment_date: new Date().toISOString(),
-            notes: `Paiement PayDunya confirmé`,
+            notes: `Paiement Dexchange confirmé`,
             created_by: transaction.created_by || order.created_by,
           });
 
         if (paymentError) {
           console.error("Error creating payment record:", paymentError);
         } else {
-          console.log("Payment record created successfully for order:", orderId);
+          console.log("Payment record created successfully for order:", transaction.order_id);
         }
       }
     }
@@ -138,7 +139,7 @@ Deno.serve(async (req: Request) => {
       }
     );
   } catch (error) {
-    console.error("PayDunya webhook error:", error);
+    console.error("Dexchange webhook error:", error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : "Internal server error",
