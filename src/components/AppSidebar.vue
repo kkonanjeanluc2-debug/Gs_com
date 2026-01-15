@@ -71,7 +71,7 @@ const menuStructure = computed((): MenuCategory[] => {
   if (ventesItems.length > 0) {
     structure.push({
       id: 'ventes',
-      label: 'Ventes',
+      label: 'CRM',
       icon: 'cart',
       items: ventesItems,
     });
