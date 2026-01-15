@@ -398,7 +398,7 @@ const callPhone = () => {
               </div>
               <div class="text-center">
                 <div class="text-sm text-gray-400 mb-1">WhatsApp</div>
-                <div class="text-white font-semibold">07 08 86 45 27</div>
+                
               </div>
             </button>
           </div>
