@@ -15,4 +15,4 @@ ALTER TABLE payment_configurations
 ADD COLUMN IF NOT EXISTS master_key text;
 
 -- Commentaire pour documenter l'usage
-COMMENT ON COLUMN payment_configurations.master_key IS 'Master Key publique (utilisée principalement par PayDunya)';
+COMMENT ON COLUMN payment_configurations.master_key IS 'Master Key publique (utilisée principalement par Dexchange)';
