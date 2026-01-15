@@ -296,7 +296,7 @@ const getProviderColor = (provider: PaymentProvider): string => {
 
           <div v-if="editingProvider !== 'dexchange'">
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Merchant ID *
+              Merchant ID 
             </label>
             <input
               v-model="formData.merchant_id"
