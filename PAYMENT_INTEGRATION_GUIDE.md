@@ -24,6 +24,7 @@ L'application supporte maintenant plusieurs méthodes de paiement locales:
 - **MTN Mobile Money** - Paiement mobile MTN
 - **Moov Money** - Paiement mobile Moov
 - **PayDunya** - Passerelle de paiement multi-moyens (Mobile Money, Cartes bancaires)
+- **Dexchange** - Passerelle de paiement multi-moyens (Mobile Money, Cartes bancaires)
 
 ### 3. Configuration des Moyens de Paiement
 
