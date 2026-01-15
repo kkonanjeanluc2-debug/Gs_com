@@ -144,11 +144,7 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Sélectionnez une méthode</option>
-                <option value="MOBILE_MONEY">Mobile Money (Tous opérateurs)</option>
-                <option value="WAVE">Wave</option>
-                <option value="ORANGE_MONEY">Orange Money</option>
-                <option value="MTN_MONEY">MTN Money</option>
-                <option value="MOOV_MONEY">Moov Money</option>
+            
                  <option value="DEXCHANGE">Dexchange</option>
               </select>
             </div>
