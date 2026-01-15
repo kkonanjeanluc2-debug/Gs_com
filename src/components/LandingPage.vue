@@ -342,7 +342,7 @@ const callPhone = () => {
             Fonctionnalités puissantes
           </h2>
           <p class="text-xl text-gray-400">
-            Tout ce dont vous avez besoin pour gérer votre business efficacement
+            Tout ce dont vous avez besoin pour gérer votre entreprise commerciale efficacement
           </p>
         </div>
 
