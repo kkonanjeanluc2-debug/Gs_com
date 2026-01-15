@@ -149,6 +149,7 @@
                 <option value="ORANGE_MONEY">Orange Money</option>
                 <option value="MTN_MONEY">MTN Money</option>
                 <option value="MOOV_MONEY">Moov Money</option>
+                 <option value="DEXCHANGE">Dexchange</option>
               </select>
             </div>
 
