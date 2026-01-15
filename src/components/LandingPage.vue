@@ -108,7 +108,7 @@ const callPhone = () => {
             </h1>
 
             <p class="text-xl text-gray-300 leading-relaxed">
-              La solution complète de suivi des commerciaux moderne pour votre entreprise. Gérez votre entreprise comme un professionnel avec nos outils intelligents.
+              La solution moderne complète de suivi des commerciaux pour votre entreprise. Gérez votre entreprise comme un professionnel avec nos outils intelligents.
             </p>
 
             <!-- Contact Buttons -->
