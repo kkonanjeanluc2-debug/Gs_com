@@ -64,7 +64,7 @@ const menuStructure = computed((): MenuCategory[] => {
   // Ventes
   const ventesItems = [];
   if (tabsMap.has('reports')) ventesItems.push({ ...tabsMap.get('reports')! });
-  if (tabsMap.has('clients')) ventesItems.push({ ...tabsMap.get('clients')! });
+  if (tabsMap.has('clients & Prospects')) ventesItems.push({ ...tabsMap.get('clients')! });
   if (tabsMap.has('tracking')) ventesItems.push({ ...tabsMap.get('tracking')! });
   if (tabsMap.has('orders')) ventesItems.push({ ...tabsMap.get('orders')! });
 
