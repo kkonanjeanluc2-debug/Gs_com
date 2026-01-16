@@ -133,9 +133,9 @@ CREATE POLICY "Super admin can view all payments"
 -- Insérer les plans d'abonnement par défaut
 INSERT INTO subscription_plans (name, duration_days, price, description, is_active)
 VALUES
-  ('Mensuel', 30, 15000, 'Abonnement mensuel - Renouvellement automatique', true),
-  ('Trimestriel', 90, 40000, 'Abonnement trimestriel - Économisez 11%', true),
-  ('Annuel', 365, 150000, 'Abonnement annuel - Économisez 17%', true)
+  ('Mensuel', 30, 25000, 'Abonnement mensuel - Renouvellement automatique', true),
+  ('Trimestriel', 90, 63750, 'Abonnement trimestriel - Économisez 15%', true),
+  ('Annuel', 365, 240000, 'Abonnement annuel - Économisez 20%', true)
 ON CONFLICT DO NOTHING;
 
 -- Modifier la valeur par défaut de trial_days à 30
