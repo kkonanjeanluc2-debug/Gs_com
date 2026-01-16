@@ -42,6 +42,7 @@ Dexchange utilise des codes de service spécifiques pour chaque opérateur et pa
 - `MTN_CI_CASHOUT` - MTN Mobile Money Côte d'Ivoire
 - `MOOV_CI_CASHOUT` - Moov Money Côte d'Ivoire
 - `WAVE_CI_CASHOUT` - Wave Côte d'Ivoire
+- `DEXCHANGE` - 
 
 ### Sénégal
 - `OM_SN_CASHOUT` - Orange Money Sénégal
