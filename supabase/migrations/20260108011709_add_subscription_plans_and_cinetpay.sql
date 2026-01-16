@@ -90,7 +90,7 @@ CHECK (status IN ('pending', 'completed', 'failed', 'cancelled'));
 -- Contraintes pour les méthodes de paiement
 ALTER TABLE payments
 ADD CONSTRAINT payments_payment_method_check
-CHECK (payment_method IN ('MOBILE_MONEY', 'WAVE', 'ORANGE_MONEY', 'MTN_MONEY', 'MOOV_MONEY'));
+CHECK (payment_method IN ('MOBILE_MONEY', 'WAVE', 'ORANGE_MONEY', 'MTN_MONEY', 'MOOV_MONEY', 'DEXCHANGE'));
 
 -- Index pour accélération des requêtes
 CREATE INDEX IF NOT EXISTS idx_payments_company_id ON payments(company_id);
