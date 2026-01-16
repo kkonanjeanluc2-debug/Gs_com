@@ -21,7 +21,7 @@
 CREATE TABLE IF NOT EXISTS payment_configurations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   company_id uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-  provider text NOT NULL CHECK (provider IN ('wave', 'orange_money', 'mtn_money', 'moov_money', 'cinetpay')),
+  provider text NOT NULL CHECK (provider IN ('wave', 'orange_money', 'mtn_money', 'moov_money', 'cinetpay', 'dexchange')),
   is_enabled boolean DEFAULT false,
   api_key text,
   api_secret text,
