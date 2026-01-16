@@ -52,9 +52,9 @@ Lorsqu'une nouvelle entreprise est créée et approuvée :
 
 | Plan | Durée | Prix (FCFA) | Économie |
 |------|-------|-------------|----------|
-| Mensuel | 30 jours | 15,000 | - |
-| Trimestriel | 90 jours | 40,000 | 11% |
-| Annuel | 365 jours | 150,000 | 17% |
+| Mensuel | 30 jours | 25,000 | - |
+| Trimestriel | 90 jours | 63,750 | 15% |
+| Annuel | 365 jours | 240,000 | 20% |
 
 ### Processus de paiement
 
