@@ -1,0 +1,1 @@
+const [ventes, setVentes] = useState([]);
