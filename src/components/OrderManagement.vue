@@ -10,17 +10,47 @@
       </button>
     </div>
 
-    <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-gray-100 rounded-lg w-full max-w-7xl h-[90vh] flex flex-col">
-        <div class="bg-white px-6 py-4 rounded-t-lg border-b border-gray-200">
+    <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+      <div class="bg-gray-100 rounded-lg w-full max-w-7xl h-[100vh] md:h-[90vh] flex flex-col">
+        <div class="bg-white px-4 md:px-6 py-3 md:py-4 rounded-t-lg border-b border-gray-200">
           <div class="flex justify-between items-center">
-            <h3 class="text-xl font-bold text-gray-800">Nouvelle Commande</h3>
+            <h3 class="text-lg md:text-xl font-bold text-gray-800">Nouvelle Commande</h3>
             <button @click="closeForm" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+
+          <div class="md:hidden flex gap-2 mt-3">
+            <button
+              @click="mobileTab = 'form'"
+              :class="[
+                'flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-colors',
+                mobileTab === 'form'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700'
+              ]"
+            >
+              Formulaire ({{ formData.items.length }})
+            </button>
+            <button
+              @click="mobileTab = 'products'"
+              :class="[
+                'flex-1 py-2 px-4 rounded-lg font-medium text-sm transition-colors',
+                mobileTab === 'products'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700'
+              ]"
+            >
+              Produits
+            </button>
           </div>
         </div>
 
         <div class="flex-1 overflow-hidden flex">
-          <div class="w-2/5 bg-white p-6 overflow-y-auto border-r border-gray-200">
+          <div
+            :class="[
+              'w-full md:w-2/5 bg-white p-4 md:p-6 overflow-y-auto md:border-r border-gray-200',
+              mobileTab === 'form' ? 'block' : 'hidden md:block'
+            ]"
+          >
             <form @submit.prevent="handleSubmit" class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
@@ -138,9 +168,14 @@
             </form>
           </div>
 
-          <div class="w-3/5 bg-white p-6 overflow-y-auto">
+          <div
+            :class="[
+              'w-full md:w-3/5 bg-white p-4 md:p-6 overflow-y-auto',
+              mobileTab === 'products' ? 'block' : 'hidden md:block'
+            ]"
+          >
             <div class="mb-4">
-              <h4 class="text-lg font-bold text-gray-800 mb-3">Produits</h4>
+              <h4 class="text-base md:text-lg font-bold text-gray-800 mb-3">Produits</h4>
               <input
                 v-model="productSearchText"
                 type="text"
@@ -149,7 +184,7 @@
               />
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <div
                 v-for="product in filteredProducts"
                 :key="product.id"
@@ -422,6 +457,7 @@ const selectedOrderForPayment = ref<Order | null>(null);
 const showReceipt = ref(false);
 const selectedPaymentId = ref<string | null>(null);
 const counterClient = ref<Client | null>(null);
+const mobileTab = ref<'form' | 'products'>('products');
 
 const formData = ref<OrderFormData>({
   client_id: '',
@@ -475,6 +511,7 @@ const loadCompanySettings = async () => {
 
 const openNewOrderForm = () => {
   showForm.value = true;
+  mobileTab.value = 'products';
   if (counterClient.value) {
     formData.value.client_id = counterClient.value.id!;
   }
@@ -503,6 +540,10 @@ const addProductToOrder = (product: Product) => {
       unit_price: product.price,
       original_price: product.price,
     });
+  }
+
+  if (window.innerWidth < 768) {
+    mobileTab.value = 'form';
   }
 
   error.value = '';
@@ -575,6 +616,7 @@ const handleSubmit = async () => {
 
 const closeForm = () => {
   showForm.value = false;
+  mobileTab.value = 'products';
   formData.value = {
     client_id: counterClient.value?.id || '',
     items: [],
