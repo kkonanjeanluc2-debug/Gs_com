@@ -1,94 +1,129 @@
 import { supabase, type Product, getCurrentUserCompanyId } from './supabase';
+import { offlineCreate, offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
 
 export type { Product };
 
 export class ProductsService {
   async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) {
     const company_id = await getCurrentUserCompanyId();
-    const { data, error } = await supabase
-      .from('products')
-      .insert({ ...product, company_id })
-      .select()
-      .single();
+    const productData = { ...product, company_id };
 
-    if (error) throw error;
-    return data;
+    return await offlineCreate<Product>(
+      'products',
+      productData as any,
+      async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .insert(productData)
+          .select()
+          .single();
+        return { data, error };
+      }
+    );
   }
 
   async updateProduct(id: string, updates: Partial<Product>) {
-    const { data, error } = await supabase
-      .from('products')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
+    const updateData = { ...updates, updated_at: new Date().toISOString() };
 
-    if (error) throw error;
-    return data;
+    await offlineUpdate<Product>(
+      'products',
+      id,
+      updateData,
+      async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .update(updateData)
+          .eq('id', id)
+          .select()
+          .single();
+        return { data, error };
+      }
+    );
+
+    return this.getProduct(id);
   }
 
   async deleteProduct(id: string) {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await offlineDelete(
+      'products',
+      id,
+      async () => {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+        return { error };
+      }
+    );
   }
 
   async getProduct(id: string) {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .eq('company_id', companyId)
-      .maybeSingle();
+    const products = await offlineQuery<Product>(
+      'products',
+      async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .eq('company_id', companyId);
+        return { data, error };
+      }
+    );
 
-    if (error) throw error;
-    return data;
+    return products.length > 0 ? products[0] : null;
   }
 
   async getProductBySku(sku: string) {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('sku', sku)
-      .eq('company_id', companyId)
-      .maybeSingle();
+    const products = await offlineQuery<Product>(
+      'products',
+      async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('sku', sku)
+          .eq('company_id', companyId);
+        return { data, error };
+      }
+    );
 
-    if (error) throw error;
-    return data;
+    return products.length > 0 ? products[0] : null;
   }
 
   async getAllProducts() {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Product>(
+      'products',
+      async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('company_id', companyId)
+          .order('name', { ascending: true });
+        return { data, error };
+      }
+    );
   }
 
   async getLowStockProducts() {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('company_id', companyId)
-      .filter('stock_quantity', 'lte', 'min_stock')
-      .order('stock_quantity', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Product>(
+      'products',
+      async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('company_id', companyId)
+          .filter('stock_quantity', 'lte', 'min_stock')
+          .order('stock_quantity', { ascending: true });
+        return { data, error };
+      }
+    );
   }
 
   async addStockMovement(

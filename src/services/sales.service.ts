@@ -1,4 +1,5 @@
 import { supabase, getCurrentUserCompanyId } from './supabase';
+import { offlineQuery, offlineUpdate, offlineDelete } from './offline-wrapper.service';
 
 export interface SaleItem {
   id?: string;
@@ -61,33 +62,37 @@ export const salesService = {
   async getSales(filters?: { startDate?: string; endDate?: string; clientId?: string; productId?: string }) {
     const companyId = await getCurrentUserCompanyId();
 
-    let query = supabase
-      .from('sales')
-      .select(`
-        *,
-        client:clients(name, email, phone, address, type),
-        commercial:profiles(full_name, email, phone),
-        sale_items(
-          *,
-          product:products(name, sku)
-        )
-      `)
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false });
+    const data = await offlineQuery<Sale>(
+      'sales',
+      async () => {
+        let query = supabase
+          .from('sales')
+          .select(`
+            *,
+            client:clients(name, email, phone, address, type),
+            commercial:profiles(full_name, email, phone),
+            sale_items(
+              *,
+              product:products(name, sku)
+            )
+          `)
+          .eq('company_id', companyId)
+          .order('created_at', { ascending: false });
 
-    if (filters?.startDate) {
-      query = query.gte('created_at', filters.startDate);
-    }
-    if (filters?.endDate) {
-      query = query.lte('created_at', filters.endDate);
-    }
-    if (filters?.clientId) {
-      query = query.eq('client_id', filters.clientId);
-    }
+        if (filters?.startDate) {
+          query = query.gte('created_at', filters.startDate);
+        }
+        if (filters?.endDate) {
+          query = query.lte('created_at', filters.endDate);
+        }
+        if (filters?.clientId) {
+          query = query.eq('client_id', filters.clientId);
+        }
 
-    const { data, error } = await query;
-
-    if (error) throw error;
+        const { data, error } = await query;
+        return { data, error };
+      }
+    );
 
     if (filters?.productId && data) {
       return data.filter(sale =>
@@ -95,29 +100,34 @@ export const salesService = {
       );
     }
 
-    return data as Sale[];
+    return data;
   },
 
   async getSaleById(id: string) {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('sales')
-      .select(`
-        *,
-        client:clients(name, email, phone, address, type),
-        commercial:profiles(full_name, email, phone),
-        sale_items(
-          *,
-          product:products(name, sku)
-        )
-      `)
-      .eq('id', id)
-      .eq('company_id', companyId)
-      .maybeSingle();
+    const sales = await offlineQuery<Sale>(
+      'sales',
+      async () => {
+        const { data, error } = await supabase
+          .from('sales')
+          .select(`
+            *,
+            client:clients(name, email, phone, address, type),
+            commercial:profiles(full_name, email, phone),
+            sale_items(
+              *,
+              product:products(name, sku)
+            )
+          `)
+          .eq('id', id)
+          .eq('company_id', companyId);
 
-    if (error) throw error;
-    return data as Sale | null;
+        return { data, error };
+      }
+    );
+
+    return sales.length > 0 ? sales[0] : null;
   },
 
   async createSale(saleData: CreateSaleData) {
@@ -218,21 +228,32 @@ export const salesService = {
       updates.payment_date = payment_date;
     }
 
-    const { error } = await supabase
-      .from('sales')
-      .update(updates)
-      .eq('id', saleId);
-
-    if (error) throw error;
+    await offlineUpdate<any>(
+      'sales',
+      saleId,
+      updates,
+      async () => {
+        const { error } = await supabase
+          .from('sales')
+          .update(updates)
+          .eq('id', saleId);
+        return { data: null, error };
+      }
+    );
   },
 
   async deleteSale(saleId: string) {
-    const { error } = await supabase
-      .from('sales')
-      .delete()
-      .eq('id', saleId);
-
-    if (error) throw error;
+    await offlineDelete(
+      'sales',
+      saleId,
+      async () => {
+        const { error } = await supabase
+          .from('sales')
+          .delete()
+          .eq('id', saleId);
+        return { error };
+      }
+    );
   },
 
   async getSalesStats(startDate?: string, endDate?: string) {
