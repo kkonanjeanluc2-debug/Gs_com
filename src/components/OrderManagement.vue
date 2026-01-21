@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <h2 class="text-2xl font-bold text-gray-900">Gestion des Commandes</h2>
       <button
-        @click="showForm = true"
+        @click="openNewOrderForm"
         class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
       >
         Nouvelle Commande
@@ -11,154 +11,192 @@
     </div>
 
     <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <h3 class="text-xl font-bold mb-4">Nouvelle Commande</h3>
+      <div class="bg-gray-100 rounded-lg w-full max-w-7xl h-[90vh] flex flex-col">
+        <div class="bg-white px-6 py-4 rounded-t-lg border-b border-gray-200">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-800">Nouvelle Commande</h3>
+            <button @click="closeForm" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+        </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Client *</label>
-            <select
-              v-model="formData.client_id"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Sélectionner un client</option>
-              <option v-for="client in clients" :key="client.id" :value="client.id">
-                {{ client.name }}
-              </option>
-            </select>
+        <div class="flex-1 overflow-hidden flex">
+          <div class="w-2/5 bg-white p-6 overflow-y-auto border-r border-gray-200">
+            <form @submit.prevent="handleSubmit" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                <select
+                  v-model="formData.client_id"
+                  required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Sélectionner un client</option>
+                  <option v-for="client in clients" :key="client.id" :value="client.id">
+                    {{ client.name }} {{ client.phone ? '/ ' + client.phone : '' }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Dépôt de stockage</label>
+                <select
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option>DEPOT PRINCIPAL</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+                <textarea
+                  v-model="formData.notes"
+                  rows="2"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Commentaire..."
+                ></textarea>
+              </div>
+
+              <div class="border-t pt-4">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b">
+                      <th class="text-left py-2 px-1">Nom d'article</th>
+                      <th class="text-center py-2 px-1 w-16">Qté</th>
+                      <th class="text-right py-2 px-1 w-20">PU TTC</th>
+                      <th class="text-right py-2 px-1 w-20">Total</th>
+                      <th class="w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(item, index) in formData.items" :key="index" class="border-b">
+                      <td class="py-2 px-1">
+                        <div v-if="item.product_id" class="text-xs font-medium truncate">
+                          {{ products.find(p => p.id === item.product_id)?.name }}
+                        </div>
+                        <div v-else class="text-xs text-gray-400">-</div>
+                      </td>
+                      <td class="py-2 px-1 text-center">
+                        <input
+                          v-model.number="item.quantity"
+                          type="number"
+                          min="1"
+                          class="w-full px-1 py-1 text-center border border-gray-300 rounded text-xs"
+                        />
+                      </td>
+                      <td class="py-2 px-1 text-right">
+                        <input
+                          v-model.number="item.unit_price"
+                          type="number"
+                          step="0.01"
+                          :min="item.original_price || 0"
+                          class="w-full px-1 py-1 text-right border border-gray-300 rounded text-xs"
+                        />
+                      </td>
+                      <td class="py-2 px-1 text-right">
+                        <span class="text-xs font-semibold">{{ calculateItemSubtotal(item).toLocaleString('fr-FR') }}</span>
+                      </td>
+                      <td class="py-2 px-1 text-center">
+                        <button
+                          v-if="formData.items.length > 1"
+                          type="button"
+                          @click="removeProduct(index)"
+                          class="text-red-600 hover:text-red-800 text-xs"
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="space-y-2 border-t pt-4">
+                <div class="bg-blue-600 text-white px-4 py-3 rounded flex justify-between items-center">
+                  <span class="font-semibold">MONTANT TOTAL</span>
+                  <span class="text-xl font-bold">{{ calculateTotal().toLocaleString('fr-FR') }}</span>
+                </div>
+              </div>
+
+              <div v-if="error" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm">
+                {{ error }}
+              </div>
+
+              <div class="flex gap-2 justify-end pt-4">
+                <button
+                  type="button"
+                  @click="closeForm"
+                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Créer la commande
+                </button>
+              </div>
+            </form>
           </div>
 
-          <div class="border-t pt-4">
-            <div class="flex justify-between items-center mb-4">
-              <h4 class="font-semibold text-base">Produits</h4>
-              <button
-                type="button"
-                @click="addProduct"
-                class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-              >
-                + Ajouter
-              </button>
+          <div class="w-3/5 bg-white p-6 overflow-y-auto">
+            <div class="mb-4">
+              <h4 class="text-lg font-bold text-gray-800 mb-3">Produits</h4>
+              <input
+                v-model="productSearchText"
+                type="text"
+                placeholder="Code barre ou désignation"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
             </div>
 
-            <div v-for="(item, index) in formData.items" :key="index" class="mb-6 p-3 border border-gray-200 rounded-lg bg-gray-50">
-              <div class="space-y-3">
-                <div class="relative">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Produit</label>
-                  <input
-                    v-model="productSearch[index]"
-                    type="text"
-                    placeholder="Rechercher un produit..."
-                    class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    @focus="item.showDropdown = true"
-                    @blur="hideDropdown(index)"
+            <div class="grid grid-cols-3 gap-4">
+              <div
+                v-for="product in filteredProducts"
+                :key="product.id"
+                @click="addProductToOrder(product)"
+                class="border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:shadow-md transition-all"
+                :class="{
+                  'opacity-50 cursor-not-allowed': product.stock_quantity <= 0
+                }"
+              >
+                <div class="aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                  <img
+                    v-if="product.image_url"
+                    :src="product.image_url"
+                    :alt="product.name"
+                    class="w-full h-full object-cover"
                   />
+                  <span v-else class="text-4xl text-gray-400">📦</span>
+                </div>
+                <div class="text-center">
+                  <p class="text-red-600 font-bold text-lg mb-1">
+                    {{ product.price.toLocaleString('fr-FR') }}.0
+                  </p>
+                  <p class="text-xs text-gray-700 font-medium mb-2 truncate" :title="product.name">
+                    {{ product.name }}
+                  </p>
                   <div
-                    v-if="item.showDropdown && getFilteredProducts(index).length > 0"
-                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                    v-if="product.stock_quantity > 0"
+                    class="text-xs px-2 py-1 rounded"
+                    :class="{
+                      'bg-green-100 text-green-800': product.stock_quantity >= 10,
+                      'bg-yellow-100 text-yellow-800': product.stock_quantity < 10 && product.stock_quantity > 0
+                    }"
                   >
-                    <button
-                      v-for="product in getFilteredProducts(index)"
-                      :key="product.id"
-                      type="button"
-                      @click="product.stock_quantity > 0 && selectProduct(index, product)"
-                      :disabled="product.stock_quantity <= 0"
-                      :class="[
-                        'w-full text-left px-3 py-2 border-b border-gray-100 last:border-b-0',
-                        product.stock_quantity <= 0
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
-                          : 'hover:bg-blue-50'
-                      ]"
-                    >
-                      <div class="font-medium">
-                        {{ product.name }}
-                        <span v-if="product.stock_quantity <= 0" class="ml-2 text-xs text-red-600 font-bold">(RUPTURE DE STOCK)</span>
-                      </div>
-                      <div class="text-sm" :class="product.stock_quantity <= 0 ? 'text-red-500' : 'text-gray-600'">
-                        {{ product.price }} F CFA - Stock: {{ product.stock_quantity }}
-                      </div>
-                    </button>
+                    Disponible {{ product.stock_quantity.toFixed(2) }}
                   </div>
-                  <div v-if="item.product_id" class="mt-2 px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded border border-blue-200">
-                    ✓ {{ products.find(p => p.id === item.product_id)?.name }}
-                    <span class="ml-2 text-gray-600">
-                      (Stock disponible: {{ products.find(p => p.id === item.product_id)?.stock_quantity }})
-                    </span>
+                  <div v-else class="text-xs px-2 py-1 rounded bg-red-100 text-red-800">
+                    Rupture de stock
                   </div>
                 </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
-                    <input
-                      v-model.number="item.quantity"
-                      type="number"
-                      min="1"
-                      :max="item.product_id ? products.find(p => p.id === item.product_id)?.stock_quantity : undefined"
-                      required
-                      placeholder="Qté"
-                      class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <p v-if="item.product_id && item.quantity > (products.find(p => p.id === item.product_id)?.stock_quantity || 0)"
-                       class="text-xs text-red-600 mt-1">
-                      Quantité supérieure au stock disponible
-                    </p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Prix unitaire</label>
-                    <input
-                      v-model.number="item.unit_price"
-                      type="number"
-                      step="0.01"
-                      :min="item.original_price || 0"
-                      required
-                      placeholder="Prix"
-                      class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      :title="item.original_price ? `Prix minimum: ${item.original_price} F CFA` : 'Prix'"
-                    />
-                    <div v-if="item.original_price" class="mt-1 text-xs text-gray-500">
-                      Min: {{ item.original_price }} F CFA
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  v-if="formData.items.length > 1"
-                  type="button"
-                  @click="removeProduct(index)"
-                  class="w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg border border-red-200 font-medium"
-                >
-                  Retirer ce produit
-                </button>
               </div>
             </div>
 
-            <div class="mt-4 text-right">
-              <span class="text-lg font-semibold">Total: {{ calculateTotal() }} F CFA</span>
+            <div v-if="filteredProducts.length === 0" class="text-center py-12 text-gray-500">
+              Aucun produit trouvé
             </div>
           </div>
-
-          <div v-if="error" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg">
-            {{ error }}
-          </div>
-
-          <div class="flex gap-2 justify-end">
-            <button
-              type="button"
-              @click="closeForm"
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Créer la commande
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
 
@@ -349,7 +387,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ordersService, type Order, type CreateOrderData } from '../services/orders.service';
 import { clientsService, type Client } from '../services/clients.service';
 import { productsService, type Product } from '../services/products.service';
@@ -363,7 +401,6 @@ interface OrderItemForm {
   quantity: number;
   unit_price: number;
   original_price: number;
-  showDropdown?: boolean;
 }
 
 interface OrderFormData {
@@ -379,27 +416,28 @@ const companySettings = ref<CompanySettings | null>(null);
 const showForm = ref(false);
 const error = ref('');
 const selectedOrder = ref<Order | null>(null);
-const productSearch = ref<string[]>([]);
+const productSearchText = ref('');
 const showPaymentModal = ref(false);
 const selectedOrderForPayment = ref<Order | null>(null);
 const showReceipt = ref(false);
 const selectedPaymentId = ref<string | null>(null);
+const counterClient = ref<Client | null>(null);
 
 const formData = ref<OrderFormData>({
   client_id: '',
-  items: [{ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false }],
+  items: [],
   notes: '',
 });
 
-const getFilteredProducts = (index: number) => {
-  const search = productSearch.value[index]?.toLowerCase() || '';
+const filteredProducts = computed(() => {
+  const search = productSearchText.value.toLowerCase();
   if (!search) return products.value;
 
   return products.value.filter(p =>
     p.name.toLowerCase().includes(search) ||
     p.sku?.toLowerCase().includes(search)
   );
-};
+});
 
 const loadOrders = async () => {
   try {
@@ -411,7 +449,9 @@ const loadOrders = async () => {
 
 const loadClients = async () => {
   try {
-    clients.value = await clientsService.getAllClients();
+    const allClients = await clientsService.getAllClients();
+    clients.value = allClients;
+    counterClient.value = allClients.find(c => c.name === 'Client comptoir') || null;
   } catch (err) {
     console.error('Error loading clients:', err);
   }
@@ -433,35 +473,51 @@ const loadCompanySettings = async () => {
   }
 };
 
-const addProduct = () => {
-  formData.value.items.unshift({ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false });
-  productSearch.value.unshift('');
+const openNewOrderForm = () => {
+  showForm.value = true;
+  if (counterClient.value) {
+    formData.value.client_id = counterClient.value.id!;
+  }
+};
+
+const addProductToOrder = (product: Product) => {
+  if (product.stock_quantity <= 0) {
+    error.value = `${product.name} est en rupture de stock`;
+    return;
+  }
+
+  const existingItemIndex = formData.value.items.findIndex(item => item.product_id === product.id);
+
+  if (existingItemIndex >= 0) {
+    const item = formData.value.items[existingItemIndex];
+    if (item.quantity < product.stock_quantity) {
+      item.quantity++;
+    } else {
+      error.value = `Stock insuffisant pour ${product.name}`;
+      setTimeout(() => error.value = '', 3000);
+    }
+  } else {
+    formData.value.items.push({
+      product_id: product.id!,
+      quantity: 1,
+      unit_price: product.price,
+      original_price: product.price,
+    });
+  }
+
+  error.value = '';
 };
 
 const removeProduct = (index: number) => {
   formData.value.items.splice(index, 1);
-  productSearch.value.splice(index, 1);
 };
 
-const selectProduct = (index: number, product: Product) => {
-  const item = formData.value.items[index];
-  item.product_id = product.id!;
-  item.unit_price = product.price;
-  item.original_price = product.price;
-  item.showDropdown = false;
-  productSearch.value[index] = product.name;
-};
-
-const hideDropdown = (index: number) => {
-  setTimeout(() => {
-    formData.value.items[index].showDropdown = false;
-  }, 200);
+const calculateItemSubtotal = (item: OrderItemForm) => {
+  return item.quantity * item.unit_price;
 };
 
 const calculateTotal = () => {
-  return formData.value.items
-    .reduce((sum, item) => sum + (item.quantity * item.unit_price), 0)
-    .toFixed(2);
+  return formData.value.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
 };
 
 const handleSubmit = async () => {
@@ -520,11 +576,11 @@ const handleSubmit = async () => {
 const closeForm = () => {
   showForm.value = false;
   formData.value = {
-    client_id: '',
-    items: [{ product_id: '', quantity: 1, unit_price: 0, original_price: 0, showDropdown: false }],
+    client_id: counterClient.value?.id || '',
+    items: [],
     notes: '',
   };
-  productSearch.value = [''];
+  productSearchText.value = '';
   error.value = '';
 };
 
@@ -801,6 +857,5 @@ onMounted(() => {
   loadClients();
   loadProducts();
   loadCompanySettings();
-  productSearch.value = [''];
 });
 </script>
