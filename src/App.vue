@@ -6,9 +6,11 @@ import CompanyRegistration from './components/CompanyRegistration.vue';
 import ForgotPassword from './components/ForgotPassword.vue';
 import ResetPassword from './components/ResetPassword.vue';
 import Dashboard from './components/Dashboard.vue';
+import OfflineIndicator from './components/OfflineIndicator.vue';
 import { authService } from './services/auth';
 import { updateFavicon } from './utils/favicon';
 import { subscriptionService } from './services/subscription.service';
+import { localStorageService } from './services/local-storage.service';
 import type { Profile } from './services/supabase';
 
 const loading = ref(true);
@@ -77,6 +79,8 @@ const checkSubscriptionStatus = async () => {
 };
 
 onMounted(async () => {
+  await localStorageService.init();
+
   updateFavicon();
   updateRoute();
 
@@ -224,4 +228,6 @@ const navigateToRegister = () => {
     @navigate-to-login="navigateToLogin"
     @navigate-to-register="navigateToRegister"
   />
+
+  <OfflineIndicator v-if="isAuthenticated" />
 </template>
