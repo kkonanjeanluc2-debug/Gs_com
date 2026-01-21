@@ -5,6 +5,7 @@ import type { Profile } from '../services/supabase';
 import { communesCoteIvoire } from '../data/communes-cote-ivoire';
 
 const users = ref<Profile[]>([]);
+const supervisors = ref<Array<{id: string; full_name: string; role: string}>>([]);
 const loading = ref(false);
 const showForm = ref(false);
 const editingUser = ref<Profile | null>(null);
@@ -17,6 +18,7 @@ const formData = ref({
   role: 'commercial' as 'admin' | 'superviseur' | 'commercial' | 'super_admin',
   phone: '',
   zone_affectation: '',
+  supervisor_id: '',
 });
 
 const error = ref('');
@@ -32,6 +34,7 @@ onMounted(async () => {
     currentUser.value = data;
   }
   await loadUsers();
+  await loadSupervisors();
 });
 
 const loadUsers = async () => {
@@ -52,6 +55,21 @@ const loadUsers = async () => {
   }
 };
 
+const loadSupervisors = async () => {
+  try {
+    const { data, error: fetchError } = await supabase
+      .from('profiles')
+      .select('id, full_name, role')
+      .in('role', ['superviseur', 'supervisor'])
+      .order('full_name', { ascending: true });
+
+    if (fetchError) throw fetchError;
+    supervisors.value = data || [];
+  } catch (err) {
+    console.error('Error loading supervisors:', err);
+  }
+};
+
 const openForm = (user?: Profile) => {
   if (user) {
     editingUser.value = user;
@@ -62,6 +80,7 @@ const openForm = (user?: Profile) => {
       role: user.role,
       phone: user.phone || '',
       zone_affectation: user.zone_affectation || '',
+      supervisor_id: (user as any).supervisor_id || '',
     };
   } else {
     editingUser.value = null;
@@ -72,6 +91,7 @@ const openForm = (user?: Profile) => {
       role: 'commercial',
       phone: '',
       zone_affectation: '',
+      supervisor_id: '',
     };
   }
   error.value = '';
@@ -129,6 +149,7 @@ const handleSubmit = async () => {
         role: formData.value.role,
         phone: formData.value.phone || null,
         zone_affectation: formData.value.zone_affectation || null,
+        supervisor_id: formData.value.supervisor_id || null,
       };
 
       if (formData.value.password) {
@@ -170,6 +191,7 @@ const handleSubmit = async () => {
           role: formData.value.role,
           phone: formData.value.phone || null,
           zone_affectation: formData.value.zone_affectation || null,
+          supervisor_id: formData.value.supervisor_id || null,
         }),
       });
 
@@ -362,17 +384,32 @@ const getRoleColor = (role: string) => {
           </p>
         </div>
 
-        <div v-if="formData.role === 'commercial'">
-          <label class="label">Zone d'affectation *</label>
-          <select v-model="formData.zone_affectation" class="input-field" required>
-            <option value="">-- Sélectionner une commune --</option>
-            <option v-for="commune in communesCoteIvoire" :key="commune" :value="commune">
-              {{ commune }}
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1">
-            Commune de Côte d'Ivoire où le commercial est affecté
-          </p>
+        <div v-if="formData.role === 'commercial'" class="space-y-4">
+          <div>
+            <label class="label">Zone d'affectation *</label>
+            <select v-model="formData.zone_affectation" class="input-field" required>
+              <option value="">-- Sélectionner une commune --</option>
+              <option v-for="commune in communesCoteIvoire" :key="commune" :value="commune">
+                {{ commune }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">
+              Commune de Côte d'Ivoire où le commercial est affecté
+            </p>
+          </div>
+
+          <div v-if="currentUser?.role === 'admin'">
+            <label class="label">Superviseur responsable</label>
+            <select v-model="formData.supervisor_id" class="input-field">
+              <option value="">-- Aucun superviseur --</option>
+              <option v-for="supervisor in supervisors" :key="supervisor.id" :value="supervisor.id">
+                {{ supervisor.full_name }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">
+              Superviseur qui pourra suivre ce commercial
+            </p>
+          </div>
         </div>
 
         <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">

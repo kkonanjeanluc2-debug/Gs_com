@@ -45,7 +45,7 @@ Deno.serve(async (req: Request) => {
       throw new Error('Only admins and superviseurs can create users');
     }
 
-    const { email, password, full_name, role, phone, photo_url, zone_affectation } = await req.json();
+    const { email, password, full_name, role, phone, photo_url, zone_affectation, supervisor_id } = await req.json();
 
     if (!email || !password || !full_name || !role) {
       throw new Error('Missing required fields');
@@ -76,11 +76,14 @@ Deno.serve(async (req: Request) => {
       throw createError;
     }
 
-    if ((phone || photo_url || zone_affectation) && newUser.user) {
-      const updates: any = {};
+    if ((phone || photo_url || zone_affectation || supervisor_id) && newUser.user) {
+      const updates: any = {
+        created_by: currentUser.id,
+      };
       if (phone) updates.phone = phone;
       if (photo_url) updates.photo_url = photo_url;
       if (zone_affectation) updates.zone_affectation = zone_affectation;
+      if (supervisor_id) updates.supervisor_id = supervisor_id;
 
       await supabaseAdmin
         .from('profiles')

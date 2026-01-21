@@ -45,7 +45,7 @@ Deno.serve(async (req: Request) => {
       throw new Error('Only admins and superviseurs can update users');
     }
 
-    const { userId, email, password, full_name, role, phone, photo_url, zone_affectation } = await req.json();
+    const { userId, email, password, full_name, role, phone, photo_url, zone_affectation, supervisor_id } = await req.json();
 
     if (!userId) {
       throw new Error('Missing userId');
@@ -85,6 +85,7 @@ Deno.serve(async (req: Request) => {
     if (phone !== undefined) profileUpdates.phone = phone;
     if (photo_url !== undefined) profileUpdates.photo_url = photo_url;
     if (zone_affectation !== undefined) profileUpdates.zone_affectation = zone_affectation;
+    if (supervisor_id !== undefined) profileUpdates.supervisor_id = supervisor_id;
 
     if (Object.keys(profileUpdates).length > 0) {
       profileUpdates.updated_at = new Date().toISOString();
