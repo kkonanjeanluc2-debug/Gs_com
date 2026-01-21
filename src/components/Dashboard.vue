@@ -13,6 +13,9 @@ import CommercialTracking from './CommercialTracking.vue';
 import UserManagement from './UserManagement.vue';
 import CategoryManagement from './CategoryManagement.vue';
 import OrderManagement from './OrderManagement.vue';
+import SalesManagement from './SalesManagement.vue';
+import InvoiceManagement from './InvoiceManagement.vue';
+import StockMovements from './StockMovements.vue';
 import SupplierManagement from './SupplierManagement.vue';
 import PurchaseManagement from './PurchaseManagement.vue';
 import CompanySettings from './CompanySettings.vue';
@@ -38,7 +41,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'suppliers' | 'purchases' | 'tracking' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'sales' | 'invoices' | 'stock-movements' | 'suppliers' | 'purchases' | 'tracking' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -79,7 +82,10 @@ const tabs = computed(() => {
     { id: 'clients', label: 'CRM', icon: 'users', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'tracking', label: 'Suivi GPS', icon: 'location', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'orders', label: 'Commandes clients', icon: 'cart', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
+    { id: 'sales', label: 'Ventes', icon: 'receipt', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'invoices', label: 'Factures', icon: 'document-text', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'stock', label: 'Stock', icon: 'box', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'stock-movements', label: 'Mouvements de Stock', icon: 'refresh', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
     { id: 'categories', label: 'Catégories', icon: 'folder', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
     { id: 'suppliers', label: 'Fournisseurs', icon: 'truck', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
     { id: 'purchases', label: 'Commandes fournisseurs', icon: 'shopping-bags', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
@@ -685,8 +691,11 @@ loadReports();
       </div>
 
       <OrderManagement v-if="activeTab === 'orders'" />
+      <SalesManagement v-if="activeTab === 'sales'" />
+      <InvoiceManagement v-if="activeTab === 'invoices'" />
       <CommercialTracking v-if="activeTab === 'tracking'" :profile="profile" :company-id="currentCompany?.id || ''" />
       <ProductManagement v-if="activeTab === 'stock'" />
+      <StockMovements v-if="activeTab === 'stock-movements'" />
       <CategoryManagement v-if="activeTab === 'categories'" />
       <SupplierManagement v-if="activeTab === 'suppliers'" />
       <PurchaseManagement v-if="activeTab === 'purchases'" />
