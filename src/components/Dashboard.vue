@@ -10,6 +10,7 @@ import ProductManagement from './ProductManagement.vue';
 import ClientManagement from './ClientManagement.vue';
 import CommercialManagement from './CommercialManagement.vue';
 import CommercialTracking from './CommercialTracking.vue';
+import CommercialVisitHistory from './CommercialVisitHistory.vue';
 import UserManagement from './UserManagement.vue';
 import CategoryManagement from './CategoryManagement.vue';
 import OrderManagement from './OrderManagement.vue';
@@ -41,7 +42,7 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'sales' | 'invoices' | 'stock-movements' | 'suppliers' | 'purchases' | 'tracking' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
+const activeTab = ref<'dashboard' | 'reports' | 'clients' | 'stock' | 'categories' | 'users' | 'orders' | 'sales' | 'invoices' | 'stock-movements' | 'suppliers' | 'purchases' | 'tracking' | 'visit-history' | 'company' | 'companies' | 'subscriptions' | 'subscription-plans' | 'settings'>('dashboard');
 const crmSubTab = ref<'clients' | 'commercials'>('clients');
 const reports = ref<ReportDB[]>([]);
 const isFormOpen = ref(false);
@@ -81,6 +82,7 @@ const tabs = computed(() => {
     { id: 'reports', label: 'Rapports', icon: 'document', visible: !isSuperAdmin.value, badge: 0 },
     { id: 'clients', label: 'CRM', icon: 'users', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'tracking', label: 'Suivi GPS', icon: 'location', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
+    { id: 'visit-history', label: 'Historique Visites', icon: 'chart', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'orders', label: 'Commandes clients', icon: 'cart', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
     { id: 'sales', label: 'Ventes', icon: 'receipt', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
     { id: 'invoices', label: 'Factures', icon: 'document-text', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
@@ -694,6 +696,7 @@ loadReports();
       <SalesManagement v-if="activeTab === 'sales'" />
       <InvoiceManagement v-if="activeTab === 'invoices'" />
       <CommercialTracking v-if="activeTab === 'tracking'" :profile="profile" :company-id="currentCompany?.id || ''" />
+      <CommercialVisitHistory v-if="activeTab === 'visit-history'" />
       <ProductManagement v-if="activeTab === 'stock'" />
       <StockMovements v-if="activeTab === 'stock-movements'" />
       <CategoryManagement v-if="activeTab === 'categories'" />
