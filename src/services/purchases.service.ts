@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { offlineQuery } from './offline-wrapper.service';
 import type { Supplier } from './suppliers.service';
 
 export interface PurchaseItem {
@@ -77,17 +78,20 @@ class PurchasesService {
       throw new Error('Company not found');
     }
 
-    const { data, error } = await supabase
-      .from('purchases')
-      .select(`
-        *,
-        supplier:suppliers(*)
-      `)
-      .eq('company_id', profile.company_id)
-      .order('purchase_date', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Purchase>(
+      'purchases',
+      async () => {
+        const { data, error } = await supabase
+          .from('purchases')
+          .select(`
+            *,
+            supplier:suppliers(*)
+          `)
+          .eq('company_id', profile.company_id)
+          .order('purchase_date', { ascending: false });
+        return { data, error };
+      }
+    );
   }
 
   async getPurchase(id: string): Promise<Purchase> {

@@ -1,5 +1,7 @@
 import { supabase, getCurrentUserCompanyId } from './supabase';
-import { offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
+import { offlineUpdate, offlineDelete, offlineQuery, isOfflineMode } from './offline-wrapper.service';
+import { localStorageService } from './local-storage.service';
+import { syncService } from './sync.service';
 
 export interface OrderItem {
   id?: string;
@@ -19,6 +21,7 @@ export interface Order {
   order_number?: string;
   client_id: string;
   commercial_id: string;
+  company_id?: string;
   total_amount: number;
   total_paid?: number;
   payment_status?: 'non_paye' | 'partiellement_paye' | 'totalement_paye';
@@ -128,15 +131,24 @@ export const ordersService = {
     if (!user) throw new Error('Not authenticated');
 
     const company_id = await getCurrentUserCompanyId();
+    const offline = isOfflineMode();
 
-    const productIds = orderData.items.map(item => item.product_id);
-    const { data: products, error: productsError } = await supabase
-      .from('products')
-      .select('id, name, sku, stock_quantity')
-      .in('id', productIds)
-      .eq('company_id', company_id);
+    let products: any[] = [];
+    if (offline) {
+      const allProducts = await localStorageService.getAll<any>('products');
+      const productIds = orderData.items.map(item => item.product_id);
+      products = allProducts.filter(p => productIds.includes(p.id) && p.company_id === company_id);
+    } else {
+      const productIds = orderData.items.map(item => item.product_id);
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('id, name, sku, stock_quantity')
+        .in('id', productIds)
+        .eq('company_id', company_id);
 
-    if (productsError) throw productsError;
+      if (productsError) throw productsError;
+      products = productsData || [];
+    }
 
     const stockErrors: string[] = [];
     for (const item of orderData.items) {
@@ -162,37 +174,65 @@ export const ordersService = {
       0
     );
 
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
+    if (offline) {
+      const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const tempOrder: Order = {
+        id: tempId,
         client_id: orderData.client_id,
         commercial_id: user.id,
         total_amount,
         status: 'pending',
         notes: orderData.notes,
         company_id,
-      })
-      .select()
-      .single();
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    if (orderError) throw orderError;
+      await localStorageService.save('orders', tempOrder);
+      await syncService.queueOperation('create', 'orders', {
+        client_id: orderData.client_id,
+        commercial_id: user.id,
+        total_amount,
+        status: 'pending',
+        notes: orderData.notes,
+        company_id,
+      });
 
-    const orderItems = orderData.items.map(item => ({
-      order_id: order.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-      subtotal: item.quantity * item.unit_price,
-      company_id,
-    }));
+      return tempOrder;
+    } else {
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          client_id: orderData.client_id,
+          commercial_id: user.id,
+          total_amount,
+          status: 'pending',
+          notes: orderData.notes,
+          company_id,
+        })
+        .select()
+        .single();
 
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItems);
+      if (orderError) throw orderError;
 
-    if (itemsError) throw itemsError;
+      const orderItems = orderData.items.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: item.quantity * item.unit_price,
+        company_id,
+      }));
 
-    return await this.getOrderById(order.id);
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      await localStorageService.save('orders', order);
+      return await this.getOrderById(order.id);
+    }
   },
 
   async updateOrderStatus(orderId: string, status: Order['status']) {

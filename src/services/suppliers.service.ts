@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { offlineCreate, offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
 
 export interface Supplier {
   id: string;
@@ -46,26 +47,33 @@ class SuppliersService {
       throw new Error('Company not found');
     }
 
-    const { data, error } = await supabase
-      .from('suppliers')
-      .select('*')
-      .eq('company_id', profile.company_id)
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Supplier>(
+      'suppliers',
+      async () => {
+        const { data, error } = await supabase
+          .from('suppliers')
+          .select('*')
+          .eq('company_id', profile.company_id)
+          .order('name', { ascending: true });
+        return { data, error };
+      }
+    );
   }
 
   async getSupplier(id: string): Promise<Supplier> {
-    const { data, error } = await supabase
-      .from('suppliers')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
+    const suppliers = await offlineQuery<Supplier>(
+      'suppliers',
+      async () => {
+        const { data, error } = await supabase
+          .from('suppliers')
+          .select('*')
+          .eq('id', id);
+        return { data, error };
+      }
+    );
 
-    if (error) throw error;
-    if (!data) throw new Error('Supplier not found');
-    return data;
+    if (suppliers.length === 0) throw new Error('Supplier not found');
+    return suppliers[0];
   }
 
   async createSupplier(supplierData: CreateSupplierData): Promise<Supplier> {
@@ -79,38 +87,56 @@ class SuppliersService {
       throw new Error('Company not found');
     }
 
-    const { data, error } = await supabase
-      .from('suppliers')
-      .insert({
-        ...supplierData,
-        company_id: profile.company_id,
-      })
-      .select()
-      .single();
+    const dataToInsert = {
+      ...supplierData,
+      company_id: profile.company_id,
+    };
 
-    if (error) throw error;
-    return data;
+    return await offlineCreate<Supplier>(
+      'suppliers',
+      dataToInsert as any,
+      async () => {
+        const { data, error } = await supabase
+          .from('suppliers')
+          .insert(dataToInsert)
+          .select()
+          .single();
+        return { data, error };
+      }
+    );
   }
 
   async updateSupplier(id: string, supplierData: UpdateSupplierData): Promise<Supplier> {
-    const { data, error } = await supabase
-      .from('suppliers')
-      .update(supplierData)
-      .eq('id', id)
-      .select()
-      .single();
+    await offlineUpdate<Supplier>(
+      'suppliers',
+      id,
+      supplierData,
+      async () => {
+        const { data, error } = await supabase
+          .from('suppliers')
+          .update(supplierData)
+          .eq('id', id)
+          .select()
+          .single();
+        return { data, error };
+      }
+    );
 
-    if (error) throw error;
-    return data;
+    return this.getSupplier(id);
   }
 
   async deleteSupplier(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('suppliers')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await offlineDelete(
+      'suppliers',
+      id,
+      async () => {
+        const { error } = await supabase
+          .from('suppliers')
+          .delete()
+          .eq('id', id);
+        return { error };
+      }
+    );
   }
 }
 
