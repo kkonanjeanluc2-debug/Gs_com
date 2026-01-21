@@ -1,94 +1,128 @@
 import { supabase, type Client, getCurrentUserCompanyId } from './supabase';
+import { offlineCreate, offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
 
 export type { Client };
 
 export class ClientsService {
   async createClient(client: Omit<Client, 'id' | 'created_at' | 'updated_at'>) {
     const company_id = await getCurrentUserCompanyId();
-    const { data, error } = await supabase
-      .from('clients')
-      .insert({ ...client, company_id })
-      .select()
-      .single();
+    const clientData = { ...client, company_id };
 
-    if (error) throw error;
-    return data;
+    return await offlineCreate<Client>(
+      'clients',
+      clientData as any,
+      async () => {
+        const { data, error } = await supabase
+          .from('clients')
+          .insert(clientData)
+          .select()
+          .single();
+        return { data, error };
+      }
+    );
   }
 
   async updateClient(id: string, updates: Partial<Client>) {
-    const { data, error } = await supabase
-      .from('clients')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
+    const updateData = { ...updates, updated_at: new Date().toISOString() };
 
-    if (error) throw error;
-    return data;
+    await offlineUpdate<Client>(
+      'clients',
+      id,
+      updateData,
+      async () => {
+        const { data, error } = await supabase
+          .from('clients')
+          .update(updateData)
+          .eq('id', id)
+          .select()
+          .single();
+        return { data, error };
+      }
+    );
+
+    return this.getClient(id);
   }
 
   async deleteClient(id: string) {
-    const { error } = await supabase
-      .from('clients')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    await offlineDelete(
+      'clients',
+      id,
+      async () => {
+        const { error } = await supabase
+          .from('clients')
+          .delete()
+          .eq('id', id);
+        return { error };
+      }
+    );
   }
 
   async getClient(id: string) {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('id', id)
-      .eq('company_id', companyId)
-      .maybeSingle();
+    const clients = await offlineQuery<Client>(
+      'clients',
+      async () => {
+        const { data, error } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('id', id)
+          .eq('company_id', companyId);
+        return { data, error };
+      }
+    );
 
-    if (error) throw error;
-    return data;
+    return clients.length > 0 ? clients[0] : null;
   }
 
   async getAllClients() {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Client>(
+      'clients',
+      async () => {
+        const { data, error } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('company_id', companyId)
+          .order('created_at', { ascending: false });
+        return { data, error };
+      }
+    );
   }
 
   async getMyClients(userId: string) {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('assigned_to', userId)
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Client>(
+      'clients',
+      async () => {
+        const { data, error } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('assigned_to', userId)
+          .eq('company_id', companyId)
+          .order('created_at', { ascending: false });
+        return { data, error };
+      }
+    );
   }
 
   async getClientsByType(type: 'prospect' | 'client') {
     const companyId = await getCurrentUserCompanyId();
 
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('type', type)
-      .eq('company_id', companyId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    return await offlineQuery<Client>(
+      'clients',
+      async () => {
+        const { data, error } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('type', type)
+          .eq('company_id', companyId)
+          .order('created_at', { ascending: false });
+        return { data, error };
+      }
+    );
   }
 
   async convertProspectToClient(id: string) {
