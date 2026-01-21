@@ -67,11 +67,13 @@ const menuStructure = computed((): MenuCategory[] => {
   if (tabsMap.has('clients')) ventesItems.push({ ...tabsMap.get('clients')! });
   if (tabsMap.has('tracking')) ventesItems.push({ ...tabsMap.get('tracking')! });
   if (tabsMap.has('orders')) ventesItems.push({ ...tabsMap.get('orders')! });
+  if (tabsMap.has('sales')) ventesItems.push({ ...tabsMap.get('sales')! });
+  if (tabsMap.has('invoices')) ventesItems.push({ ...tabsMap.get('invoices')! });
 
   if (ventesItems.length > 0) {
     structure.push({
       id: 'ventes',
-      label: 'CRM',
+      label: 'CRM & Ventes',
       icon: 'cart',
       items: ventesItems,
     });
@@ -81,6 +83,7 @@ const menuStructure = computed((): MenuCategory[] => {
   const stocksItems = [];
   if (tabsMap.has('stock')) stocksItems.push({ ...tabsMap.get('stock')! });
   if (tabsMap.has('categories')) stocksItems.push({ ...tabsMap.get('categories')! });
+  if (tabsMap.has('stock-movements')) stocksItems.push({ ...tabsMap.get('stock-movements')! });
 
   if (stocksItems.length > 0) {
     structure.push({
