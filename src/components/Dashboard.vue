@@ -22,8 +22,8 @@ import PurchaseManagement from './PurchaseManagement.vue';
 import CompanySettings from './CompanySettings.vue';
 import CompanyManagement from './CompanyManagement.vue';
 import SuperAdminSettings from './SuperAdminSettings.vue';
-import SubscriptionManagement from './SubscriptionManagement.vue';
 import SubscriptionPlans from './SubscriptionPlans.vue';
+import SubscriptionPlansManagement from './SubscriptionPlansManagement.vue';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
@@ -95,7 +95,7 @@ const tabs = computed(() => {
     { id: 'subscription-plans', label: 'Mon Abonnement', icon: 'credit-card', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
     { id: 'company', label: 'Entreprise', icon: 'building', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
     { id: 'companies', label: 'Entreprises', icon: 'buildings', visible: isSuperAdmin.value, badge: 0 },
-    { id: 'subscriptions', label: 'Abonnements', icon: 'credit-card', visible: isSuperAdmin.value, badge: 0 },
+    { id: 'subscriptions', label: 'Plans & Fonctionnalités', icon: 'credit-card', visible: isSuperAdmin.value, badge: 0 },
     { id: 'settings', label: 'Paramètres', icon: 'settings', visible: isSuperAdmin.value, badge: 0 },
   ];
   return allTabs.filter(tab => tab.visible !== false);
@@ -706,7 +706,7 @@ loadReports();
       <SubscriptionPlans v-if="activeTab === 'subscription-plans'" />
       <CompanySettings v-if="activeTab === 'company'" />
       <CompanyManagement v-if="activeTab === 'companies'" />
-      <SubscriptionManagement v-if="activeTab === 'subscriptions'" />
+      <SubscriptionPlansManagement v-if="activeTab === 'subscriptions'" />
       <SuperAdminSettings v-if="activeTab === 'settings'" />
       </main>
 
