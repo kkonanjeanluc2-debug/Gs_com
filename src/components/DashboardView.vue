@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { analyticsService, type CommercialMonthlyRevenue } from '../services/analytics.service';
 import { companyService, type CompanySettings } from '../services/company.service';
+import { superAdminService, type SuperAdminStats } from '../services/super-admin.service';
 import type { Profile } from '../services/supabase';
 import Icon from './Icon.vue';
 import type {
@@ -38,9 +39,14 @@ const salesEvolution = ref<SalesEvolution[]>([]);
 const isLoading = ref(true);
 const commercialRevenue = ref<CommercialMonthlyRevenue | null>(null);
 const companySettings = ref<CompanySettings | null>(null);
+const superAdminStats = ref<SuperAdminStats | null>(null);
 
 const isCommercial = computed(() => {
   return props.profile?.role === 'commercial';
+});
+
+const isSuperAdmin = computed(() => {
+  return props.profile?.role === 'super_admin';
 });
 
 const commercialCommission = computed(() => {
@@ -110,39 +116,43 @@ const formatDate = (dateStr: string) => {
 const loadDashboardData = async () => {
   isLoading.value = true;
   try {
-    const [
-      statsData,
-      commercialsData,
-      productsData,
-      clientsData,
-      ordersData,
-      prospectsData,
-      evolutionData,
-      settings,
-    ] = await Promise.all([
-      analyticsService.getDashboardStats(),
-      analyticsService.getTopCommercials(5),
-      analyticsService.getTopProducts(5),
-      analyticsService.getTopClients(5),
-      analyticsService.getRecentOrders(5),
-      analyticsService.getRecentProspects(5),
-      analyticsService.getSalesEvolution(7),
-      companyService.getSettings(),
-    ]);
+    if (isSuperAdmin.value) {
+      superAdminStats.value = await superAdminService.getSuperAdminStats();
+    } else {
+      const [
+        statsData,
+        commercialsData,
+        productsData,
+        clientsData,
+        ordersData,
+        prospectsData,
+        evolutionData,
+        settings,
+      ] = await Promise.all([
+        analyticsService.getDashboardStats(),
+        analyticsService.getTopCommercials(5),
+        analyticsService.getTopProducts(5),
+        analyticsService.getTopClients(5),
+        analyticsService.getRecentOrders(5),
+        analyticsService.getRecentProspects(5),
+        analyticsService.getSalesEvolution(7),
+        companyService.getSettings(),
+      ]);
 
-    stats.value = statsData;
-    todayRevenue.value = statsData.todayRevenue;
-    topCommercials.value = commercialsData;
-    topProducts.value = productsData;
-    topClients.value = clientsData;
-    recentOrders.value = ordersData;
-    recentProspects.value = prospectsData;
-    salesEvolution.value = evolutionData;
-    companySettings.value = settings;
+      stats.value = statsData;
+      todayRevenue.value = statsData.todayRevenue;
+      topCommercials.value = commercialsData;
+      topProducts.value = productsData;
+      topClients.value = clientsData;
+      recentOrders.value = ordersData;
+      recentProspects.value = prospectsData;
+      salesEvolution.value = evolutionData;
+      companySettings.value = settings;
 
-    if (isCommercial.value && props.profile?.id) {
-      const revenues = await analyticsService.getCommercialsMonthlyRevenue();
-      commercialRevenue.value = revenues.find(r => r.id === props.profile?.id) || null;
+      if (isCommercial.value && props.profile?.id) {
+        const revenues = await analyticsService.getCommercialsMonthlyRevenue();
+        commercialRevenue.value = revenues.find(r => r.id === props.profile?.id) || null;
+      }
     }
   } catch (error) {
     console.error('Error loading dashboard data:', error);
@@ -163,7 +173,53 @@ onMounted(() => {
     </div>
 
     <template v-else>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div v-if="isSuperAdmin" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-blue-100 text-sm font-medium">Total Entreprises</span>
+            <div class="bg-blue-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="buildings" size="w-6 h-6" />
+            </div>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ superAdminStats?.total_companies || 0 }}</div>
+          <div class="text-blue-100 text-xs">{{ superAdminStats?.active_companies || 0 }} actives, {{ superAdminStats?.pending_companies || 0 }} en attente</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-green-100 text-sm font-medium">Total Abonnements</span>
+            <div class="bg-green-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="credit-card" size="w-6 h-6" />
+            </div>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ superAdminStats?.total_subscriptions || 0 }}</div>
+          <div class="text-green-100 text-xs">{{ superAdminStats?.active_subscriptions || 0 }} actifs</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-emerald-100 text-sm font-medium">Revenus Totaux</span>
+            <div class="bg-emerald-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="money-bag" size="w-6 h-6" />
+            </div>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(superAdminStats?.total_revenue || 0) }}</div>
+          <div class="text-emerald-100 text-xs">FCFA total</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-teal-500 to-teal-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-teal-100 text-sm font-medium">Revenus ce Mois</span>
+            <div class="bg-teal-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="money" size="w-6 h-6" />
+            </div>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(superAdminStats?.monthly_revenue || 0) }}</div>
+          <div class="text-teal-100 text-xs">FCFA ce mois</div>
+        </div>
+      </div>
+
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-emerald-100 text-sm font-medium">Recette du jour</span>
