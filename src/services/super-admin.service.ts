@@ -7,11 +7,12 @@ export interface CompanyWithStats {
   phone?: string;
   address?: string;
   logo_url?: string;
-  is_approved: boolean;
-  is_approved_at?: string;
+  approved: boolean;
+  approved_at?: string;
   created_at: string;
   user_count: number;
   subscription_status?: string;
+  subscription_end_date?: string;
 }
 
 export interface SuperAdminStats {
@@ -109,6 +110,7 @@ export class SuperAdminService {
       .update({
         subscription_status: 'active',
         subscription_end_date: subscriptionEndDate.toISOString(),
+        current_plan_id: planId,
         updated_at: new Date().toISOString()
       })
       .eq('id', companyId);
