@@ -1,5 +1,6 @@
 import { supabase, type Client, getCurrentUserCompanyId } from './supabase';
 import { offlineCreate, offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
+import { handleDatabaseError } from './error-handler.service';
 
 export type { Client };
 
@@ -8,39 +9,51 @@ export class ClientsService {
     const company_id = await getCurrentUserCompanyId();
     const clientData = { ...client, company_id };
 
-    return await offlineCreate<Client>(
-      'clients',
-      clientData as any,
-      async () => {
-        const { data, error } = await supabase
-          .from('clients')
-          .insert(clientData)
-          .select()
-          .single();
-        return { data, error };
-      }
-    );
+    try {
+      return await offlineCreate<Client>(
+        'clients',
+        clientData as any,
+        async () => {
+          const { data, error } = await supabase
+            .from('clients')
+            .insert(clientData)
+            .select()
+            .single();
+
+          if (error) throw error;
+          return { data, error };
+        }
+      );
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async updateClient(id: string, updates: Partial<Client>) {
     const updateData = { ...updates, updated_at: new Date().toISOString() };
 
-    await offlineUpdate<Client>(
-      'clients',
-      id,
-      updateData,
-      async () => {
-        const { data, error } = await supabase
-          .from('clients')
-          .update(updateData)
-          .eq('id', id)
-          .select()
-          .single();
-        return { data, error };
-      }
-    );
+    try {
+      await offlineUpdate<Client>(
+        'clients',
+        id,
+        updateData,
+        async () => {
+          const { data, error } = await supabase
+            .from('clients')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
 
-    return this.getClient(id);
+          if (error) throw error;
+          return { data, error };
+        }
+      );
+
+      return this.getClient(id);
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async deleteClient(id: string) {

@@ -1,5 +1,6 @@
 import { supabase, type Product, getCurrentUserCompanyId } from './supabase';
 import { offlineCreate, offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
+import { handleDatabaseError } from './error-handler.service';
 
 export type { Product };
 
@@ -8,39 +9,51 @@ export class ProductsService {
     const company_id = await getCurrentUserCompanyId();
     const productData = { ...product, company_id };
 
-    return await offlineCreate<Product>(
-      'products',
-      productData as any,
-      async () => {
-        const { data, error } = await supabase
-          .from('products')
-          .insert(productData)
-          .select()
-          .single();
-        return { data, error };
-      }
-    );
+    try {
+      return await offlineCreate<Product>(
+        'products',
+        productData as any,
+        async () => {
+          const { data, error } = await supabase
+            .from('products')
+            .insert(productData)
+            .select()
+            .single();
+
+          if (error) throw error;
+          return { data, error };
+        }
+      );
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async updateProduct(id: string, updates: Partial<Product>) {
     const updateData = { ...updates, updated_at: new Date().toISOString() };
 
-    await offlineUpdate<Product>(
-      'products',
-      id,
-      updateData,
-      async () => {
-        const { data, error } = await supabase
-          .from('products')
-          .update(updateData)
-          .eq('id', id)
-          .select()
-          .single();
-        return { data, error };
-      }
-    );
+    try {
+      await offlineUpdate<Product>(
+        'products',
+        id,
+        updateData,
+        async () => {
+          const { data, error } = await supabase
+            .from('products')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .single();
 
-    return this.getProduct(id);
+          if (error) throw error;
+          return { data, error };
+        }
+      );
+
+      return this.getProduct(id);
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async deleteProduct(id: string) {

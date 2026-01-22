@@ -1,4 +1,5 @@
 import { supabase, getCurrentUserCompanyId } from './supabase';
+import { handleDatabaseError } from './error-handler.service';
 
 export interface Category {
   id: string;
@@ -19,27 +20,35 @@ export interface Subcategory {
 
 export class CategoriesService {
   async createCategory(category: { name: string; description?: string }) {
-    const company_id = await getCurrentUserCompanyId();
-    const { data, error } = await supabase
-      .from('categories')
-      .insert({ ...category, company_id })
-      .select()
-      .single();
+    try {
+      const company_id = await getCurrentUserCompanyId();
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({ ...category, company_id })
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data as Category;
+      if (error) throw error;
+      return data as Category;
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async updateCategory(id: string, updates: { name?: string; description?: string }) {
-    const { data, error } = await supabase
-      .from('categories')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data as Category;
+      if (error) throw error;
+      return data as Category;
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async deleteCategory(id: string) {
@@ -79,27 +88,35 @@ export class CategoriesService {
   }
 
   async createSubcategory(subcategory: { category_id: string; name: string; description?: string }) {
-    const company_id = await getCurrentUserCompanyId();
-    const { data, error } = await supabase
-      .from('subcategories')
-      .insert({ ...subcategory, company_id })
-      .select()
-      .single();
+    try {
+      const company_id = await getCurrentUserCompanyId();
+      const { data, error } = await supabase
+        .from('subcategories')
+        .insert({ ...subcategory, company_id })
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data as Subcategory;
+      if (error) throw error;
+      return data as Subcategory;
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async updateSubcategory(id: string, updates: { name?: string; description?: string; category_id?: string }) {
-    const { data, error } = await supabase
-      .from('subcategories')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('subcategories')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data as Subcategory;
+      if (error) throw error;
+      return data as Subcategory;
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async deleteSubcategory(id: string) {

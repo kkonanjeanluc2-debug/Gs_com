@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { offlineCreate, offlineUpdate, offlineDelete, offlineQuery } from './offline-wrapper.service';
+import { handleDatabaseError } from './error-handler.service';
 
 export interface Supplier {
   id: string;
@@ -92,37 +93,49 @@ class SuppliersService {
       company_id: profile.company_id,
     };
 
-    return await offlineCreate<Supplier>(
-      'suppliers',
-      dataToInsert as any,
-      async () => {
-        const { data, error } = await supabase
-          .from('suppliers')
-          .insert(dataToInsert)
-          .select()
-          .single();
-        return { data, error };
-      }
-    );
+    try {
+      return await offlineCreate<Supplier>(
+        'suppliers',
+        dataToInsert as any,
+        async () => {
+          const { data, error } = await supabase
+            .from('suppliers')
+            .insert(dataToInsert)
+            .select()
+            .single();
+
+          if (error) throw error;
+          return { data, error };
+        }
+      );
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async updateSupplier(id: string, supplierData: UpdateSupplierData): Promise<Supplier> {
-    await offlineUpdate<Supplier>(
-      'suppliers',
-      id,
-      supplierData,
-      async () => {
-        const { data, error } = await supabase
-          .from('suppliers')
-          .update(supplierData)
-          .eq('id', id)
-          .select()
-          .single();
-        return { data, error };
-      }
-    );
+    try {
+      await offlineUpdate<Supplier>(
+        'suppliers',
+        id,
+        supplierData,
+        async () => {
+          const { data, error } = await supabase
+            .from('suppliers')
+            .update(supplierData)
+            .eq('id', id)
+            .select()
+            .single();
 
-    return this.getSupplier(id);
+          if (error) throw error;
+          return { data, error };
+        }
+      );
+
+      return this.getSupplier(id);
+    } catch (error) {
+      handleDatabaseError(error);
+    }
   }
 
   async deleteSupplier(id: string): Promise<void> {
