@@ -65,9 +65,9 @@ const filteredCompanies = () => {
   let filtered = companies.value;
 
   if (filterStatus.value === 'approved') {
-    filtered = filtered.filter(c => c.approved);
+    filtered = filtered.filter(c => c.is_approved);
   } else if (filterStatus.value === 'pending') {
-    filtered = filtered.filter(c => !c.approved);
+    filtered = filtered.filter(c => !c.is_approved);
   }
 
   if (searchQuery.value) {
@@ -188,7 +188,7 @@ onMounted(() => {
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
-                  v-if="company.approved"
+                  v-if="company.is_approved"
                   class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
                 >
                   Approuvée
@@ -206,7 +206,7 @@ onMounted(() => {
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center gap-3">
                   <button
-                    v-if="!company.approved"
+                    v-if="!company.is_approved"
                     @click="approveCompany(company.id)"
                     class="text-green-600 hover:text-green-900"
                   >
