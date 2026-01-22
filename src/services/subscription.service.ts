@@ -24,8 +24,12 @@ export interface Feature {
 export interface SubscriptionPlan {
   id: string;
   name: string;
+  plan_type: 'basic' | 'professional' | 'premium' | 'enterprise';
+  billing_period: 'monthly' | 'annual';
   duration_days: number;
-  price: number;
+  monthly_price: number;
+  annual_price: number;
+  annual_discount_percent: number;
   description: string;
   is_active: boolean;
   features: Feature[];
@@ -234,10 +238,24 @@ export class SubscriptionService {
     const { data, error } = await supabase
       .from('subscription_plans')
       .select('*')
-      .order('price', { ascending: true });
+      .order('monthly_price', { ascending: true });
 
     if (error) throw error;
     return data || [];
+  }
+
+  async getPlansByType(): Promise<Record<string, SubscriptionPlan[]>> {
+    const plans = await this.getAllSubscriptionPlans();
+    const grouped: Record<string, SubscriptionPlan[]> = {};
+
+    plans.forEach(plan => {
+      if (!grouped[plan.plan_type]) {
+        grouped[plan.plan_type] = [];
+      }
+      grouped[plan.plan_type].push(plan);
+    });
+
+    return grouped;
   }
 
   async createSubscriptionPlan(plan: Omit<SubscriptionPlan, 'id' | 'created_at' | 'features'>): Promise<SubscriptionPlan> {
