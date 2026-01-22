@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { superAdminService, type CompanyWithStats } from '../services/super-admin.service';
+import { superAdminService, type CompanyWithStats, type SubscriptionPlan } from '../services/super-admin.service';
 
 const companies = ref<CompanyWithStats[]>([]);
+const subscriptionPlans = ref<SubscriptionPlan[]>([]);
 const isLoading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
 const filterStatus = ref<'all' | 'approved' | 'pending'>('all');
+const showSubscriptionModal = ref(false);
+const selectedCompany = ref<CompanyWithStats | null>(null);
+const selectedPlanId = ref('');
 
 const loadCompanies = async () => {
   isLoading.value = true;
@@ -18,6 +22,14 @@ const loadCompanies = async () => {
     console.error('Error loading companies:', e);
   } finally {
     isLoading.value = false;
+  }
+};
+
+const loadSubscriptionPlans = async () => {
+  try {
+    subscriptionPlans.value = await superAdminService.getSubscriptionPlans();
+  } catch (e: any) {
+    console.error('Error loading subscription plans:', e);
   }
 };
 
@@ -92,8 +104,61 @@ const formatDate = (dateStr: string) => {
   });
 };
 
+const openSubscriptionModal = (company: CompanyWithStats) => {
+  selectedCompany.value = company;
+  selectedPlanId.value = '';
+  showSubscriptionModal.value = true;
+};
+
+const closeSubscriptionModal = () => {
+  showSubscriptionModal.value = false;
+  selectedCompany.value = null;
+  selectedPlanId.value = '';
+};
+
+const assignSubscription = async () => {
+  if (!selectedCompany.value || !selectedPlanId.value) {
+    alert('Veuillez sélectionner un plan d\'abonnement');
+    return;
+  }
+
+  try {
+    await superAdminService.assignSubscription(selectedCompany.value.id, selectedPlanId.value);
+    alert('Abonnement attribué avec succès');
+    closeSubscriptionModal();
+    await loadCompanies();
+  } catch (e: any) {
+    alert('Erreur: ' + (e.message || 'Impossible d\'attribuer l\'abonnement'));
+  }
+};
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
+};
+
+const getSubscriptionStatusLabel = (status?: string) => {
+  const labels: Record<string, string> = {
+    trial: 'Essai',
+    active: 'Actif',
+    expired: 'Expiré',
+    suspended: 'Suspendu'
+  };
+  return labels[status || ''] || 'Non défini';
+};
+
+const getSubscriptionStatusColor = (status?: string) => {
+  const colors: Record<string, string> = {
+    trial: 'bg-blue-100 text-blue-800',
+    active: 'bg-green-100 text-green-800',
+    expired: 'bg-red-100 text-red-800',
+    suspended: 'bg-gray-100 text-gray-800'
+  };
+  return colors[status || ''] || 'bg-gray-100 text-gray-800';
+};
+
 onMounted(() => {
   loadCompanies();
+  loadSubscriptionPlans();
 });
 </script>
 
@@ -157,6 +222,9 @@ onMounted(() => {
                 Statut
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Abonnement
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Date d'inscription
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -200,6 +268,14 @@ onMounted(() => {
                   En attente
                 </span>
               </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  :class="getSubscriptionStatusColor(company.subscription_status)"
+                  class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                >
+                  {{ getSubscriptionStatusLabel(company.subscription_status) }}
+                </span>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ formatDate(company.created_at) }}
               </td>
@@ -218,6 +294,13 @@ onMounted(() => {
                     class="text-orange-600 hover:text-orange-900"
                   >
                     Révoquer
+                  </button>
+                  <button
+                    @click="openSubscriptionModal(company)"
+                    class="text-blue-600 hover:text-blue-900"
+                    title="Attribuer un abonnement"
+                  >
+                    Abonnement
                   </button>
                   <button
                     @click="deleteCompany(company.id, company.name)"
@@ -250,6 +333,109 @@ onMounted(() => {
         <li>• Tous les utilisateurs, produits, commandes et clients seront définitivement supprimés</li>
         <li>• Une double confirmation est requise pour éviter les suppressions accidentelles</li>
       </ul>
+    </div>
+
+    <div v-if="showSubscriptionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="closeSubscriptionModal">
+      <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-900">
+            Attribuer un abonnement
+          </h3>
+          <button @click="closeSubscriptionModal" class="text-gray-400 hover:text-gray-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div v-if="selectedCompany" class="mb-6">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="flex items-center gap-4">
+              <div v-if="selectedCompany.logo_url" class="flex-shrink-0 h-16 w-16">
+                <img :src="selectedCompany.logo_url" :alt="selectedCompany.name" class="h-16 w-16 rounded-full object-cover" />
+              </div>
+              <div v-else class="flex-shrink-0 h-16 w-16 bg-primary rounded-full flex items-center justify-center">
+                <span class="text-white font-bold text-2xl">{{ selectedCompany.name.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div>
+                <h4 class="text-lg font-semibold text-gray-900">{{ selectedCompany.name }}</h4>
+                <p class="text-sm text-gray-500">{{ selectedCompany.email }}</p>
+                <p class="text-xs text-gray-400 mt-1">
+                  Abonnement actuel:
+                  <span :class="getSubscriptionStatusColor(selectedCompany.subscription_status)" class="px-2 py-0.5 rounded-full">
+                    {{ getSubscriptionStatusLabel(selectedCompany.subscription_status) }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Sélectionnez un plan d'abonnement
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              v-for="plan in subscriptionPlans"
+              :key="plan.id"
+              @click="selectedPlanId = plan.id"
+              :class="[
+                'border-2 rounded-lg p-4 cursor-pointer transition-all',
+                selectedPlanId === plan.id
+                  ? 'border-primary bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              ]"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h5 class="font-semibold text-gray-900">{{ plan.name }}</h5>
+                  <p class="text-xs text-gray-500 mt-1">{{ plan.plan_type }} - {{ plan.billing_period === 'monthly' ? 'Mensuel' : 'Annuel' }}</p>
+                </div>
+                <div
+                  :class="[
+                    'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+                    selectedPlanId === plan.id
+                      ? 'border-primary bg-primary'
+                      : 'border-gray-300'
+                  ]"
+                >
+                  <svg v-if="selectedPlanId === plan.id" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <div class="mt-3">
+                <p class="text-2xl font-bold text-primary">
+                  {{ formatPrice(plan.billing_period === 'monthly' ? plan.monthly_price : plan.annual_price) }}
+                </p>
+                <p class="text-xs text-gray-500">{{ plan.duration_days }} jours</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end">
+          <button
+            @click="closeSubscriptionModal"
+            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            Annuler
+          </button>
+          <button
+            @click="assignSubscription"
+            :disabled="!selectedPlanId"
+            :class="[
+              'px-6 py-2 rounded-lg text-white transition-colors',
+              selectedPlanId
+                ? 'bg-primary hover:bg-blue-700'
+                : 'bg-gray-300 cursor-not-allowed'
+            ]"
+          >
+            Attribuer l'abonnement
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

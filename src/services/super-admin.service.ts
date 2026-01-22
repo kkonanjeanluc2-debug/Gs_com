@@ -24,6 +24,17 @@ export interface SuperAdminStats {
   monthly_revenue: number;
 }
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  plan_type: string;
+  billing_period: string;
+  monthly_price: number;
+  annual_price: number;
+  duration_days: number;
+  is_active: boolean;
+}
+
 export class SuperAdminService {
   async getAllCompanies(): Promise<CompanyWithStats[]> {
     const { data, error } = await supabase.rpc('get_all_companies');
@@ -67,6 +78,42 @@ export class SuperAdminService {
       .maybeSingle();
 
     return profile?.role === 'super_admin';
+  }
+
+  async getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+    const { data, error } = await supabase
+      .from('subscription_plans')
+      .select('*')
+      .eq('is_active', true)
+      .order('monthly_price');
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  async assignSubscription(companyId: string, planId: string): Promise<void> {
+    const { data: plan, error: planError } = await supabase
+      .from('subscription_plans')
+      .select('duration_days')
+      .eq('id', planId)
+      .maybeSingle();
+
+    if (planError) throw planError;
+    if (!plan) throw new Error('Plan not found');
+
+    const subscriptionEndDate = new Date();
+    subscriptionEndDate.setDate(subscriptionEndDate.getDate() + plan.duration_days);
+
+    const { error } = await supabase
+      .from('companies')
+      .update({
+        subscription_status: 'active',
+        subscription_end_date: subscriptionEndDate.toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', companyId);
+
+    if (error) throw error;
   }
 
   async getSuperAdminStats(): Promise<SuperAdminStats> {
