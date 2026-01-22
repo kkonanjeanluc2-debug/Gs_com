@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import type { Profile } from '../services/supabase';
 import { authService } from '../services/auth';
 import { ordersService } from '../services/orders.service';
+import { featuresService, FEATURE_CODES } from '../services/features.service';
 import DashboardView from './DashboardView.vue';
 import ReportForm from './ReportForm.vue';
 import ReportList from './ReportList.vue';
@@ -51,6 +52,7 @@ const pendingOrdersCount = ref(0);
 const mobileMenuOpen = ref(false);
 const sidebarCollapsed = ref(false);
 const currentCompany = ref<Company | null>(null);
+const companyFeatures = ref<Set<string>>(new Set());
 
 const canManageStock = computed(() => {
   return ['admin', 'superviseur'].includes(props.profile.role);
@@ -76,27 +78,140 @@ const isSuperAdmin = computed(() => {
   return props.profile.role === 'super_admin';
 });
 
+const hasFeature = (featureCode: string): boolean => {
+  if (isSuperAdmin.value) return true;
+  return companyFeatures.value.has(featureCode);
+};
+
 const tabs = computed(() => {
   const allTabs = [
     { id: 'dashboard', label: 'Tableau de bord', icon: 'chart', badge: 0 },
-    { id: 'reports', label: 'Rapports', icon: 'document', visible: !isSuperAdmin.value, badge: 0 },
-    { id: 'clients', label: 'CRM', icon: 'users', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'tracking', label: 'Suivi GPS', icon: 'location', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'visit-history', label: 'Historique Visites', icon: 'chart', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'orders', label: 'Commandes clients', icon: 'cart', visible: canManageClients.value && !isSuperAdmin.value, badge: pendingOrdersCount.value },
-    { id: 'sales', label: 'Ventes', icon: 'receipt', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'invoices', label: 'Factures', icon: 'document-text', visible: canManageClients.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'stock', label: 'Stock', icon: 'box', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'stock-movements', label: 'Mouvements de Stock', icon: 'refresh', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'categories', label: 'Catégories', icon: 'folder', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'suppliers', label: 'Fournisseurs', icon: 'truck', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'purchases', label: 'Commandes fournisseurs', icon: 'shopping-bags', visible: canManageStock.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'users', label: 'Utilisateurs', icon: 'user', visible: canManageUsers.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'subscription-plans', label: 'Mon Abonnement', icon: 'credit-card', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'company', label: 'Entreprise', icon: 'building', visible: isAdmin.value && !isSuperAdmin.value, badge: 0 },
-    { id: 'companies', label: 'Entreprises', icon: 'buildings', visible: isSuperAdmin.value, badge: 0 },
-    { id: 'subscriptions', label: 'Plans & Fonctionnalités', icon: 'credit-card', visible: isSuperAdmin.value, badge: 0 },
-    { id: 'settings', label: 'Paramètres', icon: 'settings', visible: isSuperAdmin.value, badge: 0 },
+    {
+      id: 'reports',
+      label: 'Rapports',
+      icon: 'document',
+      visible: !isSuperAdmin.value && hasFeature(FEATURE_CODES.BASIC_REPORTS),
+      badge: 0
+    },
+    {
+      id: 'clients',
+      label: 'CRM',
+      icon: 'users',
+      visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.CLIENT_MANAGEMENT),
+      badge: 0
+    },
+    {
+      id: 'tracking',
+      label: 'Suivi GPS',
+      icon: 'location',
+      visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.COMMERCIAL_TRACKING),
+      badge: 0
+    },
+    {
+      id: 'visit-history',
+      label: 'Historique Visites',
+      icon: 'chart',
+      visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.COMMERCIAL_TRACKING),
+      badge: 0
+    },
+    {
+      id: 'orders',
+      label: 'Commandes clients',
+      icon: 'cart',
+      visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.SALES_MANAGEMENT),
+      badge: pendingOrdersCount.value
+    },
+    {
+      id: 'sales',
+      label: 'Ventes',
+      icon: 'receipt',
+      visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.SALES_MANAGEMENT),
+      badge: 0
+    },
+    {
+      id: 'invoices',
+      label: 'Factures',
+      icon: 'document-text',
+      visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.INVOICING),
+      badge: 0
+    },
+    {
+      id: 'stock',
+      label: 'Stock',
+      icon: 'box',
+      visible: canManageStock.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.PRODUCT_CATALOG),
+      badge: 0
+    },
+    {
+      id: 'stock-movements',
+      label: 'Mouvements de Stock',
+      icon: 'refresh',
+      visible: canManageStock.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.INVENTORY_TRACKING),
+      badge: 0
+    },
+    {
+      id: 'categories',
+      label: 'Catégories',
+      icon: 'folder',
+      visible: canManageStock.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.PRODUCT_CATALOG),
+      badge: 0
+    },
+    {
+      id: 'suppliers',
+      label: 'Fournisseurs',
+      icon: 'truck',
+      visible: canManageStock.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.PURCHASE_MANAGEMENT),
+      badge: 0
+    },
+    {
+      id: 'purchases',
+      label: 'Commandes fournisseurs',
+      icon: 'shopping-bags',
+      visible: canManageStock.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.PURCHASE_MANAGEMENT),
+      badge: 0
+    },
+    {
+      id: 'users',
+      label: 'Utilisateurs',
+      icon: 'user',
+      visible: canManageUsers.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.MULTI_USER),
+      badge: 0
+    },
+    {
+      id: 'subscription-plans',
+      label: 'Mon Abonnement',
+      icon: 'credit-card',
+      visible: isAdmin.value && !isSuperAdmin.value,
+      badge: 0
+    },
+    {
+      id: 'company',
+      label: 'Entreprise',
+      icon: 'building',
+      visible: isAdmin.value && !isSuperAdmin.value,
+      badge: 0
+    },
+    {
+      id: 'companies',
+      label: 'Entreprises',
+      icon: 'buildings',
+      visible: isSuperAdmin.value,
+      badge: 0
+    },
+    {
+      id: 'subscriptions',
+      label: 'Plans & Fonctionnalités',
+      icon: 'credit-card',
+      visible: isSuperAdmin.value,
+      badge: 0
+    },
+    {
+      id: 'settings',
+      label: 'Paramètres',
+      icon: 'settings',
+      visible: isSuperAdmin.value,
+      badge: 0
+    },
   ];
   return allTabs.filter(tab => tab.visible !== false);
 });
@@ -545,9 +660,21 @@ const loadCompanyInfo = async () => {
   }
 };
 
+const loadCompanyFeatures = async () => {
+  try {
+    if (props.profile.role !== 'super_admin') {
+      const features = await featuresService.getCompanyFeatures(props.profile.company_id);
+      companyFeatures.value = new Set(features.map(f => f.feature_code));
+    }
+  } catch (error) {
+    console.error('Error loading company features:', error);
+  }
+};
+
 onMounted(() => {
   loadPendingOrdersCount();
   loadCompanyInfo();
+  loadCompanyFeatures();
 });
 
 loadReports();
