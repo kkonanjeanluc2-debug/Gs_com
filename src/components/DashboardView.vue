@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { analyticsService, type CommercialMonthlyRevenue } from '../services/analytics.service';
 import { companyService, type CompanySettings } from '../services/company.service';
 import { superAdminService, type SuperAdminStats } from '../services/super-admin.service';
@@ -18,6 +18,53 @@ import type {
 const props = defineProps<{
   profile?: Profile;
 }>();
+
+type PeriodType = '1month' | '3months' | '6months' | '12months' | 'custom';
+
+const selectedPeriod = ref<PeriodType>('1month');
+const customStartDate = ref('');
+const customEndDate = ref('');
+const showCustomDatePicker = ref(false);
+
+const getDateRange = (): { startDate: Date; endDate: Date } => {
+  const endDate = new Date();
+  const startDate = new Date();
+
+  if (selectedPeriod.value === 'custom' && customStartDate.value && customEndDate.value) {
+    return {
+      startDate: new Date(customStartDate.value),
+      endDate: new Date(customEndDate.value)
+    };
+  }
+
+  switch (selectedPeriod.value) {
+    case '1month':
+      startDate.setMonth(startDate.getMonth() - 1);
+      break;
+    case '3months':
+      startDate.setMonth(startDate.getMonth() - 3);
+      break;
+    case '6months':
+      startDate.setMonth(startDate.getMonth() - 6);
+      break;
+    case '12months':
+      startDate.setMonth(startDate.getMonth() - 12);
+      break;
+  }
+
+  return { startDate, endDate };
+};
+
+const periodLabel = computed(() => {
+  const labels: Record<PeriodType, string> = {
+    '1month': '1 mois',
+    '3months': '3 mois',
+    '6months': '6 mois',
+    '12months': '12 mois',
+    'custom': 'Personnalisée'
+  };
+  return labels[selectedPeriod.value];
+});
 
 const stats = ref<DashboardStats>({
   totalRevenue: 0,
@@ -119,6 +166,9 @@ const loadDashboardData = async () => {
     if (isSuperAdmin.value) {
       superAdminStats.value = await superAdminService.getSuperAdminStats();
     } else {
+      const { startDate, endDate } = getDateRange();
+      const daysCount = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
       const [
         statsData,
         commercialsData,
@@ -129,13 +179,13 @@ const loadDashboardData = async () => {
         evolutionData,
         settings,
       ] = await Promise.all([
-        analyticsService.getDashboardStats(),
-        analyticsService.getTopCommercials(5),
-        analyticsService.getTopProducts(5),
-        analyticsService.getTopClients(5),
-        analyticsService.getRecentOrders(5),
-        analyticsService.getRecentProspects(5),
-        analyticsService.getSalesEvolution(7),
+        analyticsService.getDashboardStats(startDate, endDate),
+        analyticsService.getTopCommercials(5, startDate, endDate),
+        analyticsService.getTopProducts(5, startDate, endDate),
+        analyticsService.getTopClients(5, startDate, endDate),
+        analyticsService.getRecentOrders(5, startDate, endDate),
+        analyticsService.getRecentProspects(5, startDate, endDate),
+        analyticsService.getSalesEvolution(Math.min(daysCount, 30), startDate, endDate),
         companyService.getSettings(),
       ]);
 
@@ -150,7 +200,7 @@ const loadDashboardData = async () => {
       companySettings.value = settings;
 
       if (isCommercial.value && props.profile?.id) {
-        const revenues = await analyticsService.getCommercialsMonthlyRevenue();
+        const revenues = await analyticsService.getCommercialsMonthlyRevenue(startDate, endDate);
         commercialRevenue.value = revenues.find(r => r.id === props.profile?.id) || null;
       }
     }
@@ -161,6 +211,19 @@ const loadDashboardData = async () => {
   }
 };
 
+const applyCustomPeriod = () => {
+  if (customStartDate.value && customEndDate.value) {
+    showCustomDatePicker.value = false;
+    loadDashboardData();
+  }
+};
+
+watch([selectedPeriod, customStartDate, customEndDate], () => {
+  if (selectedPeriod.value !== 'custom' || (customStartDate.value && customEndDate.value)) {
+    loadDashboardData();
+  }
+});
+
 onMounted(() => {
   loadDashboardData();
 });
@@ -168,6 +231,103 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
+    <div v-if="!isSuperAdmin" class="bg-white rounded-xl shadow-md p-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-700">Période d'analyse</h3>
+          <p class="text-xs text-gray-500 mt-1">Sélectionnez la période pour visualiser les données</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            @click="selectedPeriod = '1month'"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              selectedPeriod === '1month'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]"
+          >
+            1 mois
+          </button>
+          <button
+            @click="selectedPeriod = '3months'"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              selectedPeriod === '3months'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]"
+          >
+            3 mois
+          </button>
+          <button
+            @click="selectedPeriod = '6months'"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              selectedPeriod === '6months'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]"
+          >
+            6 mois
+          </button>
+          <button
+            @click="selectedPeriod = '12months'"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              selectedPeriod === '12months'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]"
+          >
+            12 mois
+          </button>
+          <button
+            @click="showCustomDatePicker = !showCustomDatePicker"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              selectedPeriod === 'custom'
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ]"
+          >
+            <Icon name="calendar" size="w-4 h-4 inline mr-1" />
+            Personnalisée
+          </button>
+        </div>
+      </div>
+
+      <div v-if="showCustomDatePicker" class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-gray-700 mb-1">Date de début</label>
+            <input
+              v-model="customStartDate"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+            />
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-gray-700 mb-1">Date de fin</label>
+            <input
+              v-model="customEndDate"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+            />
+          </div>
+          <div class="flex items-end">
+            <button
+              @click="applyCustomPeriod"
+              :disabled="!customStartDate || !customEndDate"
+              class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            >
+              Appliquer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-if="isLoading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>
@@ -233,18 +393,18 @@ onMounted(() => {
 
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-blue-100 text-sm font-medium">CA mensuel</span>
+            <span class="text-blue-100 text-sm font-medium">Chiffre d'affaires</span>
             <div class="bg-blue-400 bg-opacity-30 p-2 rounded-lg">
               <Icon name="money-bag" size="w-6 h-6" />
             </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ formatCurrency(stats.totalRevenue) }}</div>
-          <div class="text-blue-100 text-xs">FCFA ce mois</div>
+          <div class="text-blue-100 text-xs">FCFA sur {{ periodLabel }}</div>
           <div class="mt-3 flex items-center gap-1 text-sm">
             <span v-if="stats.revenueGrowth > 0" class="text-green-300">↗ +{{ stats.revenueGrowth.toFixed(1) }}%</span>
             <span v-else-if="stats.revenueGrowth < 0" class="text-red-300">↘ {{ stats.revenueGrowth.toFixed(1) }}%</span>
             <span v-else class="text-blue-200">→ 0%</span>
-            <span class="text-blue-200 text-xs">vs mois dernier</span>
+            <span class="text-blue-200 text-xs">vs période précédente</span>
           </div>
         </div>
 
@@ -256,12 +416,12 @@ onMounted(() => {
             </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ stats.totalOrders }}</div>
-          <div class="text-green-100 text-xs">ce mois</div>
+          <div class="text-green-100 text-xs">sur {{ periodLabel }}</div>
           <div class="mt-3 flex items-center gap-1 text-sm">
             <span v-if="stats.ordersGrowth > 0" class="text-green-300">↗ +{{ stats.ordersGrowth.toFixed(1) }}%</span>
             <span v-else-if="stats.ordersGrowth < 0" class="text-red-300">↘ {{ stats.ordersGrowth.toFixed(1) }}%</span>
             <span v-else class="text-green-200">→ 0%</span>
-            <span class="text-green-200 text-xs">vs mois dernier</span>
+            <span class="text-green-200 text-xs">vs période précédente</span>
           </div>
         </div>
 
@@ -273,7 +433,7 @@ onMounted(() => {
             </div>
           </div>
           <div class="text-3xl font-bold mb-1">{{ formatCurrency(commercialCommission) }}</div>
-          <div class="text-teal-100 text-xs">FCFA ce mois ({{ companySettings.commission_rate }}%)</div>
+          <div class="text-teal-100 text-xs">FCFA sur {{ periodLabel }} ({{ companySettings.commission_rate }}%)</div>
           <div class="mt-3 flex items-center gap-1 text-sm">
             <span class="text-teal-200 text-xs">
               CA: {{ formatCurrency(commercialRevenue?.monthly_revenue || 0) }} FCFA
@@ -313,7 +473,7 @@ onMounted(() => {
               </div>
               <div>
                 <h3 class="text-lg font-bold text-gray-800">Meilleurs Commerciaux</h3>
-                <p class="text-xs text-gray-500 mt-1">Top 5 du mois en cours</p>
+                <p class="text-xs text-gray-500 mt-1">Top 5 sur {{ periodLabel }}</p>
               </div>
             </div>
             <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Par CA réalisé</span>
@@ -573,7 +733,7 @@ onMounted(() => {
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-lg font-bold text-gray-800">📈 Évolution des Ventes</h3>
-          <span class="text-xs text-gray-500">7 derniers jours</span>
+          <span class="text-xs text-gray-500">{{ periodLabel }}</span>
         </div>
         <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
           Aucune donnée disponible
