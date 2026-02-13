@@ -9,6 +9,7 @@ const filterPublicFiles = (): Plugin => {
     enforce: 'pre',
     async buildStart() {
       const publicDir = path.resolve(__dirname, 'public')
+      const filesToKeep = ['image.png', 'gescom-logo.png', 'logo-ges-com.png']
       const problematicPatterns = [
         /image copy.*\.png$/,
         /ges-com-logo\.png$/
@@ -17,8 +18,11 @@ const filterPublicFiles = (): Plugin => {
       try {
         const files = fs.readdirSync(publicDir)
         for (const file of files) {
+          if (filesToKeep.includes(file)) {
+            continue
+          }
           const isProblematic = problematicPatterns.some(pattern => pattern.test(file))
-          if (isProblematic && file !== 'image.png') {
+          if (isProblematic) {
             const filePath = path.join(publicDir, file)
             try {
               fs.unlinkSync(filePath)
