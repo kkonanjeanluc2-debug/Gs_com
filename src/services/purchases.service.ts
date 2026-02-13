@@ -11,7 +11,7 @@ export interface PurchaseItem {
   total_price: number;
   product?: {
     name: string;
-    reference: string;
+    sku: string;
   };
   created_at: string;
   updated_at: string;
@@ -102,7 +102,7 @@ class PurchasesService {
         supplier:suppliers(*),
         items:purchase_items(
           *,
-          product:products(name, reference)
+          product:products(name, sku)
         )
       `)
       .eq('id', id)
