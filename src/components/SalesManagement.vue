@@ -5,12 +5,21 @@
         <h2 class="text-2xl font-bold text-gray-900">Gestion des Ventes</h2>
         <p class="text-sm text-gray-500 mt-1">Enregistrez et consultez l'historique des ventes</p>
       </div>
-      <button
-        @click="openNewSaleForm"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Nouvelle Vente
-      </button>
+      <div class="flex gap-2">
+        <button
+          @click="showPendingSalesModal = true"
+          class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2"
+        >
+          <span>⏱️</span>
+          <span>Ventes en attente ({{ pendingSales.length }})</span>
+        </button>
+        <button
+          @click="openNewSaleForm"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Nouvelle Vente
+        </button>
+      </div>
     </div>
 
     <div class="bg-white rounded-lg shadow p-4">
@@ -289,6 +298,14 @@
                   Annuler
                 </button>
                 <button
+                  type="button"
+                  @click="savePendingSale"
+                  class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 flex items-center gap-2"
+                >
+                  <span>⏱️</span>
+                  <span>Mettre en attente</span>
+                </button>
+                <button
                   type="submit"
                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
@@ -481,6 +498,69 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showPendingSalesModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="text-xl font-bold">Ventes en attente</h3>
+          <button @click="showPendingSalesModal = false" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+        </div>
+
+        <div v-if="pendingSales.length === 0" class="text-center py-12 text-gray-500">
+          Aucune vente en attente
+        </div>
+
+        <div v-else class="space-y-4">
+          <div
+            v-for="pendingSale in pendingSales"
+            :key="pendingSale.id"
+            class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors"
+          >
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h4 class="font-semibold text-gray-900">{{ pendingSale.name }}</h4>
+                <p class="text-sm text-gray-600">
+                  Client: {{ pendingSale.client?.name || 'Non spécifié' }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  Créé le {{ new Date(pendingSale.created_at!).toLocaleString('fr-FR') }}
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  @click="restorePendingSale(pendingSale)"
+                  class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                  title="Restaurer"
+                >
+                  Restaurer
+                </button>
+                <button
+                  @click="deletePendingSaleById(pendingSale.id!)"
+                  class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                  title="Supprimer"
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+            <div class="text-sm text-gray-700 mt-2">
+              <span class="font-medium">Articles:</span> {{ pendingSale.sale_data.items?.length || 0 }}
+              <span class="ml-4 font-medium">Montant:</span>
+              {{ calculatePendingSaleTotal(pendingSale).toLocaleString('fr-FR') }} F CFA
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button
+            @click="showPendingSalesModal = false"
+            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -489,6 +569,7 @@ import { ref, onMounted, computed } from 'vue';
 import { salesService, type Sale, type CreateSaleData } from '../services/sales.service';
 import { clientsService, type Client } from '../services/clients.service';
 import { productsService, type Product } from '../services/products.service';
+import { pendingSalesService, type PendingSale } from '../services/pending-sales.service';
 
 interface SaleItemForm {
   product_id: string;
@@ -515,6 +596,9 @@ const productSearchText = ref('');
 const cashReceived = ref(0);
 const counterClient = ref<Client | null>(null);
 const mobileTab = ref<'form' | 'products'>('products');
+const pendingSales = ref<PendingSale[]>([]);
+const showPendingSalesModal = ref(false);
+const currentPendingSaleId = ref<string | null>(null);
 
 const stats = ref({
   total_sales: 0,
@@ -701,6 +785,12 @@ const handleSubmit = async () => {
     };
 
     await salesService.createSale(saleData);
+
+    if (currentPendingSaleId.value) {
+      await pendingSalesService.deletePendingSale(currentPendingSaleId.value);
+      await loadPendingSales();
+    }
+
     await loadSales();
     await loadProducts();
     closeForm();
@@ -724,6 +814,7 @@ const closeForm = () => {
   productSearchText.value = '';
   cashReceived.value = 0;
   error.value = '';
+  currentPendingSaleId.value = null;
 };
 
 const viewSaleDetails = (sale: Sale) => {
@@ -756,9 +847,99 @@ const getPaymentStatusLabel = (status: string) => {
   }
 };
 
+const loadPendingSales = async () => {
+  try {
+    pendingSales.value = await pendingSalesService.getAllPendingSales();
+  } catch (err) {
+    console.error('Error loading pending sales:', err);
+  }
+};
+
+const savePendingSale = async () => {
+  error.value = '';
+
+  if (formData.value.items.length === 0) {
+    error.value = 'Ajoutez au moins un produit avant de mettre en attente';
+    return;
+  }
+
+  const saleName = prompt('Donnez un nom à cette vente en attente (optionnel):');
+
+  try {
+    if (currentPendingSaleId.value) {
+      await pendingSalesService.updatePendingSale(currentPendingSaleId.value, {
+        client_id: formData.value.client_id,
+        sale_data: {
+          items: formData.value.items,
+          payment_method: formData.value.payment_method,
+          payment_status: formData.value.payment_status,
+          notes: formData.value.notes,
+        },
+        name: saleName || undefined,
+      });
+    } else {
+      await pendingSalesService.createPendingSale({
+        client_id: formData.value.client_id,
+        sale_data: {
+          items: formData.value.items,
+          payment_method: formData.value.payment_method,
+          payment_status: formData.value.payment_status,
+          notes: formData.value.notes,
+        },
+        name: saleName || undefined,
+      });
+    }
+
+    await loadPendingSales();
+    closeForm();
+    alert('Vente mise en attente avec succès');
+  } catch (err: any) {
+    console.error('Error saving pending sale:', err);
+    error.value = err.message || 'Erreur lors de la mise en attente';
+  }
+};
+
+const restorePendingSale = (pendingSale: PendingSale) => {
+  formData.value = {
+    client_id: pendingSale.client_id || '',
+    items: pendingSale.sale_data.items || [],
+    payment_method: pendingSale.sale_data.payment_method || 'especes',
+    payment_status: pendingSale.sale_data.payment_status || 'paye',
+    notes: pendingSale.sale_data.notes || '',
+  };
+  currentPendingSaleId.value = pendingSale.id || null;
+  showPendingSalesModal.value = false;
+  showForm.value = true;
+  mobileTab.value = 'form';
+};
+
+const deletePendingSaleById = async (id: string) => {
+  if (!confirm('Voulez-vous vraiment supprimer cette vente en attente ?')) {
+    return;
+  }
+
+  try {
+    await pendingSalesService.deletePendingSale(id);
+    await loadPendingSales();
+  } catch (err) {
+    console.error('Error deleting pending sale:', err);
+    alert('Erreur lors de la suppression');
+  }
+};
+
+const calculatePendingSaleTotal = (pendingSale: PendingSale) => {
+  const items = pendingSale.sale_data.items || [];
+  return items.reduce((sum: number, item: any) => {
+    const total = item.quantity * item.unit_price;
+    const discount = (total * (item.discount_percentage || 0)) / 100;
+    return sum + (total - discount);
+  }, 0);
+};
+
 onMounted(() => {
   loadSales();
   loadClients();
   loadProducts();
+  loadPendingSales();
 });
 </script>
