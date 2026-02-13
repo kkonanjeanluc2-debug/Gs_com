@@ -174,7 +174,6 @@ const loadDashboardData = async () => {
       superAdminStats.value = await superAdminService.getSuperAdminStats();
     } else {
       const { startDate, endDate } = getDateRange();
-      const daysCount = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
       const [
         statsData,
@@ -192,7 +191,7 @@ const loadDashboardData = async () => {
         analyticsService.getTopClients(5, startDate, endDate),
         analyticsService.getRecentOrders(5, startDate, endDate),
         analyticsService.getRecentProspects(5, startDate, endDate),
-        analyticsService.getSalesEvolution(Math.min(daysCount, 30), startDate, endDate),
+        analyticsService.getSalesEvolution(0, startDate, endDate),
         companyService.getSettings(),
       ]);
 
@@ -751,24 +750,24 @@ onMounted(() => {
           Aucune donnée disponible
         </div>
         <div v-else>
-          <div class="flex items-end justify-between gap-2 h-72">
+          <div class="flex items-end justify-between gap-3 h-72">
             <div
-              v-for="day in salesEvolution"
-              :key="day.date"
+              v-for="month in salesEvolution"
+              :key="month.date"
               class="flex-1 flex flex-col items-center justify-end gap-2 group"
             >
               <div class="text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-50 px-2 py-1 rounded whitespace-nowrap">
-                {{ formatCurrency(day.revenue) }} FCFA
+                {{ formatCurrency(month.revenue) }} FCFA
               </div>
               <div
                 class="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-500 cursor-pointer shadow-md"
                 :style="{
-                  height: `${Math.max((day.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 100, 5)}%`,
-                  minHeight: day.revenue > 0 ? '20px' : '4px'
+                  height: `${Math.max((month.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 100, 5)}%`,
+                  minHeight: month.revenue > 0 ? '20px' : '4px'
                 }"
               ></div>
-              <div class="text-xs text-gray-500 text-center font-medium">
-                {{ new Date(day.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) }}
+              <div class="text-xs text-gray-700 text-center font-medium">
+                {{ new Date(month.date).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }) }}
               </div>
             </div>
           </div>
@@ -776,11 +775,11 @@ onMounted(() => {
             <div class="flex items-center justify-between text-sm">
               <div class="text-gray-600">
                 <span class="font-semibold">Total période:</span>
-                <span class="text-blue-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, day) => sum + day.revenue, 0)) }} FCFA</span>
+                <span class="text-blue-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0)) }} FCFA</span>
               </div>
               <div class="text-gray-600">
-                <span class="font-semibold">Moyenne/jour:</span>
-                <span class="text-green-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, day) => sum + day.revenue, 0) / salesEvolution.length) }} FCFA</span>
+                <span class="font-semibold">Moyenne/mois:</span>
+                <span class="text-green-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0) / salesEvolution.length) }} FCFA</span>
               </div>
             </div>
           </div>

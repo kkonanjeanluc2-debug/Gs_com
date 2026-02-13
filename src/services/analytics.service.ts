@@ -385,27 +385,30 @@ export class AnalyticsService {
     const evolutionMap = new Map<string, { revenue: number; orders: number }>();
 
     data?.forEach((order: any) => {
-      const date = new Date(order.created_at).toISOString().split('T')[0];
-      if (!evolutionMap.has(date)) {
-        evolutionMap.set(date, { revenue: 0, orders: 0 });
+      const orderDate = new Date(order.created_at);
+      const monthKey = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!evolutionMap.has(monthKey)) {
+        evolutionMap.set(monthKey, { revenue: 0, orders: 0 });
       }
-      const stats = evolutionMap.get(date)!;
+      const stats = evolutionMap.get(monthKey)!;
       stats.revenue += Number(order.total_amount);
       stats.orders += 1;
     });
 
     const result: SalesEvolution[] = [];
-    const currentDate = new Date(start);
+    const currentDate = new Date(start.getFullYear(), start.getMonth(), 1);
+    const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
 
-    while (currentDate <= end) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      const stats = evolutionMap.get(dateStr) || { revenue: 0, orders: 0 };
+    while (currentDate <= endMonth) {
+      const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      const stats = evolutionMap.get(monthKey) || { revenue: 0, orders: 0 };
       result.push({
-        date: dateStr,
+        date: monthKey + '-01',
         revenue: stats.revenue,
         orders: stats.orders,
       });
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentDate.setMonth(currentDate.getMonth() + 1);
     }
 
     return result;
