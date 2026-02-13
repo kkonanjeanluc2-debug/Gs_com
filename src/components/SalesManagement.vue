@@ -856,46 +856,52 @@ const loadPendingSales = async () => {
 };
 
 const savePendingSale = async () => {
+  console.log('savePendingSale called');
   error.value = '';
 
   if (formData.value.items.length === 0) {
     error.value = 'Ajoutez au moins un produit avant de mettre en attente';
+    alert('Ajoutez au moins un produit avant de mettre en attente');
     return;
   }
 
   const saleName = prompt('Donnez un nom à cette vente en attente (optionnel):');
 
+  if (saleName === null) {
+    return;
+  }
+
   try {
+    console.log('Saving pending sale...');
+    const pendingSaleData = {
+      client_id: formData.value.client_id || null,
+      sale_data: {
+        items: formData.value.items,
+        payment_method: formData.value.payment_method,
+        payment_status: formData.value.payment_status,
+        notes: formData.value.notes,
+      },
+      name: saleName || `Vente en attente ${new Date().toLocaleString('fr-FR')}`,
+    };
+
+    console.log('Pending sale data:', pendingSaleData);
+
     if (currentPendingSaleId.value) {
-      await pendingSalesService.updatePendingSale(currentPendingSaleId.value, {
-        client_id: formData.value.client_id,
-        sale_data: {
-          items: formData.value.items,
-          payment_method: formData.value.payment_method,
-          payment_status: formData.value.payment_status,
-          notes: formData.value.notes,
-        },
-        name: saleName || undefined,
-      });
+      console.log('Updating existing pending sale:', currentPendingSaleId.value);
+      await pendingSalesService.updatePendingSale(currentPendingSaleId.value, pendingSaleData);
     } else {
-      await pendingSalesService.createPendingSale({
-        client_id: formData.value.client_id,
-        sale_data: {
-          items: formData.value.items,
-          payment_method: formData.value.payment_method,
-          payment_status: formData.value.payment_status,
-          notes: formData.value.notes,
-        },
-        name: saleName || undefined,
-      });
+      console.log('Creating new pending sale');
+      await pendingSalesService.createPendingSale(pendingSaleData);
     }
 
+    console.log('Pending sale saved successfully');
     await loadPendingSales();
     closeForm();
     alert('Vente mise en attente avec succès');
   } catch (err: any) {
     console.error('Error saving pending sale:', err);
     error.value = err.message || 'Erreur lors de la mise en attente';
+    alert('Erreur: ' + (err.message || 'Erreur lors de la mise en attente'));
   }
 };
 

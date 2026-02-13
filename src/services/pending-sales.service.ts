@@ -50,7 +50,10 @@ class PendingSalesService {
   }
 
   async createPendingSale(pendingSaleData: CreatePendingSaleData): Promise<PendingSale> {
+    console.log('createPendingSale service called with:', pendingSaleData);
+
     const { data: userData } = await supabase.auth.getUser();
+    console.log('User data:', userData?.user?.id);
     if (!userData?.user) throw new Error('Non authentifié');
 
     const { data: profile } = await supabase
@@ -59,21 +62,29 @@ class PendingSalesService {
       .eq('id', userData.user.id)
       .maybeSingle();
 
+    console.log('Profile data:', profile);
     if (!profile?.company_id) throw new Error('Entreprise non trouvée');
+
+    const insertData = {
+      company_id: profile.company_id,
+      created_by: userData.user.id,
+      client_id: pendingSaleData.client_id || null,
+      sale_data: pendingSaleData.sale_data,
+      name: pendingSaleData.name || `Vente en attente ${new Date().toLocaleString('fr-FR')}`,
+    };
+    console.log('Inserting pending sale:', insertData);
 
     const { data, error } = await supabase
       .from('pending_sales')
-      .insert({
-        company_id: profile.company_id,
-        created_by: userData.user.id,
-        client_id: pendingSaleData.client_id || null,
-        sale_data: pendingSaleData.sale_data,
-        name: pendingSaleData.name || `Vente en attente ${new Date().toLocaleString('fr-FR')}`,
-      })
+      .insert(insertData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+    console.log('Pending sale created:', data);
     return data;
   }
 
