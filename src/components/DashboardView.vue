@@ -739,30 +739,49 @@ onMounted(() => {
 
       <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-bold text-gray-800">📈 Évolution des Ventes</h3>
-          <span class="text-xs text-gray-500">{{ periodLabel }}</span>
+          <div class="flex items-center gap-2">
+            <div class="bg-blue-100 p-2 rounded-lg">
+              <Icon name="chart-bar" size="w-5 h-5" class="text-blue-600" />
+            </div>
+            <h3 class="text-lg font-bold text-gray-800">Évolution du Chiffre d'Affaires</h3>
+          </div>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ periodLabel }}</span>
         </div>
         <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
           Aucune donnée disponible
         </div>
-        <div v-else class="flex items-end justify-between gap-2 h-64">
-          <div
-            v-for="day in salesEvolution"
-            :key="day.date"
-            class="flex-1 flex flex-col items-center justify-end gap-2"
-          >
-            <div class="text-xs font-semibold text-primary">
-              {{ formatCurrency(day.revenue) }}
-            </div>
+        <div v-else>
+          <div class="flex items-end justify-between gap-2 h-72">
             <div
-              class="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-500 hover:from-blue-600 hover:to-blue-500"
-              :style="{
-                height: `${Math.max((day.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 100, 5)}%`,
-                minHeight: day.revenue > 0 ? '20px' : '4px'
-              }"
-            ></div>
-            <div class="text-xs text-gray-500 text-center">
-              {{ new Date(day.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }) }}
+              v-for="day in salesEvolution"
+              :key="day.date"
+              class="flex-1 flex flex-col items-center justify-end gap-2 group"
+            >
+              <div class="text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-50 px-2 py-1 rounded whitespace-nowrap">
+                {{ formatCurrency(day.revenue) }} FCFA
+              </div>
+              <div
+                class="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-500 cursor-pointer shadow-md"
+                :style="{
+                  height: `${Math.max((day.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 100, 5)}%`,
+                  minHeight: day.revenue > 0 ? '20px' : '4px'
+                }"
+              ></div>
+              <div class="text-xs text-gray-500 text-center font-medium">
+                {{ new Date(day.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) }}
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-between text-sm">
+              <div class="text-gray-600">
+                <span class="font-semibold">Total période:</span>
+                <span class="text-blue-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, day) => sum + day.revenue, 0)) }} FCFA</span>
+              </div>
+              <div class="text-gray-600">
+                <span class="font-semibold">Moyenne/jour:</span>
+                <span class="text-green-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, day) => sum + day.revenue, 0) / salesEvolution.length) }} FCFA</span>
+              </div>
             </div>
           </div>
         </div>
