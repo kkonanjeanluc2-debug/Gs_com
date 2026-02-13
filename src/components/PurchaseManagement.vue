@@ -144,9 +144,10 @@ const handleSubmit = async () => {
     await purchasesService.createPurchase(purchaseData);
     await loadPurchases();
     closeForm();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating purchase:', error);
-    alert('Erreur lors de la création de l\'achat');
+    const errorMessage = error?.message || 'Erreur lors de la création de l\'achat';
+    alert(errorMessage);
   } finally {
     loading.value = false;
   }

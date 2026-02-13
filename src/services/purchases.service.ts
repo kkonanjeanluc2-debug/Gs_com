@@ -114,14 +114,23 @@ class PurchasesService {
   }
 
   async createPurchase(purchaseData: CreatePurchaseData): Promise<Purchase> {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('company_id, id')
+      .select('company_id, id, role')
       .eq('id', (await supabase.auth.getUser()).data.user?.id)
       .maybeSingle();
 
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
+      throw new Error(`Erreur de profil: ${profileError.message}`);
+    }
+
     if (!profile?.company_id) {
-      throw new Error('Company not found');
+      throw new Error('Entreprise non trouvée pour votre profil');
+    }
+
+    if (!['admin', 'superviseur'].includes(profile.role)) {
+      throw new Error('Vous n\'avez pas les permissions pour créer des achats');
     }
 
     const totalAmount = purchaseData.items.reduce(
@@ -148,7 +157,10 @@ class PurchasesService {
       .select()
       .single();
 
-    if (purchaseError) throw purchaseError;
+    if (purchaseError) {
+      console.error('Error creating purchase:', purchaseError);
+      throw new Error(`Erreur lors de la création de l'achat: ${purchaseError.message}`);
+    }
 
     const items = purchaseData.items.map(item => ({
       purchase_id: purchase.id,
@@ -162,7 +174,10 @@ class PurchasesService {
       .from('purchase_items')
       .insert(items);
 
-    if (itemsError) throw itemsError;
+    if (itemsError) {
+      console.error('Error creating purchase items:', itemsError);
+      throw new Error(`Erreur lors de l'ajout des articles: ${itemsError.message}`);
+    }
 
     return this.getPurchase(purchase.id);
   }
