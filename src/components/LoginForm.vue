@@ -56,12 +56,21 @@ onMounted(async () => {
       </div>
 
       <div class="text-center mb-8">
+        <div class="mb-6 flex justify-center">
+          <img
+            src="/image.png"
+            alt="Ges-Com Logo"
+            class="h-24 w-auto object-contain"
+            onerror="this.style.display='none'"
+          />
+        </div>
         <h1 class="text-3xl font-bold text-primary mb-2">{{ companyName }}</h1>
         <p class="text-gray-600 mb-4">Connectez-vous pour continuer</p>
         <img
-          :src="companyLogo || '/whatsapp_image_2025-12-31_at_10.55.14.jpeg'"
+          v-if="companyLogo"
+          :src="companyLogo"
           :alt="companyName"
-          class="mx-auto w-full max-w-md h-auto object-contain"
+          class="mx-auto w-full max-w-xs h-auto object-contain mt-4"
         />
       </div>
 
