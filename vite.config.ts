@@ -9,7 +9,7 @@ const filterPublicFiles = (): Plugin => {
     enforce: 'pre',
     async buildStart() {
       const publicDir = path.resolve(__dirname, 'public')
-      const filesToKeep = ['image.png', 'gescom-logo.png', 'logo-ges-com.png']
+      const filesToKeep = ['image.png', 'logo-ges-com.png']
       const problematicPatterns = [
         /image copy.*\.png$/,
         /ges-com-logo\.png$/

@@ -3,8 +3,6 @@ import { ref, onMounted } from 'vue';
 import { authService } from '../services/auth';
 import { companyService } from '../services/company.service';
 
-const gescomLogo = '/gescom-logo.png';
-
 const emit = defineEmits<{
   success: [];
 }>();
@@ -58,14 +56,6 @@ onMounted(async () => {
       </div>
 
       <div class="text-center mb-8">
-        <div class="mb-6 flex justify-center">
-          <img
-            :src="gescomLogo"
-            alt="Ges-Com Logo"
-            class="h-32 w-auto object-contain"
-            @error="(e: Event) => ((e.target as HTMLImageElement).src = '/image.png')"
-          />
-        </div>
         <h1 class="text-3xl font-bold text-primary mb-2">{{ companyName }}</h1>
         <p class="text-gray-600 mb-4">Connectez-vous pour continuer</p>
       </div>

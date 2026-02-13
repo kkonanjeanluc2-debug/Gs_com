@@ -33,11 +33,6 @@
   X-Content-Type-Options: nosniff
   Content-Type: image/jpeg
 
-/ges-com-logo.png
-  Cache-Control: public, max-age=31536000, immutable
-  X-Content-Type-Options: nosniff
-  Content-Type: image/png
-
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache

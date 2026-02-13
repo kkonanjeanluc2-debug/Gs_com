@@ -65,14 +65,6 @@ Cache-Control = "public, max-age=31536000, immutable"
 X-Content-Type-Options = "nosniff"
 Content-Type = "image/jpeg"
 
-[[headers]]
-for = "/ges-com-logo.png"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-X-Content-Type-Options = "nosniff"
-Content-Type = "image/png"
-
 [build]
 command = "npm run build"
 publish = "dist"
