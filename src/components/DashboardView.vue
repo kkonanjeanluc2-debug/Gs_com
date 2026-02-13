@@ -39,16 +39,23 @@ const getDateRange = (): { startDate: Date; endDate: Date } => {
 
   switch (selectedPeriod.value) {
     case '1month':
-      startDate.setMonth(startDate.getMonth() - 1);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
       break;
     case '3months':
-      startDate.setMonth(startDate.getMonth() - 3);
+      startDate.setMonth(startDate.getMonth() - 2);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
       break;
     case '6months':
-      startDate.setMonth(startDate.getMonth() - 6);
+      startDate.setMonth(startDate.getMonth() - 5);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
       break;
     case '12months':
-      startDate.setMonth(startDate.getMonth() - 12);
+      startDate.setMonth(startDate.getMonth() - 11);
+      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
       break;
   }
 
@@ -57,11 +64,11 @@ const getDateRange = (): { startDate: Date; endDate: Date } => {
 
 const periodLabel = computed(() => {
   const labels: Record<PeriodType, string> = {
-    '1month': '1 mois',
-    '3months': '3 mois',
-    '6months': '6 mois',
-    '12months': '12 mois',
-    'custom': 'Personnalisée'
+    '1month': 'le mois en cours',
+    '3months': 'les 3 derniers mois',
+    '6months': 'les 6 derniers mois',
+    '12months': 'les 12 derniers mois',
+    'custom': 'la période personnalisée'
   };
   return labels[selectedPeriod.value];
 });
@@ -247,7 +254,7 @@ onMounted(() => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             ]"
           >
-            1 mois
+            Mois en cours
           </button>
           <button
             @click="selectedPeriod = '3months'"
