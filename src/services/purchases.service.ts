@@ -190,7 +190,11 @@ class PurchasesService {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error updating purchase:', error);
+      throw new Error(`Erreur lors de la mise à jour de l'achat: ${error.message}`);
+    }
+
     return this.getPurchase(id);
   }
 
@@ -200,7 +204,10 @@ class PurchasesService {
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error deleting purchase:', error);
+      throw new Error(`Erreur lors de la suppression de l'achat: ${error.message}`);
+    }
   }
 
   async completePurchase(id: string): Promise<Purchase> {

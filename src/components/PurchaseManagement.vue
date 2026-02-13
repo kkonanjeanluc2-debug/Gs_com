@@ -154,6 +154,7 @@ const handleSubmit = async () => {
 };
 
 const completePurchase = async (purchase: Purchase) => {
+  console.log('completePurchase called for:', purchase.id);
   if (!confirm('Confirmer la réception de cet achat ? Le stock sera mis à jour automatiquement.')) {
     return;
   }
@@ -162,15 +163,18 @@ const completePurchase = async (purchase: Purchase) => {
     loading.value = true;
     await purchasesService.completePurchase(purchase.id);
     await loadPurchases();
-  } catch (error) {
+    alert('Achat validé avec succès. Le stock a été mis à jour.');
+  } catch (error: any) {
     console.error('Error completing purchase:', error);
-    alert('Erreur lors de la validation de l\'achat');
+    const errorMessage = error?.message || 'Erreur lors de la validation de l\'achat';
+    alert(errorMessage);
   } finally {
     loading.value = false;
   }
 };
 
 const cancelPurchase = async (purchase: Purchase) => {
+  console.log('cancelPurchase called for:', purchase.id);
   if (!confirm('Annuler cet achat ?')) {
     return;
   }
@@ -179,15 +183,18 @@ const cancelPurchase = async (purchase: Purchase) => {
     loading.value = true;
     await purchasesService.cancelPurchase(purchase.id);
     await loadPurchases();
-  } catch (error) {
+    alert('Achat annulé avec succès.');
+  } catch (error: any) {
     console.error('Error cancelling purchase:', error);
-    alert('Erreur lors de l\'annulation de l\'achat');
+    const errorMessage = error?.message || 'Erreur lors de l\'annulation de l\'achat';
+    alert(errorMessage);
   } finally {
     loading.value = false;
   }
 };
 
 const deletePurchase = async (purchase: Purchase) => {
+  console.log('deletePurchase called for:', purchase.id);
   if (!confirm(`Supprimer définitivement l'achat ${purchase.purchase_number} ?`)) {
     return;
   }
@@ -196,27 +203,32 @@ const deletePurchase = async (purchase: Purchase) => {
     loading.value = true;
     await purchasesService.deletePurchase(purchase.id);
     await loadPurchases();
-  } catch (error) {
+    alert('Achat supprimé avec succès.');
+  } catch (error: any) {
     console.error('Error deleting purchase:', error);
-    alert('Erreur lors de la suppression de l\'achat');
+    const errorMessage = error?.message || 'Erreur lors de la suppression de l\'achat';
+    alert(errorMessage);
   } finally {
     loading.value = false;
   }
 };
 
 const viewPurchase = async (purchase: Purchase) => {
+  console.log('viewPurchase called for:', purchase.id);
   try {
     loading.value = true;
     selectedPurchase.value = await purchasesService.getPurchase(purchase.id);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading purchase details:', error);
-    alert('Erreur lors du chargement des détails');
+    const errorMessage = error?.message || 'Erreur lors du chargement des détails';
+    alert(errorMessage);
   } finally {
     loading.value = false;
   }
 };
 
 const printPurchase = async (purchase: Purchase) => {
+  console.log('printPurchase called for:', purchase.id);
   try {
     const fullPurchase = await purchasesService.getPurchase(purchase.id);
     const company = await companiesService.getCurrentCompany();
@@ -354,9 +366,10 @@ const printPurchase = async (purchase: Purchase) => {
         printWindow.print();
       }, 500);
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error printing purchase:', error);
-    alert('Erreur lors de l\'impression');
+    const errorMessage = error?.message || 'Erreur lors de l\'impression';
+    alert(errorMessage);
   }
 };
 
@@ -512,41 +525,46 @@ onMounted(() => {
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex items-center justify-end gap-2">
                   <button
-                    @click="viewPurchase(purchase)"
-                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    type="button"
+                    @click.stop="viewPurchase(purchase)"
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                     title="Voir détails"
                   >
-                    <Icon name="eye" class="w-5 h-5" />
+                    <Icon name="eye" class="w-5 h-5 pointer-events-none" />
                   </button>
                   <button
-                    @click="printPurchase(purchase)"
-                    class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                    type="button"
+                    @click.stop="printPurchase(purchase)"
+                    class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
                     title="Imprimer"
                   >
-                    <Icon name="print" class="w-5 h-5" />
+                    <Icon name="print" class="w-5 h-5 pointer-events-none" />
                   </button>
                   <button
                     v-if="purchase.status === 'pending'"
-                    @click="completePurchase(purchase)"
-                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    type="button"
+                    @click.stop="completePurchase(purchase)"
+                    class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors cursor-pointer"
                     title="Valider réception"
                   >
-                    <Icon name="check" class="w-5 h-5" />
+                    <Icon name="check" class="w-5 h-5 pointer-events-none" />
                   </button>
                   <button
                     v-if="purchase.status === 'pending'"
-                    @click="cancelPurchase(purchase)"
-                    class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                    type="button"
+                    @click.stop="cancelPurchase(purchase)"
+                    class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
                     title="Annuler"
                   >
-                    <Icon name="close" class="w-5 h-5" />
+                    <Icon name="close" class="w-5 h-5 pointer-events-none" />
                   </button>
                   <button
-                    @click="deletePurchase(purchase)"
-                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    type="button"
+                    @click.stop="deletePurchase(purchase)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                     title="Supprimer"
                   >
-                    <Icon name="trash" class="w-5 h-5" />
+                    <Icon name="trash" class="w-5 h-5 pointer-events-none" />
                   </button>
                 </div>
               </td>
