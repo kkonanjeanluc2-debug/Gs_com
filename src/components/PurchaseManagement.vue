@@ -22,7 +22,7 @@ const formData = ref({
   payment_date: undefined as string | undefined,
   payment_reference: '',
   paid_amount: 0,
-  items: [] as { product_id: string; quantity: number; unit_price: number; selling_price: number; showDropdown?: boolean }[],
+  items: [] as { product_id: string; quantity: number; unit_price: number; showDropdown?: boolean }[],
 });
 
 const productSearch = ref<Record<number, string>>({});
@@ -53,7 +53,6 @@ const getFilteredProducts = (index: number) => {
 const selectProduct = (index: number, product: Product) => {
   formData.value.items[index].product_id = product.id;
   formData.value.items[index].unit_price = product.price;
-  formData.value.items[index].selling_price = product.price;
   productSearch.value[index] = product.name;
   formData.value.items[index].showDropdown = false;
 };
@@ -71,7 +70,6 @@ const addProduct = () => {
     product_id: '',
     quantity: 1,
     unit_price: 0,
-    selling_price: 0,
     showDropdown: false,
   });
 };
@@ -121,7 +119,7 @@ const handleSubmit = async () => {
       return;
     }
 
-    if (formData.value.items.some(item => !item.product_id || item.quantity <= 0 || item.unit_price < 0 || item.selling_price < 0)) {
+    if (formData.value.items.some(item => !item.product_id || item.quantity <= 0 || item.unit_price < 0)) {
       alert('Veuillez remplir correctement tous les produits');
       return;
     }
@@ -140,7 +138,6 @@ const handleSubmit = async () => {
         product_id: item.product_id,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        selling_price: item.selling_price,
       })),
     };
 
@@ -318,11 +315,9 @@ const printPurchase = async (purchase: Purchase) => {
         <table>
           <thead>
             <tr>
-              <th style="width: 35%">Désignation</th>
-              <th class="text-right">Qté</th>
-              <th class="text-right">P. Achat</th>
-              <th class="text-right">P. Vente</th>
-              <th class="text-right">Marge</th>
+              <th style="width: 50%">Désignation</th>
+              <th class="text-right">Quantité</th>
+              <th class="text-right">Prix unitaire</th>
               <th class="text-right">Montant</th>
             </tr>
           </thead>
@@ -333,12 +328,8 @@ const printPurchase = async (purchase: Purchase) => {
                   <strong>${item.product?.name}</strong>
                 </td>
                 <td class="text-right">${item.quantity}</td>
-                <td class="text-right">${item.unit_price.toLocaleString('fr-FR')} F</td>
-                <td class="text-right">${item.selling_price.toLocaleString('fr-FR')} F</td>
-                <td class="text-right" style="color: ${item.selling_price > item.unit_price ? '#16a34a' : '#dc2626'}">
-                  ${((item.selling_price - item.unit_price) * item.quantity).toLocaleString('fr-FR')} F
-                </td>
-                <td class="text-right"><strong>${item.total_price.toLocaleString('fr-FR')} F</strong></td>
+                <td class="text-right">${item.unit_price.toLocaleString('fr-FR')} FCFA</td>
+                <td class="text-right"><strong>${item.total_price.toLocaleString('fr-FR')} FCFA</strong></td>
               </tr>
             `).join('')}
           </tbody>
@@ -763,7 +754,7 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-3 gap-3">
+                  <div class="grid grid-cols-2 gap-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
                       <input
@@ -775,7 +766,7 @@ onMounted(() => {
                       />
                     </div>
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Prix d'achat</label>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Prix unitaire</label>
                       <input
                         v-model.number="item.unit_price"
                         type="number"
@@ -785,32 +776,10 @@ onMounted(() => {
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Prix de vente</label>
-                      <input
-                        v-model.number="item.selling_price"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
                   </div>
 
-                  <div class="flex items-center justify-between text-sm">
-                    <div class="text-gray-600">
-                      Total achat: <span class="font-bold text-gray-900">{{ (item.quantity * item.unit_price).toLocaleString('fr-FR') }} FCFA</span>
-                    </div>
-                    <div class="text-gray-600">
-                      Marge: <span
-                        class="font-bold"
-                        :class="item.selling_price > item.unit_price ? 'text-green-600' : 'text-red-600'"
-                      >
-                        {{ ((item.selling_price - item.unit_price) * item.quantity).toLocaleString('fr-FR') }} FCFA
-                        ({{ item.unit_price > 0 ? (((item.selling_price - item.unit_price) / item.unit_price) * 100).toFixed(1) : 0 }}%)
-                      </span>
-                    </div>
+                  <div class="text-sm text-gray-600">
+                    Total: <span class="font-bold text-gray-900">{{ (item.quantity * item.unit_price).toLocaleString('fr-FR') }} FCFA</span>
                   </div>
                 </div>
 
@@ -950,10 +919,8 @@ onMounted(() => {
                 <thead class="bg-gray-50">
                   <tr>
                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Produit</th>
-                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Qté</th>
-                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">P. Achat</th>
-                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">P. Vente</th>
-                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Marge</th>
+                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Quantité</th>
+                    <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Prix unitaire</th>
                     <th class="px-4 py-2 text-right text-sm font-medium text-gray-500">Total</th>
                   </tr>
                 </thead>
@@ -962,12 +929,6 @@ onMounted(() => {
                     <td class="px-4 py-3 text-sm text-gray-900">{{ item.product?.name }}</td>
                     <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ item.quantity }}</td>
                     <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ item.unit_price.toLocaleString('fr-FR') }} F</td>
-                    <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ item.selling_price.toLocaleString('fr-FR') }} F</td>
-                    <td class="px-4 py-3 text-sm text-right"
-                      :class="item.selling_price > item.unit_price ? 'text-green-600 font-medium' : 'text-red-600 font-medium'"
-                    >
-                      {{ ((item.selling_price - item.unit_price) * item.quantity).toLocaleString('fr-FR') }} F
-                    </td>
                     <td class="px-4 py-3 text-sm font-bold text-gray-900 text-right">{{ item.total_price.toLocaleString('fr-FR') }} F</td>
                   </tr>
                 </tbody>
