@@ -52,7 +52,7 @@ const getFilteredProducts = (index: number) => {
 
 const selectProduct = (index: number, product: Product) => {
   formData.value.items[index].product_id = product.id;
-  formData.value.items[index].unit_price = product.price;
+  formData.value.items[index].unit_price = product.purchase_price || 0;
   productSearch.value[index] = product.name;
   formData.value.items[index].showDropdown = false;
 };
@@ -746,7 +746,7 @@ onMounted(() => {
                         class="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
                       >
                         <div class="font-medium">{{ product.name }}</div>
-                        <div class="text-sm text-gray-600">{{ product.price }} F CFA</div>
+                        <div class="text-sm text-gray-600">{{ (product.purchase_price || 0) }} F CFA</div>
                       </button>
                     </div>
                     <div v-if="item.product_id" class="mt-2 px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded border border-blue-200">
