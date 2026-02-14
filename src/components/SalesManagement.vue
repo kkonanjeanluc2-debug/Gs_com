@@ -679,9 +679,17 @@ const loadProducts = async () => {
 const openNewSaleForm = () => {
   showForm.value = true;
   mobileTab.value = 'products';
-  if (counterClient.value) {
-    formData.value.client_id = counterClient.value.id!;
-  }
+  currentPendingSaleId.value = null;
+  formData.value = {
+    client_id: counterClient.value?.id || '',
+    items: [],
+    payment_method: 'especes',
+    payment_status: 'paye',
+    notes: '',
+  };
+  productSearchText.value = '';
+  error.value = '';
+  console.log('openNewSaleForm: currentPendingSaleId reset to null');
 };
 
 const addProductToSale = (product: Product) => {
