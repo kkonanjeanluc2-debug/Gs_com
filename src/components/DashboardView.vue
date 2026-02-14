@@ -167,6 +167,33 @@ const formatDate = (dateStr: string) => {
   });
 };
 
+const generateLinePath = (filled: boolean = true) => {
+  if (salesEvolution.value.length === 0) return '';
+
+  const maxRevenue = Math.max(...salesEvolution.value.map(d => d.revenue), 1);
+  const points = salesEvolution.value.map((month, index) => {
+    const x = (index / (salesEvolution.value.length - 1)) * 100;
+    const y = 100 - (month.revenue / maxRevenue) * 90;
+    return { x, y };
+  });
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1];
+    const curr = points[i];
+    const cpX1 = prev.x + (curr.x - prev.x) / 3;
+    const cpX2 = prev.x + (curr.x - prev.x) * 2 / 3;
+    path += ` C ${cpX1} ${prev.y}, ${cpX2} ${curr.y}, ${curr.x} ${curr.y}`;
+  }
+
+  if (filled) {
+    path += ` L 100 100 L 0 100 Z`;
+  }
+
+  return path;
+};
+
 const loadDashboardData = async () => {
   isLoading.value = true;
   try {
@@ -737,51 +764,88 @@ onMounted(() => {
       </div>
 
       <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-2">
-            <div class="bg-blue-100 p-2 rounded-lg">
-              <Icon name="chart-bar" size="w-5 h-5" class="text-blue-600" />
-            </div>
-            <h3 class="text-lg font-bold text-gray-800">Évolution du Chiffre d'Affaires</h3>
-          </div>
-          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ periodLabel }}</span>
-        </div>
         <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
           Aucune donnée disponible
         </div>
-        <div v-else>
-          <div class="flex items-end justify-between gap-3 h-72">
-            <div
-              v-for="month in salesEvolution"
-              :key="month.date"
-              class="flex-1 flex flex-col items-center justify-end gap-2 group"
-            >
-              <div class="text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-50 px-2 py-1 rounded whitespace-nowrap">
-                {{ formatCurrency(month.revenue) }} FCFA
+        <div v-else class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-medium text-gray-600">
+                  Revenus ({{ selectedPeriod === '12months' ? '12 mois' : periodLabel }})
+                </h3>
+                <div
+                  v-if="stats.revenueGrowth !== 0"
+                  :class="[
+                    'flex items-center gap-1 text-xs font-semibold',
+                    stats.revenueGrowth > 0 ? 'text-green-600' : 'text-red-600'
+                  ]"
+                >
+                  <span>{{ stats.revenueGrowth > 0 ? '↗' : '↘' }}</span>
+                  <span>{{ Math.abs(stats.revenueGrowth).toFixed(0) }}%</span>
+                </div>
               </div>
-              <div
-                class="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all duration-300 hover:from-blue-600 hover:to-blue-500 cursor-pointer shadow-md"
-                :style="{
-                  height: `${Math.max((month.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 100, 5)}%`,
-                  minHeight: month.revenue > 0 ? '20px' : '4px'
-                }"
-              ></div>
-              <div class="text-xs text-gray-700 text-center font-medium">
-                {{ new Date(month.date).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }) }}
+              <div class="text-2xl font-bold text-gray-900">
+                {{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0)) }} F CFA
               </div>
+              <p class="text-xs text-gray-500 mt-1">
+                Total {{ periodLabel }}
+              </p>
             </div>
           </div>
-          <div class="mt-6 pt-4 border-t border-gray-200">
-            <div class="flex items-center justify-between text-sm">
-              <div class="text-gray-600">
-                <span class="font-semibold">Total période:</span>
-                <span class="text-blue-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0)) }} FCFA</span>
-              </div>
-              <div class="text-gray-600">
-                <span class="font-semibold">Moyenne/mois:</span>
-                <span class="text-green-600 font-bold ml-2">{{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0) / salesEvolution.length) }} FCFA</span>
-              </div>
-            </div>
+
+          <div class="relative h-48 mt-6">
+            <svg
+              class="w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+
+              <path
+                v-if="salesEvolution.length > 0"
+                :d="generateLinePath()"
+                fill="url(#lineGradient)"
+                stroke="none"
+              />
+
+              <path
+                v-if="salesEvolution.length > 0"
+                :d="generateLinePath(false)"
+                fill="none"
+                stroke="#3b82f6"
+                stroke-width="0.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+
+              <circle
+                v-for="(month, index) in salesEvolution"
+                :key="month.date"
+                :cx="(index / (salesEvolution.length - 1)) * 100"
+                :cy="100 - (month.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 90"
+                r="1"
+                fill="#3b82f6"
+                class="hover:r-2 transition-all cursor-pointer"
+              >
+                <title>{{ formatCurrency(month.revenue) }} FCFA</title>
+              </circle>
+            </svg>
+          </div>
+
+          <div class="flex justify-between items-center text-xs text-gray-500 px-1">
+            <span
+              v-for="month in salesEvolution.filter((_, i) => i % Math.ceil(salesEvolution.length / 6) === 0)"
+              :key="month.date"
+              class="text-center"
+            >
+              {{ new Date(month.date).toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '') }}
+            </span>
           </div>
         </div>
       </div>
