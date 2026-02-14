@@ -123,7 +123,7 @@ const tabs = computed(() => {
     },
     {
       id: 'sales',
-      label: 'Ventes',
+      label: 'Ventes comptoir',
       icon: 'receipt',
       visible: canManageClients.value && !isSuperAdmin.value && hasFeature(FEATURE_CODES.SALES_MANAGEMENT),
       badge: 0
