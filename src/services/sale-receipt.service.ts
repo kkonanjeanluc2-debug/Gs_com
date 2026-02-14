@@ -2,6 +2,10 @@ import jsPDF from 'jspdf';
 import type { Sale } from './sales.service';
 import type { CompanySettings } from './company.service';
 
+const formatAmount = (amount: number): string => {
+  return Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
+
 export const saleReceiptService = {
   async generateA4Receipt(sale: Sale, company: CompanySettings): Promise<void> {
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -54,7 +58,7 @@ export const saleReceiptService = {
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     pdf.text(`N° Vente: ${sale.sale_number}`, margin, yPos);
-    pdf.text(`Date: ${new Date(sale.created_at!).toLocaleString('fr-FR')}`, pageWidth - margin, yPos, { align: 'right' });
+    pdf.text(`Date: ${new Date(sale.created_at!)}`, pageWidth - margin, yPos, { align: 'right' });
 
     yPos += 8;
     pdf.text(`Client: ${sale.client?.name || 'N/A'}`, margin, yPos);
@@ -93,9 +97,9 @@ export const saleReceiptService = {
 
         pdf.text(lines, margin, yPos);
         pdf.text(item.quantity.toString(), 100, yPos, { align: 'right' });
-        pdf.text(`${item.unit_price.toLocaleString('fr-FR')} F`, 125, yPos, { align: 'right' });
+        pdf.text(`${formatAmount(item.unit_price)} F`, 125, yPos, { align: 'right' });
         pdf.text(`${item.discount_percentage}%`, 145, yPos, { align: 'right' });
-        pdf.text(`${item.subtotal.toLocaleString('fr-FR')} F`, pageWidth - margin, yPos, { align: 'right' });
+        pdf.text(`${formatAmount(item.subtotal)} F`, pageWidth - margin, yPos, { align: 'right' });
 
         yPos += lines.length * 5 + 3;
       }
@@ -110,18 +114,18 @@ export const saleReceiptService = {
 
     if (sale.discount_amount && sale.discount_amount > 0) {
       pdf.text('Total avant remise:', 120, yPos);
-      pdf.text(`${sale.total_amount.toLocaleString('fr-FR')} F CFA`, pageWidth - margin, yPos, { align: 'right' });
+      pdf.text(`${formatAmount(sale.total_amount)} F CFA`, pageWidth - margin, yPos, { align: 'right' });
       yPos += 6;
       pdf.setFont('helvetica', 'normal');
       pdf.text('Remise:', 120, yPos);
-      pdf.text(`-${sale.discount_amount.toLocaleString('fr-FR')} F CFA`, pageWidth - margin, yPos, { align: 'right' });
+      pdf.text(`-${formatAmount(sale.discount_amount)} F CFA`, pageWidth - margin, yPos, { align: 'right' });
       yPos += 6;
       pdf.setFont('helvetica', 'bold');
     }
 
     pdf.setFontSize(12);
     pdf.text('TOTAL À PAYER:', 120, yPos);
-    pdf.text(`${sale.final_amount.toLocaleString('fr-FR')} F CFA`, pageWidth - margin, yPos, { align: 'right' });
+    pdf.text(`${formatAmount(sale.final_amount)} F CFA`, pageWidth - margin, yPos, { align: 'right' });
 
     yPos += 10;
     pdf.setFontSize(10);
@@ -171,9 +175,11 @@ export const saleReceiptService = {
     const margin = 5;
     let yPos = 10;
 
-    pdf.setFontSize(12);
+    pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(company.name, ticketWidth / 2, yPos, { align: 'center' });
+    const companyLines = pdf.splitTextToSize(company.name, ticketWidth - 10);
+    pdf.text(companyLines, ticketWidth / 2, yPos, { align: 'center' });
+    yPos += (companyLines.length - 1) * 4;
 
     yPos += 6;
     pdf.setFontSize(8);
@@ -190,8 +196,9 @@ export const saleReceiptService = {
     }
 
     if (company.email) {
-      pdf.text(`Email: ${company.email}`, ticketWidth / 2, yPos, { align: 'center' });
-      yPos += 4;
+      const emailLines = pdf.splitTextToSize(company.email, ticketWidth - 10);
+      pdf.text(emailLines, ticketWidth / 2, yPos, { align: 'center' });
+      yPos += emailLines.length * 3.5;
     }
 
     yPos += 3;
@@ -209,20 +216,24 @@ export const saleReceiptService = {
     pdf.text(`N° ${sale.sale_number}`, ticketWidth / 2, yPos, { align: 'center' });
 
     yPos += 4;
-    pdf.text(`${new Date(sale.created_at!).toLocaleString('fr-FR')}`, ticketWidth / 2, yPos, { align: 'center' });
+    pdf.text(`${new Date(sale.created_at!)}`, ticketWidth / 2, yPos, { align: 'center' });
 
     yPos += 5;
     pdf.line(margin, yPos, ticketWidth - margin, yPos);
 
     yPos += 5;
-    pdf.text(`Client: ${sale.client?.name || 'N/A'}`, margin, yPos);
+    const clientName = sale.client?.name || 'N/A';
+    const clientLines = pdf.splitTextToSize(`Client: ${clientName}`, ticketWidth - 10);
+    pdf.text(clientLines, margin, yPos);
+    yPos += clientLines.length * 3.5;
 
     if (sale.client?.phone) {
-      yPos += 4;
-      pdf.text(`Tél: ${sale.client.phone}`, margin, yPos);
+      const phoneLines = pdf.splitTextToSize(`Tél: ${sale.client.phone}`, ticketWidth - 10);
+      pdf.text(phoneLines, margin, yPos);
+      yPos += phoneLines.length * 3.5;
     }
 
-    yPos += 5;
+    yPos += 2;
     pdf.line(margin, yPos, ticketWidth - margin, yPos);
 
     yPos += 5;
@@ -239,21 +250,24 @@ export const saleReceiptService = {
     if (sale.sale_items) {
       for (const item of sale.sale_items) {
         const productName = item.product?.name || 'N/A';
-        const lines = pdf.splitTextToSize(productName, ticketWidth - 2 * margin);
+        const lines = pdf.splitTextToSize(productName, ticketWidth - 10);
 
         pdf.text(lines, margin, yPos);
-        yPos += lines.length * 4;
+        yPos += lines.length * 3.5;
 
-        const qtyPrice = `${item.quantity} x ${item.unit_price.toLocaleString('fr-FR')} F`;
-        pdf.text(qtyPrice, margin + 2, yPos);
-
-        if (item.discount_percentage > 0) {
-          pdf.text(`(-${item.discount_percentage}%)`, ticketWidth / 2, yPos, { align: 'center' });
-        }
+        const qtyPrice = `${item.quantity} x ${formatAmount(item.unit_price)} F`;
+        pdf.text(qtyPrice, margin, yPos);
 
         pdf.setFont('helvetica', 'bold');
-        pdf.text(`${item.subtotal.toLocaleString('fr-FR')} F`, ticketWidth - margin, yPos, { align: 'right' });
+        pdf.text(`${formatAmount(item.subtotal)} F`, ticketWidth - margin, yPos, { align: 'right' });
         pdf.setFont('helvetica', 'normal');
+
+        if (item.discount_percentage > 0) {
+          yPos += 3;
+          pdf.setFontSize(7);
+          pdf.text(`Remise: -${item.discount_percentage}%`, margin, yPos);
+          pdf.setFontSize(8);
+        }
 
         yPos += 5;
       }
@@ -267,26 +281,29 @@ export const saleReceiptService = {
     if (sale.discount_amount && sale.discount_amount > 0) {
       pdf.setFontSize(8);
       pdf.text('Sous-total:', margin, yPos);
-      pdf.text(`${sale.total_amount.toLocaleString('fr-FR')} F`, ticketWidth - margin, yPos, { align: 'right' });
+      pdf.text(`${formatAmount(sale.total_amount)} F`, ticketWidth - margin, yPos, { align: 'right' });
       yPos += 4;
       pdf.setFont('helvetica', 'normal');
       pdf.text('Remise:', margin, yPos);
-      pdf.text(`-${sale.discount_amount.toLocaleString('fr-FR')} F`, ticketWidth - margin, yPos, { align: 'right' });
+      pdf.text(`-${formatAmount(sale.discount_amount)} F`, ticketWidth - margin, yPos, { align: 'right' });
       yPos += 5;
       pdf.setFont('helvetica', 'bold');
     }
 
-    pdf.setFontSize(11);
+    pdf.setFontSize(10);
     pdf.text('TOTAL:', margin, yPos);
-    pdf.text(`${sale.final_amount.toLocaleString('fr-FR')} F`, ticketWidth - margin, yPos, { align: 'right' });
+    pdf.text(`${formatAmount(sale.final_amount)} F`, ticketWidth - margin, yPos, { align: 'right' });
 
     yPos += 6;
-    pdf.setFontSize(8);
+    pdf.setFontSize(7);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(`Paiement: ${this.getPaymentMethodLabel(sale.payment_method)}`, margin, yPos);
+    const paymentLines = pdf.splitTextToSize(`Paiement: ${this.getPaymentMethodLabel(sale.payment_method)}`, ticketWidth - 10);
+    pdf.text(paymentLines, margin, yPos);
+    yPos += paymentLines.length * 3;
 
-    yPos += 4;
-    pdf.text(`Statut: ${this.getPaymentStatusLabel(sale.payment_status)}`, margin, yPos);
+    const statusLines = pdf.splitTextToSize(`Statut: ${this.getPaymentStatusLabel(sale.payment_status)}`, ticketWidth - 10);
+    pdf.text(statusLines, margin, yPos);
+    yPos += statusLines.length * 3;
 
     if (sale.notes) {
       yPos += 6;
