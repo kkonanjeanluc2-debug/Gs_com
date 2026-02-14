@@ -81,9 +81,11 @@ const stats = ref<DashboardStats>({
   revenueGrowth: 0,
   ordersGrowth: 0,
   todayRevenue: 0,
+  todayMargin: 0,
 });
 
 const todayRevenue = ref(0);
+const todayMargin = ref(0);
 const topCommercials = ref<TopCommercial[]>([]);
 const topProducts = ref<TopProduct[]>([]);
 const topClients = ref<TopClient[]>([]);
@@ -224,6 +226,7 @@ const loadDashboardData = async () => {
 
       stats.value = statsData;
       todayRevenue.value = statsData.todayRevenue;
+      todayMargin.value = statsData.todayMargin;
       topCommercials.value = commercialsData;
       topProducts.value = productsData;
       topClients.value = clientsData;
@@ -412,7 +415,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
         <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <span class="text-emerald-100 text-sm font-medium">Recette du jour</span>
@@ -422,6 +425,17 @@ onMounted(() => {
           </div>
           <div class="text-3xl font-bold mb-1">{{ formatCurrency(todayRevenue) }}</div>
           <div class="text-emerald-100 text-xs">FCFA aujourd'hui</div>
+        </div>
+
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-amber-100 text-sm font-medium">Marge du jour</span>
+            <div class="bg-amber-400 bg-opacity-30 p-2 rounded-lg">
+              <Icon name="gem" size="w-6 h-6" />
+            </div>
+          </div>
+          <div class="text-3xl font-bold mb-1">{{ formatCurrency(todayMargin) }}</div>
+          <div class="text-amber-100 text-xs">FCFA aujourd'hui</div>
         </div>
 
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">

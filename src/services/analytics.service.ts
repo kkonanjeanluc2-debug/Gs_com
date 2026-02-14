@@ -8,6 +8,7 @@ export interface DashboardStats {
   revenueGrowth: number;
   ordersGrowth: number;
   todayRevenue: number;
+  todayMargin: number;
 }
 
 export interface TopCommercial {
@@ -106,6 +107,7 @@ export class AnalyticsService {
           revenueGrowth: 0,
           ordersGrowth: 0,
           todayRevenue: 0,
+          todayMargin: 0,
         };
       }
 
@@ -117,6 +119,7 @@ export class AnalyticsService {
         revenueGrowth: Number(stats.revenue_growth),
         ordersGrowth: Number(stats.orders_growth),
         todayRevenue: Number(stats.today_revenue),
+        todayMargin: Number(stats.today_margin || 0),
       };
     }
 
@@ -130,6 +133,7 @@ export class AnalyticsService {
         revenueGrowth: 0,
         ordersGrowth: 0,
         todayRevenue: 0,
+        todayMargin: 0,
       };
     }
 
@@ -141,6 +145,7 @@ export class AnalyticsService {
       revenueGrowth: Number(stats.revenue_growth),
       ordersGrowth: Number(stats.orders_growth),
       todayRevenue: Number(stats.today_revenue),
+      todayMargin: Number(stats.today_margin || 0),
     };
   }
 
