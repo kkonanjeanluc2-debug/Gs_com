@@ -497,6 +497,93 @@ onMounted(() => {
         </div>
       </div>
 
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
+          Aucune donnée disponible
+        </div>
+        <div v-else class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-sm font-medium text-gray-600">
+                  Revenus ({{ selectedPeriod === '12months' ? '12 mois' : periodLabel }})
+                </h3>
+                <div
+                  v-if="stats.revenueGrowth !== 0"
+                  :class="[
+                    'flex items-center gap-1 text-xs font-semibold',
+                    stats.revenueGrowth > 0 ? 'text-green-600' : 'text-red-600'
+                  ]"
+                >
+                  <span>{{ stats.revenueGrowth > 0 ? '↗' : '↘' }}</span>
+                  <span>{{ Math.abs(stats.revenueGrowth).toFixed(0) }}%</span>
+                </div>
+              </div>
+              <div class="text-2xl font-bold text-gray-900">
+                {{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0)) }} F CFA
+              </div>
+              <p class="text-xs text-gray-500 mt-1">
+                Total {{ periodLabel }}
+              </p>
+            </div>
+          </div>
+
+          <div class="relative h-48 mt-6">
+            <svg
+              class="w-full h-full"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+
+              <path
+                v-if="salesEvolution.length > 0"
+                :d="generateLinePath()"
+                fill="url(#lineGradient)"
+                stroke="none"
+              />
+
+              <path
+                v-if="salesEvolution.length > 0"
+                :d="generateLinePath(false)"
+                fill="none"
+                stroke="#3b82f6"
+                stroke-width="0.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+
+              <circle
+                v-for="(month, index) in salesEvolution"
+                :key="month.date"
+                :cx="(index / (salesEvolution.length - 1)) * 100"
+                :cy="100 - (month.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 90"
+                r="1"
+                fill="#3b82f6"
+                class="hover:r-2 transition-all cursor-pointer"
+              >
+                <title>{{ formatCurrency(month.revenue) }} FCFA</title>
+              </circle>
+            </svg>
+          </div>
+
+          <div class="flex justify-between items-center text-xs text-gray-500 px-1">
+            <span
+              v-for="month in salesEvolution.filter((_, i) => i % Math.ceil(salesEvolution.length / 6) === 0)"
+              :key="month.date"
+              class="text-center"
+            >
+              {{ new Date(month.date).toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '') }}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div v-if="!isCommercial" class="bg-white rounded-xl shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
@@ -759,93 +846,6 @@ onMounted(() => {
                 </span>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <div v-if="salesEvolution.length === 0" class="text-center py-12 text-gray-500">
-          Aucune donnée disponible
-        </div>
-        <div v-else class="space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="flex items-center gap-2 mb-1">
-                <h3 class="text-sm font-medium text-gray-600">
-                  Revenus ({{ selectedPeriod === '12months' ? '12 mois' : periodLabel }})
-                </h3>
-                <div
-                  v-if="stats.revenueGrowth !== 0"
-                  :class="[
-                    'flex items-center gap-1 text-xs font-semibold',
-                    stats.revenueGrowth > 0 ? 'text-green-600' : 'text-red-600'
-                  ]"
-                >
-                  <span>{{ stats.revenueGrowth > 0 ? '↗' : '↘' }}</span>
-                  <span>{{ Math.abs(stats.revenueGrowth).toFixed(0) }}%</span>
-                </div>
-              </div>
-              <div class="text-2xl font-bold text-gray-900">
-                {{ formatCurrency(salesEvolution.reduce((sum, month) => sum + month.revenue, 0)) }} F CFA
-              </div>
-              <p class="text-xs text-gray-500 mt-1">
-                Total {{ periodLabel }}
-              </p>
-            </div>
-          </div>
-
-          <div class="relative h-48 mt-6">
-            <svg
-              class="w-full h-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
-                  <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
-                </linearGradient>
-              </defs>
-
-              <path
-                v-if="salesEvolution.length > 0"
-                :d="generateLinePath()"
-                fill="url(#lineGradient)"
-                stroke="none"
-              />
-
-              <path
-                v-if="salesEvolution.length > 0"
-                :d="generateLinePath(false)"
-                fill="none"
-                stroke="#3b82f6"
-                stroke-width="0.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-
-              <circle
-                v-for="(month, index) in salesEvolution"
-                :key="month.date"
-                :cx="(index / (salesEvolution.length - 1)) * 100"
-                :cy="100 - (month.revenue / Math.max(...salesEvolution.map(d => d.revenue), 1)) * 90"
-                r="1"
-                fill="#3b82f6"
-                class="hover:r-2 transition-all cursor-pointer"
-              >
-                <title>{{ formatCurrency(month.revenue) }} FCFA</title>
-              </circle>
-            </svg>
-          </div>
-
-          <div class="flex justify-between items-center text-xs text-gray-500 px-1">
-            <span
-              v-for="month in salesEvolution.filter((_, i) => i % Math.ceil(salesEvolution.length / 6) === 0)"
-              :key="month.date"
-              class="text-center"
-            >
-              {{ new Date(month.date).toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '') }}
-            </span>
           </div>
         </div>
       </div>
