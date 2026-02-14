@@ -58,7 +58,7 @@ export const saleReceiptService = {
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
     pdf.text(`N° Vente: ${sale.sale_number}`, margin, yPos);
-    pdf.text(`Date: ${new Date(sale.created_at!)}`, pageWidth - margin, yPos, { align: 'right' });
+    pdf.text(`Date: ${new Date(sale.created_at!).toLocaleString('fr-FR')}`, pageWidth - margin, yPos, { align: 'right' });
 
     yPos += 8;
     pdf.text(`Client: ${sale.client?.name || 'N/A'}`, margin, yPos);
@@ -216,7 +216,7 @@ export const saleReceiptService = {
     pdf.text(`N° ${sale.sale_number}`, ticketWidth / 2, yPos, { align: 'center' });
 
     yPos += 4;
-    pdf.text(`${new Date(sale.created_at!)}`, ticketWidth / 2, yPos, { align: 'center' });
+    pdf.text(`${new Date(sale.created_at!).toLocaleString('fr-FR')}`, ticketWidth / 2, yPos, { align: 'center' });
 
     yPos += 5;
     pdf.line(margin, yPos, ticketWidth - margin, yPos);

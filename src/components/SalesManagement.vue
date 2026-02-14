@@ -443,6 +443,20 @@
                 >
                   👁️
                 </button>
+                <button
+                  @click="printSaleA4(sale)"
+                  class="text-blue-600 hover:text-blue-900 p-1"
+                  title="Imprimer A4"
+                >
+                  📄
+                </button>
+                <button
+                  @click="printSaleTicket(sale)"
+                  class="text-purple-600 hover:text-purple-900 p-1"
+                  title="Imprimer ticket"
+                >
+                  🧾
+                </button>
               </div>
             </td>
           </tr>
@@ -501,7 +515,23 @@
           </table>
         </div>
 
-        <div class="flex gap-2 justify-end">
+        <div class="flex gap-2 justify-between">
+          <div class="flex gap-2">
+            <button
+              @click="printSaleA4(selectedSale)"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            >
+              <span>📄</span>
+              <span>Imprimer A4</span>
+            </button>
+            <button
+              @click="printSaleTicket(selectedSale)"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+            >
+              <span>🧾</span>
+              <span>Imprimer ticket</span>
+            </button>
+          </div>
           <button
             @click="selectedSale = null"
             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -1087,6 +1117,32 @@ const printTicket = async () => {
 const closePrintModal = () => {
   showPrintModal.value = false;
   lastCreatedSale.value = null;
+};
+
+const printSaleA4 = async (sale: Sale) => {
+  if (!company.value) {
+    alert('Impossible de charger les informations de l\'entreprise');
+    return;
+  }
+  try {
+    await saleReceiptService.generateA4Receipt(sale, company.value);
+  } catch (err) {
+    console.error('Error generating A4 receipt:', err);
+    alert('Erreur lors de la génération du reçu A4');
+  }
+};
+
+const printSaleTicket = async (sale: Sale) => {
+  if (!company.value) {
+    alert('Impossible de charger les informations de l\'entreprise');
+    return;
+  }
+  try {
+    await saleReceiptService.generateTicketReceipt(sale, company.value);
+  } catch (err) {
+    console.error('Error generating ticket receipt:', err);
+    alert('Erreur lors de la génération du ticket de caisse');
+  }
 };
 
 onMounted(() => {
