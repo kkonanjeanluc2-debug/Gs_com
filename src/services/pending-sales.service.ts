@@ -77,6 +77,38 @@ class PendingSalesService {
     const { data, error } = await supabase
       .from('pending_sales')
       .insert(insertData)
+      .select(`
+        *,
+        client:clients(id, name, phone, email)
+      `)
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+      throw new Error(`Erreur lors de la création: ${error.message}`);
+    }
+    console.log('Pending sale created:', data);
+    return data;
+  }
+
+  async updatePendingSale(id: string, pendingSaleData: CreatePendingSaleData): Promise<PendingSale> {
+    console.log('updatePendingSale service called with:', id, pendingSaleData);
+
+    const updateData = {
+      client_id: pendingSaleData.client_id || null,
+      sale_data: pendingSaleData.sale_data,
+      name: pendingSaleData.name,
+      updated_at: new Date().toISOString(),
+    };
+    console.log('Updating pending sale with:', updateData);
+
+    const { data, error } = await supabase
+      .from('pending_sales')
+      .update(updateData)
+      .eq('id', id)
       .select()
       .single();
 
@@ -84,24 +116,7 @@ class PendingSalesService {
       console.error('Supabase error:', error);
       throw error;
     }
-    console.log('Pending sale created:', data);
-    return data;
-  }
-
-  async updatePendingSale(id: string, pendingSaleData: CreatePendingSaleData): Promise<PendingSale> {
-    const { data, error } = await supabase
-      .from('pending_sales')
-      .update({
-        client_id: pendingSaleData.client_id || null,
-        sale_data: pendingSaleData.sale_data,
-        name: pendingSaleData.name,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    console.log('Pending sale updated:', data);
     return data;
   }
 

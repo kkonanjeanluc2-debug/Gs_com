@@ -8,16 +8,18 @@
       <div class="flex gap-2">
         <button
           @click="showPendingSalesModal = true"
-          class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2"
+          class="bg-amber-600 text-white px-2 md:px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-1 md:gap-2"
         >
           <span>⏱️</span>
-          <span>Ventes en attente ({{ pendingSales.length }})</span>
+          <span class="hidden md:inline">Ventes en attente</span>
+          <span>({{ pendingSales.length }})</span>
         </button>
         <button
           @click="openNewSaleForm"
           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Nouvelle Vente
+          <span class="hidden md:inline">Nouvelle Vente</span>
+          <span class="md:hidden">+</span>
         </button>
       </div>
     </div>
@@ -865,6 +867,12 @@ const savePendingSale = async () => {
     return;
   }
 
+  if (!formData.value.client_id) {
+    error.value = 'Veuillez sélectionner un client';
+    alert('Veuillez sélectionner un client');
+    return;
+  }
+
   const saleName = prompt('Donnez un nom à cette vente en attente (optionnel):');
 
   if (saleName === null) {
@@ -873,25 +881,36 @@ const savePendingSale = async () => {
 
   try {
     console.log('Saving pending sale...');
+    console.log('Form data:', formData.value);
+
+    const items = formData.value.items.map(item => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      discount_percentage: item.discount_percentage || 0,
+    }));
+
     const pendingSaleData = {
-      client_id: formData.value.client_id || null,
+      client_id: formData.value.client_id,
       sale_data: {
-        items: formData.value.items,
+        items: items,
         payment_method: formData.value.payment_method,
         payment_status: formData.value.payment_status,
-        notes: formData.value.notes,
+        notes: formData.value.notes || '',
       },
       name: saleName || `Vente en attente ${new Date().toLocaleString('fr-FR')}`,
     };
 
     console.log('Pending sale data:', pendingSaleData);
+    console.log('Items count:', items.length);
 
     if (currentPendingSaleId.value) {
       console.log('Updating existing pending sale:', currentPendingSaleId.value);
       await pendingSalesService.updatePendingSale(currentPendingSaleId.value, pendingSaleData);
     } else {
       console.log('Creating new pending sale');
-      await pendingSalesService.createPendingSale(pendingSaleData);
+      const result = await pendingSalesService.createPendingSale(pendingSaleData);
+      console.log('Pending sale created result:', result);
     }
 
     console.log('Pending sale saved successfully');
@@ -900,6 +919,7 @@ const savePendingSale = async () => {
     alert('Vente mise en attente avec succès');
   } catch (err: any) {
     console.error('Error saving pending sale:', err);
+    console.error('Error details:', JSON.stringify(err, null, 2));
     error.value = err.message || 'Erreur lors de la mise en attente';
     alert('Erreur: ' + (err.message || 'Erreur lors de la mise en attente'));
   }
