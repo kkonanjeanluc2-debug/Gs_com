@@ -574,6 +574,49 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showPrintModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-4xl">✓</span>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">Vente enregistrée avec succès</h3>
+          <p class="text-sm text-gray-600">Choisissez le format d'impression du reçu</p>
+        </div>
+
+        <div class="space-y-3">
+          <button
+            @click="printA4"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <span class="text-2xl">📄</span>
+            <div class="text-left">
+              <div class="font-semibold">Imprimer en A4</div>
+              <div class="text-xs text-blue-100">Format standard (210 x 297 mm)</div>
+            </div>
+          </button>
+
+          <button
+            @click="printTicket"
+            class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <span class="text-2xl">🧾</span>
+            <div class="text-left">
+              <div class="font-semibold">Imprimer ticket de caisse</div>
+              <div class="text-xs text-green-100">Format ticket (80 mm)</div>
+            </div>
+          </button>
+
+          <button
+            @click="closePrintModal"
+            class="w-full px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+          >
+            Ne pas imprimer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -583,6 +626,8 @@ import { salesService, type Sale, type CreateSaleData } from '../services/sales.
 import { clientsService, type Client } from '../services/clients.service';
 import { productsService, type Product } from '../services/products.service';
 import { pendingSalesService, type PendingSale } from '../services/pending-sales.service';
+import { saleReceiptService } from '../services/sale-receipt.service';
+import { companyService, type CompanySettings } from '../services/company.service';
 
 interface SaleItemForm {
   product_id: string;
@@ -612,6 +657,9 @@ const mobileTab = ref<'form' | 'products'>('products');
 const pendingSales = ref<PendingSale[]>([]);
 const showPendingSalesModal = ref(false);
 const currentPendingSaleId = ref<string | null>(null);
+const showPrintModal = ref(false);
+const lastCreatedSale = ref<Sale | null>(null);
+const company = ref<CompanySettings | null>(null);
 
 const stats = ref({
   total_sales: 0,
@@ -808,7 +856,7 @@ const handleSubmit = async () => {
       notes: formData.value.notes,
     };
 
-    await salesService.createSale(saleData);
+    const createdSale = await salesService.createSale(saleData);
 
     if (currentPendingSaleId.value) {
       await pendingSalesService.deletePendingSale(currentPendingSaleId.value);
@@ -817,8 +865,15 @@ const handleSubmit = async () => {
 
     await loadSales();
     await loadProducts();
-    closeForm();
-    alert('Vente enregistrée avec succès');
+
+    if (createdSale) {
+      lastCreatedSale.value = sales.value.find(s => s.id === createdSale.id) || createdSale;
+      closeForm();
+      showPrintModal.value = true;
+    } else {
+      closeForm();
+      alert('Vente enregistrée avec succès');
+    }
   } catch (err: any) {
     console.error('Error creating sale:', err);
     error.value = err.message || 'Erreur lors de l\'enregistrement de la vente';
@@ -999,10 +1054,46 @@ const calculatePendingSaleTotal = (pendingSale: PendingSale) => {
   }, 0);
 };
 
+const loadCompany = async () => {
+  try {
+    company.value = await companyService.getSettings();
+  } catch (err) {
+    console.error('Error loading company:', err);
+  }
+};
+
+const printA4 = async () => {
+  if (!lastCreatedSale.value || !company.value) return;
+  try {
+    await saleReceiptService.generateA4Receipt(lastCreatedSale.value, company.value);
+    showPrintModal.value = false;
+  } catch (err) {
+    console.error('Error generating A4 receipt:', err);
+    alert('Erreur lors de la génération du reçu A4');
+  }
+};
+
+const printTicket = async () => {
+  if (!lastCreatedSale.value || !company.value) return;
+  try {
+    await saleReceiptService.generateTicketReceipt(lastCreatedSale.value, company.value);
+    showPrintModal.value = false;
+  } catch (err) {
+    console.error('Error generating ticket receipt:', err);
+    alert('Erreur lors de la génération du ticket de caisse');
+  }
+};
+
+const closePrintModal = () => {
+  showPrintModal.value = false;
+  lastCreatedSale.value = null;
+};
+
 onMounted(() => {
   loadSales();
   loadClients();
   loadProducts();
   loadPendingSales();
+  loadCompany();
 });
 </script>
