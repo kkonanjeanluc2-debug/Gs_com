@@ -113,7 +113,17 @@
       <div class="bg-gray-100 rounded-lg w-full max-w-7xl h-[100vh] md:h-[90vh] flex flex-col">
         <div class="bg-white px-4 md:px-6 py-3 md:py-4 rounded-t-lg border-b border-gray-200">
           <div class="flex justify-between items-center">
-            <h3 class="text-lg md:text-xl font-bold text-gray-800">Nouvelle Vente</h3>
+            <div>
+              <h3 class="text-lg md:text-xl font-bold text-gray-800">
+                {{ currentPendingSaleId ? 'Modifier la vente en attente' : 'Nouvelle Vente' }}
+              </h3>
+              <p v-if="currentPendingSaleId" class="text-xs text-amber-600 mt-1">
+                Mode modification - Cette vente sera mise à jour
+              </p>
+              <p v-else class="text-xs text-blue-600 mt-1">
+                Mode création - Nouvelle vente
+              </p>
+            </div>
             <button @click="closeForm" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
           </div>
 
@@ -305,7 +315,8 @@
                   class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 flex items-center gap-2"
                 >
                   <span>⏱️</span>
-                  <span>Mettre en attente</span>
+                  <span v-if="currentPendingSaleId">Mettre à jour</span>
+                  <span v-else>Mettre en attente</span>
                 </button>
                 <button
                   type="submit"
@@ -677,6 +688,8 @@ const loadProducts = async () => {
 };
 
 const openNewSaleForm = () => {
+  console.log('=== openNewSaleForm ===');
+  console.log('currentPendingSaleId avant reset:', currentPendingSaleId.value);
   showForm.value = true;
   mobileTab.value = 'products';
   currentPendingSaleId.value = null;
@@ -689,7 +702,8 @@ const openNewSaleForm = () => {
   };
   productSearchText.value = '';
   error.value = '';
-  console.log('openNewSaleForm: currentPendingSaleId reset to null');
+  console.log('currentPendingSaleId après reset:', currentPendingSaleId.value);
+  console.log('Nouveau formulaire de vente ouvert (panier vide)');
 };
 
 const addProductToSale = (product: Product) => {
@@ -812,6 +826,8 @@ const handleSubmit = async () => {
 };
 
 const closeForm = () => {
+  console.log('=== closeForm ===');
+  console.log('currentPendingSaleId avant reset:', currentPendingSaleId.value);
   showForm.value = false;
   mobileTab.value = 'products';
   formData.value = {
@@ -825,6 +841,8 @@ const closeForm = () => {
   cashReceived.value = 0;
   error.value = '';
   currentPendingSaleId.value = null;
+  console.log('currentPendingSaleId après reset:', currentPendingSaleId.value);
+  console.log('Formulaire fermé et réinitialisé');
 };
 
 const viewSaleDetails = (sale: Sale) => {
@@ -866,7 +884,8 @@ const loadPendingSales = async () => {
 };
 
 const savePendingSale = async () => {
-  console.log('savePendingSale called');
+  console.log('=== DEBUT savePendingSale ===');
+  console.log('currentPendingSaleId:', currentPendingSaleId.value);
   error.value = '';
 
   if (formData.value.items.length === 0) {
@@ -884,6 +903,7 @@ const savePendingSale = async () => {
   const saleName = prompt('Donnez un nom à cette vente en attente (optionnel):');
 
   if (saleName === null) {
+    console.log('=== ANNULATION savePendingSale (utilisateur a annulé) ===');
     return;
   }
 
@@ -913,19 +933,23 @@ const savePendingSale = async () => {
     console.log('Items count:', items.length);
 
     if (currentPendingSaleId.value) {
-      console.log('Updating existing pending sale:', currentPendingSaleId.value);
+      console.log('MODE: MISE A JOUR de la vente existante:', currentPendingSaleId.value);
       await pendingSalesService.updatePendingSale(currentPendingSaleId.value, pendingSaleData);
+      alert('Vente en attente mise à jour avec succès');
     } else {
-      console.log('Creating new pending sale');
+      console.log('MODE: CREATION d\'une nouvelle vente en attente');
       const result = await pendingSalesService.createPendingSale(pendingSaleData);
       console.log('Pending sale created result:', result);
+      alert('Nouvelle vente mise en attente avec succès');
     }
 
     console.log('Pending sale saved successfully');
     await loadPendingSales();
+    console.log('Nombre de ventes en attente:', pendingSales.value.length);
     closeForm();
-    alert('Vente mise en attente avec succès');
+    console.log('=== FIN savePendingSale (succès) ===');
   } catch (err: any) {
+    console.error('=== ERREUR savePendingSale ===');
     console.error('Error saving pending sale:', err);
     console.error('Error details:', JSON.stringify(err, null, 2));
     error.value = err.message || 'Erreur lors de la mise en attente';
@@ -934,6 +958,9 @@ const savePendingSale = async () => {
 };
 
 const restorePendingSale = (pendingSale: PendingSale) => {
+  console.log('=== restorePendingSale ===');
+  console.log('Restauration de la vente:', pendingSale.name);
+  console.log('ID de la vente:', pendingSale.id);
   formData.value = {
     client_id: pendingSale.client_id || '',
     items: pendingSale.sale_data.items || [],
@@ -942,6 +969,8 @@ const restorePendingSale = (pendingSale: PendingSale) => {
     notes: pendingSale.sale_data.notes || '',
   };
   currentPendingSaleId.value = pendingSale.id || null;
+  console.log('currentPendingSaleId défini à:', currentPendingSaleId.value);
+  console.log('Nombre de produits restaurés:', formData.value.items.length);
   showPendingSalesModal.value = false;
   showForm.value = true;
   mobileTab.value = 'form';
