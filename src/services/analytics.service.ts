@@ -150,7 +150,7 @@ export class AnalyticsService {
     const start = startDate || new Date(new Date().setMonth(new Date().getMonth() - 1));
     const end = endDate || new Date();
 
-    let query = supabase
+    const { data: ordersData, error: ordersError } = await supabase
       .from('orders')
       .select(`
         commercial_id,
@@ -164,13 +164,28 @@ export class AnalyticsService {
       .lte('created_at', end.toISOString())
       .not('commercial_id', 'is', null);
 
-    const { data: fallbackData, error } = await query;
+    if (ordersError) throw ordersError;
 
-    if (error) throw error;
+    const { data: salesData, error: salesError } = await supabase
+      .from('sales')
+      .select(`
+        commercial_id,
+        final_amount,
+        created_at,
+        payment_status,
+        commercial:profiles!sales_commercial_id_fkey(id, full_name, email, photo_url)
+      `)
+      .eq('company_id', company_id)
+      .eq('payment_status', 'paye')
+      .gte('created_at', start.toISOString())
+      .lte('created_at', end.toISOString())
+      .not('commercial_id', 'is', null);
+
+    if (salesError) throw salesError;
 
     const commercialsMap = new Map<string, TopCommercial>();
 
-    fallbackData?.forEach((order: any) => {
+    ordersData?.forEach((order: any) => {
       if (!order.commercial) return;
 
       const id = order.commercial.id;
@@ -190,6 +205,26 @@ export class AnalyticsService {
       commercial.total_orders += 1;
     });
 
+    salesData?.forEach((sale: any) => {
+      if (!sale.commercial) return;
+
+      const id = sale.commercial.id;
+      if (!commercialsMap.has(id)) {
+        commercialsMap.set(id, {
+          id,
+          full_name: sale.commercial.full_name,
+          email: sale.commercial.email,
+          photo_url: sale.commercial.photo_url,
+          total_revenue: 0,
+          total_orders: 0,
+        });
+      }
+
+      const commercial = commercialsMap.get(id)!;
+      commercial.total_revenue += Number(sale.final_amount);
+      commercial.total_orders += 1;
+    });
+
     return Array.from(commercialsMap.values())
       .sort((a, b) => b.total_revenue - a.total_revenue)
       .slice(0, limit);
@@ -201,7 +236,7 @@ export class AnalyticsService {
     const start = startDate || new Date(new Date().setMonth(new Date().getMonth() - 1));
     const end = endDate || new Date();
 
-    const { data: fallbackData, error } = await supabase
+    const { data: orderItemsData, error: orderItemsError } = await supabase
       .from('order_items')
       .select(`
         product_id,
@@ -214,12 +249,47 @@ export class AnalyticsService {
       .gte('order.created_at', start.toISOString())
       .lte('order.created_at', end.toISOString());
 
-    if (error) throw error;
+    if (orderItemsError) throw orderItemsError;
+
+    const { data: saleItemsData, error: saleItemsError } = await supabase
+      .from('sale_items')
+      .select(`
+        product_id,
+        quantity,
+        subtotal,
+        product:products!sale_items_product_id_fkey(id, name, sku, image_url),
+        sale:sales!sale_items_sale_id_fkey(payment_status, created_at)
+      `)
+      .eq('company_id', company_id)
+      .gte('sale.created_at', start.toISOString())
+      .lte('sale.created_at', end.toISOString());
+
+    if (saleItemsError) throw saleItemsError;
 
     const productsMap = new Map<string, TopProduct>();
 
-    fallbackData?.forEach((item: any) => {
+    orderItemsData?.forEach((item: any) => {
       if (!item.product || !item.order || item.order.status !== 'delivered') return;
+
+      const id = item.product.id;
+      if (!productsMap.has(id)) {
+        productsMap.set(id, {
+          id,
+          name: item.product.name,
+          sku: item.product.sku,
+          image_url: item.product.image_url,
+          total_quantity: 0,
+          total_revenue: 0,
+        });
+      }
+
+      const product = productsMap.get(id)!;
+      product.total_quantity += item.quantity;
+      product.total_revenue += Number(item.subtotal);
+    });
+
+    saleItemsData?.forEach((item: any) => {
+      if (!item.product || !item.sale || item.sale.payment_status !== 'paye') return;
 
       const id = item.product.id;
       if (!productsMap.has(id)) {
@@ -371,7 +441,7 @@ export class AnalyticsService {
     const start = startDate || new Date(new Date().setDate(new Date().getDate() - days));
     const end = endDate || new Date();
 
-    const { data, error } = await supabase
+    const { data: ordersData, error: ordersError } = await supabase
       .from('orders')
       .select('total_amount, created_at, status')
       .eq('company_id', company_id)
@@ -380,11 +450,22 @@ export class AnalyticsService {
       .lte('created_at', end.toISOString())
       .order('created_at', { ascending: true });
 
-    if (error) throw error;
+    if (ordersError) throw ordersError;
+
+    const { data: salesData, error: salesError } = await supabase
+      .from('sales')
+      .select('final_amount, created_at, payment_status')
+      .eq('company_id', company_id)
+      .eq('payment_status', 'paye')
+      .gte('created_at', start.toISOString())
+      .lte('created_at', end.toISOString())
+      .order('created_at', { ascending: true });
+
+    if (salesError) throw salesError;
 
     const evolutionMap = new Map<string, { revenue: number; orders: number }>();
 
-    data?.forEach((order: any) => {
+    ordersData?.forEach((order: any) => {
       const orderDate = new Date(order.created_at);
       const monthKey = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
 
@@ -393,6 +474,18 @@ export class AnalyticsService {
       }
       const stats = evolutionMap.get(monthKey)!;
       stats.revenue += Number(order.total_amount);
+      stats.orders += 1;
+    });
+
+    salesData?.forEach((sale: any) => {
+      const saleDate = new Date(sale.created_at);
+      const monthKey = `${saleDate.getFullYear()}-${String(saleDate.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!evolutionMap.has(monthKey)) {
+        evolutionMap.set(monthKey, { revenue: 0, orders: 0 });
+      }
+      const stats = evolutionMap.get(monthKey)!;
+      stats.revenue += Number(sale.final_amount);
       stats.orders += 1;
     });
 
@@ -439,6 +532,17 @@ export class AnalyticsService {
 
     if (ordersError) throw ordersError;
 
+    const { data: sales, error: salesError } = await supabase
+      .from('sales')
+      .select('commercial_id, final_amount, created_at, payment_status')
+      .eq('company_id', company_id)
+      .eq('payment_status', 'paye')
+      .gte('created_at', start.toISOString())
+      .lte('created_at', end.toISOString())
+      .not('commercial_id', 'is', null);
+
+    if (salesError) throw salesError;
+
     const revenueMap = new Map<string, { monthly_revenue: number; monthly_orders: number }>();
 
     orders?.forEach((order: any) => {
@@ -450,6 +554,18 @@ export class AnalyticsService {
 
       const stats = revenueMap.get(order.commercial_id)!;
       stats.monthly_revenue += Number(order.total_paid);
+      stats.monthly_orders += 1;
+    });
+
+    sales?.forEach((sale: any) => {
+      if (!sale.commercial_id) return;
+
+      if (!revenueMap.has(sale.commercial_id)) {
+        revenueMap.set(sale.commercial_id, { monthly_revenue: 0, monthly_orders: 0 });
+      }
+
+      const stats = revenueMap.get(sale.commercial_id)!;
+      stats.monthly_revenue += Number(sale.final_amount);
       stats.monthly_orders += 1;
     });
 
