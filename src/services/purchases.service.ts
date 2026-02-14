@@ -8,6 +8,7 @@ export interface PurchaseItem {
   product_id: string;
   quantity: number;
   unit_price: number;
+  selling_price: number;
   total_price: number;
   product?: {
     name: string;
@@ -51,6 +52,7 @@ export interface CreatePurchaseData {
     product_id: string;
     quantity: number;
     unit_price: number;
+    selling_price: number;
   }[];
 }
 
@@ -167,6 +169,7 @@ class PurchasesService {
       product_id: item.product_id,
       quantity: item.quantity,
       unit_price: item.unit_price,
+      selling_price: item.selling_price,
       total_price: item.quantity * item.unit_price,
     }));
 
@@ -218,7 +221,7 @@ class PurchasesService {
     return this.updatePurchase(id, { status: 'cancelled' });
   }
 
-  async updatePurchaseItems(purchaseId: string, items: { product_id: string; quantity: number; unit_price: number }[]): Promise<void> {
+  async updatePurchaseItems(purchaseId: string, items: { product_id: string; quantity: number; unit_price: number; selling_price: number }[]): Promise<void> {
     await supabase
       .from('purchase_items')
       .delete()
@@ -229,6 +232,7 @@ class PurchasesService {
       product_id: item.product_id,
       quantity: item.quantity,
       unit_price: item.unit_price,
+      selling_price: item.selling_price,
       total_price: item.quantity * item.unit_price,
     }));
 
