@@ -62,6 +62,7 @@ export interface Product {
   description: string | null;
   sku: string;
   price: number;
+  purchase_price?: number;
   stock_quantity: number;
   min_stock: number;
   image_url: string | null;
