@@ -39,7 +39,7 @@ const filterPublicFiles = (): Plugin => {
 }
 
 export default defineConfig({
-  base: '/'
+  base: '/',
   plugins: [vue(), filterPublicFiles()],
   build: {
     rollupOptions: {
